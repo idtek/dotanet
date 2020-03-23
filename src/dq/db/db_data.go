@@ -82,4 +82,18 @@ type DB_GuildInfo struct {
 	Joinlevellimit        int32  `json:"joinlevellimit"`
 	Characters            string `json:"characters"`
 	RequestJoinCharacters string `json:"requestjoincharacters"`
+	Auction               string `json:"auction"`
+}
+
+//公会拍卖物品
+type DB_AuctionInfo struct {
+	Id                int32  `json:"id"`
+	Guildid           int32  `json:"guildid"` //公会ID
+	ItemID            int32  `json:"itemid"`
+	Level             int32  `json:"level"`
+	PriceType         int32  `json:"pricetype"`         //价格类型 1金币 2砖石
+	Price             int32  `json:"price"`             //价格
+	BidderCharacterid int32  `json:"bidderCharacterid"` //竞拍者角色ID
+	Receivecharacters string `json:"receivecharacters"` //参与分红者的ID
+	Remaintime        int32  `json:"remaintime"`        //剩余时间(秒)
 }

@@ -59,7 +59,13 @@
         //创建公会手续费价格类型
         "CreateGuildPriceType":10001,
         //创建公会手续费价格
-        "CreateGuildPrice":500
+        "CreateGuildPrice":500,
+        //拍卖行的物品持续时间
+        "AuctionTime":3600,
+        //拍卖行价格类型
+        "AuctionPriceType":10001,
+        //拍卖行初始价格
+        "AuctionFirstPrice":1
     }
 
 	

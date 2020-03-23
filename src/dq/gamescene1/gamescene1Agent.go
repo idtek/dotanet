@@ -51,6 +51,8 @@ func (a *GameScene1Agent) Init() {
 	gamecore.TeamManagerObj.Init(a)
 	//初始化 交易所信息
 	gamecore.ExchangeManagerObj.Init(a)
+	//初始化公会拍卖信息
+	gamecore.AuctionManagerObj.Init(a)
 	//初始化 公会信息
 	gamecore.GuildManagerObj.Init(a)
 
@@ -204,6 +206,13 @@ func (a *GameScene1Agent) PlayerChangeScene(player *gamecore.Player, doorway con
 }
 func (a *GameScene1Agent) GetPlayerByID(uid int32) *gamecore.Player {
 	player := a.Players.Get(uid)
+	if player == nil {
+		return nil
+	}
+	return player.(*gamecore.Player)
+}
+func (a *GameScene1Agent) GetPlayerByChaID(uid int32) *gamecore.Player {
+	player := a.Characters.Get(uid)
 	if player == nil {
 		return nil
 	}
@@ -1257,6 +1266,10 @@ func (a *GameScene1Agent) OnClose() {
 	gamecore.TeamManagerObj.Close()
 
 	gamecore.GuildManagerObj.Close()
+
+	gamecore.AuctionManagerObj.Close()
+
+	gamecore.ExchangeManagerObj.Close()
 
 	a.wgScene.Wait()
 

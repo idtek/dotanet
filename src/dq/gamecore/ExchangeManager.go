@@ -61,6 +61,7 @@ func (this *ExchangeManager) Init(server ServerInterface) {
 	this.UpdateTimer = timer.AddRepeatCallback(time.Second*10, this.Update)
 }
 func (this *ExchangeManager) Close() {
+	log.Info("----------ExchangeManager Close---------")
 	if this.UpdateTimer != nil {
 		this.UpdateTimer.Cancel()
 		this.UpdateTimer = nil
@@ -166,6 +167,8 @@ func (this *ExchangeManager) BuyExchangeCommodity(data *protomsg.CS_BuyExchangeC
 	getprice := float32(commodity.Price) * ratio
 	if sellplayer != nil && sellplayer.Characterid == commodity.SellerCharacterid && sellplayer.MyMails != nil {
 		sellplayer.MyMails.SellCommodityMail(commodity.PriceType, int32(getprice))
+		
+		
 	} else {
 		mi := Create_SellCommodityMail_Mail(commodity.PriceType, int32(getprice))
 		mi.RecUid = commodity.SellerUid

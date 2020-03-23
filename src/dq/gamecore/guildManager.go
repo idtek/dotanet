@@ -55,6 +55,7 @@ type GuildInfo struct {
 	db.DB_GuildInfo
 	CharactersMap            *utils.BeeMap //公会成员
 	RequestJoinCharactersMap *utils.BeeMap //请求加入公会角色
+	AuctionMap               *utils.BeeMap //正在拍卖的商品
 }
 
 //公会管理器
@@ -370,6 +371,56 @@ func (this *GuildManager) RequestJoinGuild(player *Player, guildid int32) {
 	log.Info("----------RequestJoinGuild--")
 }
 
+//添加公会拍卖装备
+func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel int32, receivecharacters *utils.BeeMap) bool {
+	this.OperateLock.Lock()
+	defer this.OperateLock.Unlock()
+	if receivecharacters == nil {
+		return false
+	}
+
+	guild1 := this.Guilds.Get(guildid)
+	if guild1 == nil {
+		//不存在该公会
+		return false
+	}
+	guild := guild1.(*GuildInfo)
+
+	//------
+	//	Id                int32 `json:"id"`
+	//	Guildid           int32 `json:"guildid"` //公会ID
+	//	ItemID            int32 `json:"itemid"`
+	//	Level             int32 `json:"level"`
+	//	PriceType         int32 `json:"pricetype"`         //价格类型 1金币 2砖石
+	//	Price             int32 `json:"price"`             //价格
+	//	BidderCharacterid int32 `json:"bidderCharacterid"` //竞拍者角色ID
+	//	Receivecharacters int32 `json:"receivecharacters"` //参与分红者的ID
+	//	Remaintime        int32 `json:"remaintime"`        //剩余时间(秒)
+	auctioninfo := &db.DB_AuctionInfo{}
+	auctioninfo.Guildid = guildid
+	auctioninfo.ItemID = itemid
+	auctioninfo.Level = itemlevel
+	auctioninfo.PriceType = int32(conf.Conf.NormalInfo.AuctionPriceType)
+	auctioninfo.Price = int32(conf.Conf.NormalInfo.AuctionFirstPrice)
+	auctioninfo.BidderCharacterid = -1
+	auctioninfo.Remaintime = int32(conf.Conf.NormalInfo.AuctionTime)
+
+	receivecharacter := make([]int32, 0)
+	chaitems := receivecharacters.Items()
+	for _, v := range chaitems {
+		if guild.CharactersMap.Check(v) == true {
+			receivecharacter = append(receivecharacter, v.(int32))
+		}
+	}
+
+	//加入拍卖行
+	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter)
+
+	guild.AuctionMap.Set(auctioninfo.Id, 1)
+
+	return true
+}
+
 //从数据库载入数据
 func (this *GuildManager) LoadDataFromDB() {
 	this.OperateLock.Lock()
@@ -416,6 +467,10 @@ func (this *GuildManager) LoadDataFromDB() {
 
 			guild.RequestJoinCharactersMap.Set(guildchainfo.Characterid, guildchainfo)
 		}
+		auctionmap := utils.GetInt32FromString3(v.Auction, ";")
+		for _, v := range auctionmap {
+			guild.AuctionMap.Set(v, 1)
+		}
 
 		this.Guilds.Set(v.Id, guild)
 	}
@@ -441,6 +496,12 @@ func (this *GuildManager) SaveDBGuildInfo(guild *GuildInfo) {
 	guild.RequestJoinCharacters = ""
 	for _, item := range joinitems {
 		guild.RequestJoinCharacters += strconv.Itoa(int(item.(*GuildCharacterInfo).Characterid)) + ";"
+	}
+
+	auctionitems := guild.AuctionMap.Items()
+	guild.Auction = ""
+	for _, item := range auctionitems {
+		guild.Auction += strconv.Itoa(int(item.(int32))) + ";"
 	}
 
 	db.DbOne.SaveGuild(guild.DB_GuildInfo)

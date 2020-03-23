@@ -268,6 +268,14 @@ func (a *DB) GetExchanges(commoditys *[]DB_PlayerItemTransactionInfo) error {
 	return a.QueryAnything(sqlstr, commoditys)
 }
 
+//获取公会拍卖物品信息
+func (a *DB) GetAuction(commoditys *[]DB_AuctionInfo) error {
+
+	sqlstr := "SELECT * FROM auction"
+
+	return a.QueryAnything(sqlstr, commoditys)
+}
+
 //获取公会信息
 func (a *DB) GetGuilds(commoditys *[]DB_GuildInfo) error {
 
@@ -544,6 +552,7 @@ func (a *DB) SaveGuild(guild DB_GuildInfo) error {
 	datastring["joinlevellimit"] = guild.Joinlevellimit
 	datastring["characters"] = guild.Characters
 	datastring["requestjoincharacters"] = guild.RequestJoinCharacters
+	datastring["auction"] = guild.Auction
 
 	sqlstr := "UPDATE guild SET "
 	count := 0
@@ -591,6 +600,128 @@ func (a *DB) SaveGuild(guild DB_GuildInfo) error {
 	if n == 0 || e != nil {
 		if e != nil {
 			log.Info("guild err %s", e.Error())
+		}
+
+		return tx.Rollback()
+	}
+
+	err1 = tx.Commit()
+	return err1
+}
+
+//创建并保存拍卖行物品Auction
+func (a *DB) CreateAndSaveAuction(mailInfo *DB_AuctionInfo) {
+	_, id := a.CreateAuction()
+	if id < 0 {
+		return
+	}
+
+	mailInfo.Id = id
+
+	a.SaveAuction(*mailInfo)
+}
+
+//创建商品
+func (a *DB) CreateAuction() (error, int32) {
+	tx, _ := a.Mydb.Begin()
+	res, err1 := tx.Exec("INSERT auction (bidderCharacterid) values (?)", -1)
+	n, e := res.RowsAffected()
+	characterid, err2 := res.LastInsertId()
+	if err1 != nil || n == 0 || e != nil || err2 != nil {
+		log.Info("INSERT Auction err")
+		return tx.Rollback(), -1
+	}
+
+	err1 = tx.Commit()
+
+	return err1, int32(characterid)
+}
+
+//删除商品
+func (a *DB) DeleteAuction(id int32) error {
+	tx, _ := a.Mydb.Begin()
+	res, err1 := tx.Exec("DELETE FROM auction WHERE id=" + strconv.Itoa(int(id)))
+	n, e := res.RowsAffected()
+	_, err2 := res.LastInsertId()
+	if err1 != nil || n == 0 || e != nil || err2 != nil {
+		log.Info("DeleteAuction err")
+		return tx.Rollback()
+	}
+
+	err1 = tx.Commit()
+
+	return err1
+}
+
+//保存商品信息
+func (a *DB) SaveAuction(mailInfo DB_AuctionInfo) error {
+	tx, e1 := a.Mydb.Begin()
+
+	for tx == nil || e1 != nil {
+		log.Info("DB_AuctionInfo :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+
+	}
+
+	//要存的数据
+	datastring := make(map[string]interface{})
+	datastring["id"] = mailInfo.Id
+	datastring["guildid"] = mailInfo.Guildid
+	datastring["itemid"] = mailInfo.ItemID
+	datastring["level"] = mailInfo.Level
+	datastring["pricetype"] = mailInfo.PriceType
+	datastring["price"] = mailInfo.Price
+	datastring["bidderCharacterid"] = mailInfo.BidderCharacterid
+	datastring["receivecharacters"] = mailInfo.Receivecharacters
+	datastring["remaintime"] = mailInfo.Remaintime
+
+	sqlstr := "UPDATE auction SET "
+	count := 0
+	for k, v := range datastring {
+
+		switch v.(type) {
+
+		case string:
+			sqlstr += k + "=" + "'" + v.(string) + "'"
+			break
+		case int:
+			sqlstr += k + "=" + strconv.Itoa(v.(int))
+			break
+		case int32:
+			sqlstr += k + "=" + strconv.Itoa(int(v.(int32)))
+			break
+		case int64:
+			sqlstr += k + "=" + strconv.Itoa(int(v.(int64)))
+			break
+		case float64:
+			sqlstr += k + "=" + strconv.FormatFloat(float64(v.(float64)), 'f', 4, 32)
+			break
+		case float32:
+			sqlstr += k + "=" + strconv.FormatFloat(float64(v.(float32)), 'f', 4, 32)
+			break
+		}
+		if count == len(datastring)-1 {
+
+		} else {
+			sqlstr += ","
+		}
+		count++
+
+	}
+	sqlstr += " where id=?"
+
+	//log.Info("SaveCharacter:%s ---%d", sqlstr, playerInfo.Characterid)
+
+	res, err1 := tx.Exec(sqlstr, mailInfo.Id)
+	if err1 != nil {
+		log.Info("err1 %s", err1.Error())
+		return tx.Rollback()
+	}
+	n, e := res.RowsAffected()
+	if n == 0 || e != nil {
+		if e != nil {
+			log.Info("mail err %s", e.Error())
 		}
 
 		return tx.Rollback()

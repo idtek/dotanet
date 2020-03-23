@@ -18,6 +18,7 @@ var (
 
 type ServerInterface interface {
 	GetPlayerByID(id int32) *Player
+	GetPlayerByChaID(id int32) *Player
 }
 
 func PopTeamID() int32 {

@@ -20,12 +20,14 @@ import (
 )
 
 var (
-	GuildPostFileDatas = make(map[interface{}]interface{})
+	GuildPostFileDatas     = make(map[interface{}]interface{})
+	GuildPinLevelFileDatas = make(map[interface{}]interface{})
 )
 
 //场景配置文件
 func LoadGuildFileData() {
 	_, GuildPostFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "Post", (*GuildPostFileData)(nil))
+	_, GuildPinLevelFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "PinLevel", (*GuildPinLevelFileData)(nil))
 
 }
 func GetGuildPostFileData(level int32) *GuildPostFileData {
@@ -47,4 +49,24 @@ type GuildPostFileData struct {
 	NoticeWriteAble             int32  //修改公告的权利 0表示无 1表示有
 	DeletePlayerWriteAble       int32  //踢人的权利 0表示无 1表示有
 	ResponseJoinPlayerWriteAble int32  ////回复玩家申请加入公会的权利 0表示无 1表示有
+}
+
+func GetGuildPinLevelFileData(pinlevel int32) *GuildPinLevelFileData {
+	//log.Info("find unitfile:%d", typeid)
+
+	re := (GuildPinLevelFileDatas[int(pinlevel)])
+	if re == nil {
+		log.Info("not find GuildPinLevelFileDatas:%d", pinlevel)
+		return nil
+	}
+	return (GuildPinLevelFileDatas[int(pinlevel)]).(*GuildPinLevelFileData)
+}
+
+//单位配置文件数据
+type GuildPinLevelFileData struct {
+	//配置文件数据
+	PinLevel  int32   //职位
+	Name      string  //名字
+	Receive   float32 //分成比列
+	UpgradeEx int32   //升级所需要的经验
 }

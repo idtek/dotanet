@@ -182,6 +182,81 @@ func (this *Mails) BuyCommodityMail(itemid int32, level int32) {
 	this.MyMailsInfo.Set(mi.Id, mi)
 }
 
+//拍卖行竞价成功
+func Create_AuctionSucc_Mail(itemid int32, level int32, chaid int32, player *Player) {
+	mi := &MailInfo{}
+	mi.Sendname = "系统"
+	mi.Title = "竞价成功"
+	mi.Content = "恭喜你,你在公会拍卖行成功竞得一商品:"
+	mi.Reward = make([]RewardsConfig, 0)
+	tt := RewardsConfig{ItemType: itemid, Count: 1, Level: level}
+	mi.Reward = append(mi.Reward, tt)
+	rewards, _ := json.Marshal(mi.Reward)
+	mi.Rewardstr = string(rewards)
+	mi.Getstate = 0
+
+	mi.RecUid = 1
+	mi.RecCharacterid = chaid
+	db.DbOne.CreateAndSaveMail(&mi.DB_MailInfo)
+	//在线
+	if player != nil && player.Characterid == chaid && player.MyMails != nil {
+		player.MyMails.MyMailsInfo.Set(mi.Id, mi)
+	} else {
+		db.DbOne.AddMail(chaid, mi.DB_MailInfo.Id)
+	}
+
+}
+
+//拍卖行分红
+func Create_AuctionFenHong_Mail(pricetype int32, price int32, chaid int32, player *Player) {
+	mi := &MailInfo{}
+	mi.Sendname = "系统"
+	mi.Title = "公会道具拍卖分红"
+	mi.Content = "恭喜你,你再公会道具拍卖中获得分红:"
+	mi.Reward = make([]RewardsConfig, 0)
+	tt := RewardsConfig{ItemType: pricetype, Count: price, Level: 1}
+	mi.Reward = append(mi.Reward, tt)
+	rewards, _ := json.Marshal(mi.Reward)
+	mi.Rewardstr = string(rewards)
+	mi.Getstate = 0
+
+	mi.RecUid = 1
+	mi.RecCharacterid = chaid
+	db.DbOne.CreateAndSaveMail(&mi.DB_MailInfo)
+	//在线
+	if player != nil && player.Characterid == chaid && player.MyMails != nil {
+		player.MyMails.MyMailsInfo.Set(mi.Id, mi)
+	} else {
+		db.DbOne.AddMail(chaid, mi.DB_MailInfo.Id)
+	}
+
+}
+
+//拍卖行竞价失败金钱的返回
+func Create_AuctionFail_Mail(pricetype int32, price int32, chaid int32, player *Player) {
+	mi := &MailInfo{}
+	mi.Sendname = "系统"
+	mi.Title = "竞价失败"
+	mi.Content = "很遗憾,你在公会拍卖行的竞价被其他人超过,现将金钱返还给你:"
+	mi.Reward = make([]RewardsConfig, 0)
+	tt := RewardsConfig{ItemType: pricetype, Count: price, Level: 1}
+	mi.Reward = append(mi.Reward, tt)
+	rewards, _ := json.Marshal(mi.Reward)
+	mi.Rewardstr = string(rewards)
+	mi.Getstate = 0
+
+	mi.RecUid = 1
+	mi.RecCharacterid = chaid
+	db.DbOne.CreateAndSaveMail(&mi.DB_MailInfo)
+	//在线
+	if player != nil && player.Characterid == chaid && player.MyMails != nil {
+		player.MyMails.MyMailsInfo.Set(mi.Id, mi)
+	} else {
+		db.DbOne.AddMail(chaid, mi.DB_MailInfo.Id)
+	}
+
+}
+
 //购买商品邮件
 func Create_SellCommodityMail_Mail(pricetype int32, price int32) *MailInfo {
 	mi := &MailInfo{}
