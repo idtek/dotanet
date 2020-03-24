@@ -190,6 +190,7 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 	guild.Joinlevellimit = 1
 	guild.CharactersMap = utils.NewBeeMap()
 	guild.RequestJoinCharactersMap = utils.NewBeeMap()
+	guild.AuctionMap = utils.NewBeeMap()
 	//数据库创建信息获得ID
 	_, id := db.DbOne.CreateGuild(name, guild.Createday)
 	if id < 0 {
@@ -408,7 +409,7 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	receivecharacter := make([]int32, 0)
 	chaitems := receivecharacters.Items()
 	for _, v := range chaitems {
-		if guild.CharactersMap.Check(v) == true {
+		if guild.CharactersMap.Check(v.(int32)) == true {
 			receivecharacter = append(receivecharacter, v.(int32))
 		}
 	}
@@ -416,7 +417,7 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	//加入拍卖行
 	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter)
 
-	guild.AuctionMap.Set(auctioninfo.Id, 1)
+	guild.AuctionMap.Set(auctioninfo.Id, auctioninfo.Id)
 
 	return true
 }
@@ -434,6 +435,7 @@ func (this *GuildManager) LoadDataFromDB() {
 		guild.DB_GuildInfo = v
 		guild.CharactersMap = utils.NewBeeMap()
 		guild.RequestJoinCharactersMap = utils.NewBeeMap()
+		guild.AuctionMap = utils.NewBeeMap()
 
 		//解析公会成员数据
 		allguildids := utils.GetInt32FromString3(v.Characters, ";")
@@ -469,11 +471,68 @@ func (this *GuildManager) LoadDataFromDB() {
 		}
 		auctionmap := utils.GetInt32FromString3(v.Auction, ";")
 		for _, v := range auctionmap {
-			guild.AuctionMap.Set(v, 1)
+			guild.AuctionMap.Set(v, v)
 		}
 
 		this.Guilds.Set(v.Id, guild)
+
 	}
+
+}
+
+//获取公会拍卖物品
+func (this *GuildManager) GetAuctionItems(player *Player) *protomsg.SC_GetAuctionItems {
+	if player == nil || player.MyGuild == nil {
+		return nil
+	}
+	guild1 := this.Guilds.Get(player.MyGuild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		return nil
+	}
+	guild := guild1.(*GuildInfo)
+
+	data := &protomsg.SC_GetAuctionItems{}
+	data.Items = make([]*protomsg.AuctionItem, 0)
+	items := guild.AuctionMap.Items()
+	for _, v := range items {
+		if v == nil {
+			continue
+		}
+		itemone1 := AuctionManagerObj.Commoditys.Get(v.(int32))
+		if itemone1 == nil {
+			continue
+		}
+		itemone := itemone1.(*AuctionInfo)
+
+		d1 := &protomsg.AuctionItem{}
+		d1.ID = itemone.Id
+		d1.ItemID = itemone.ItemID
+		d1.PriceType = itemone.PriceType
+		d1.Price = itemone.Price
+		d1.Level = itemone.Level
+		d1.BidderCharacterName = ""
+		bidderplayer := guild.CharactersMap.Get(itemone.BidderCharacterid)
+		if bidderplayer != nil {
+			d1.BidderCharacterName = bidderplayer.(*GuildCharacterInfo).Name
+		}
+
+		d1.RemainTime = itemone.Remaintime
+
+		d1.ReceivecharactersName = make([]string, 0)
+		for _, v1 := range itemone.ReceiveCharactersMap {
+
+			playerone := guild.CharactersMap.Get(v1)
+			if playerone == nil {
+				continue
+			}
+			d1.ReceivecharactersName = append(d1.ReceivecharactersName, playerone.(*GuildCharacterInfo).Name)
+		}
+
+		data.Items = append(data.Items, d1)
+	}
+
+	return data
 
 }
 

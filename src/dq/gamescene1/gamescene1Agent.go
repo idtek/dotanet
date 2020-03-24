@@ -45,6 +45,16 @@ func (a *GameScene1Agent) GetModeType() string {
 	return ""
 }
 
+func (a *GameScene1Agent) ceshi() {
+	fenhong := utils.NewBeeMap()
+	fenhong.Set(int32(32), int32(32))
+	fenhong.Set(int32(35), int32(35))
+	fenhong.Set(int32(36), int32(36))
+	fenhong.Set(int32(40), int32(40))
+	fenhong.Set(int32(41), int32(41))
+	gamecore.GuildManagerObj.AddAuctionItem(5, 63, 1, fenhong)
+}
+
 func (a *GameScene1Agent) Init() {
 
 	//初始化 组队信息
@@ -55,6 +65,11 @@ func (a *GameScene1Agent) Init() {
 	gamecore.AuctionManagerObj.Init(a)
 	//初始化 公会信息
 	gamecore.GuildManagerObj.Init(a)
+
+	//-------测试--------
+	a.ceshi()
+
+	//----------------
 
 	a.ServerName = datamsg.GameScene1
 
@@ -124,6 +139,8 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetJoinGuildPlayer"] = a.DoGetJoinGuildPlayer
 	a.handles["CS_ResponseJoinGuildPlayer"] = a.DoResponseJoinGuildPlayer
 	a.handles["CS_DeleteGuildPlayer"] = a.DoDeleteGuildPlayer
+	a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
+	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -690,6 +707,47 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 //a.handles["CS_GetJoinGuildPlayer"] = a.DoGetJoinGuildPlayer
 //a.handles["CS_ResponseJoinGuildPlayer"] = a.DoResponseJoinGuildPlayer
 //	a.handles["CS_DeleteGuildPlayer"] = a.DoDeleteGuildPlayer
+//a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
+//	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
+//获取公会拍卖物品
+func (a *GameScene1Agent) DoGetAuctionItems(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetAuctionItems{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	msg := gamecore.GuildManagerObj.GetAuctionItems(player.(*gamecore.Player))
+	if msg != nil {
+		player.(*gamecore.Player).SendMsgToClient("SC_GetAuctionItems", msg)
+	}
+}
+
+//出价
+func (a *GameScene1Agent) DoNewPriceAuctionItem(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_NewPriceAuctionItem{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	gamecore.AuctionManagerObj.NewPrice(h2.Price, h2.ID, player.(*gamecore.Player))
+
+	//重新返回数据
+	msg := gamecore.GuildManagerObj.GetAuctionItems(player.(*gamecore.Player))
+	if msg != nil {
+		player.(*gamecore.Player).SendMsgToClient("SC_GetAuctionItems", msg)
+	}
+}
 func (a *GameScene1Agent) DoDeleteGuildPlayer(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_DeleteGuildPlayer{}
 	err := proto.Unmarshal(data.Datas, h2)

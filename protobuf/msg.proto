@@ -664,3 +664,29 @@ message CS_ResponseJoinGuildPlayer{
 message CS_DeleteGuildPlayer{
     int32 Characterid = 1;
 }
+//获取公会拍卖物品
+message CS_GetAuctionItems{
+    int32 ID = 1;
+}
+
+message SC_GetAuctionItems{
+    repeated AuctionItem Items = 1;//
+}
+
+//公会拍卖物品数据
+message AuctionItem{
+    int32 ID = 1;                       //商品ID
+    int32 ItemID = 2;                   //道具ID
+    int32 PriceType = 3;                //价格类型 1金币 2砖石
+    int32 Price = 4;                    //价格
+    int32 Level = 5;                    //道具等级
+    string BidderCharacterName = 6;     //竞拍者名字
+    repeated string ReceivecharactersName = 7;   //分红的所有人名字
+    int32 RemainTime = 8;//剩余时间
+}
+
+//出价公会拍卖物品
+message CS_NewPriceAuctionItem{
+    int32 ID = 1;                       //商品ID
+    int32 Price = 2;                    //价格
+}

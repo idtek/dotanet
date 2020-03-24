@@ -29,6 +29,12 @@ func LoadGuildFileData() {
 	_, GuildPostFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "Post", (*GuildPostFileData)(nil))
 	_, GuildPinLevelFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "PinLevel", (*GuildPinLevelFileData)(nil))
 
+	for _, v := range GuildPinLevelFileDatas {
+
+		t1 := v.(*GuildPinLevelFileData)
+		log.Info("GuildPinLevelFileDatas:%d  %f  %s  %d", t1.PinLevel, t1.Receive, t1.Name, t1.UpgradeEx)
+	}
+
 }
 func GetGuildPostFileData(level int32) *GuildPostFileData {
 	//log.Info("find unitfile:%d", typeid)
@@ -67,6 +73,6 @@ type GuildPinLevelFileData struct {
 	//配置文件数据
 	PinLevel  int32   //职位
 	Name      string  //名字
-	Receive   float32 //分成比列
+	Receive   float32 //分成比列Receive
 	UpgradeEx int32   //升级所需要的经验
 }

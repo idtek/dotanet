@@ -126,7 +126,7 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 	for _, v := range commodity.ReceiveCharactersMap {
 		one := guild.CharactersMap.Get(v)
 		if one == nil {
-			allchareceive.Set(v, 1)
+			allchareceive.Set(v, float64(1.0))
 			allbilie += 1
 			continue
 		}
@@ -134,20 +134,22 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 		pinleveldata := conf.GetGuildPinLevelFileData(onecha.PinLevel)
 		if pinleveldata == nil {
 			allbilie += 1
-			allchareceive.Set(v, 1)
+			allchareceive.Set(v, float64(1.0))
 			continue
 		}
 		allbilie += float64(pinleveldata.Receive)
-		allchareceive.Set(v, pinleveldata.Receive)
+		allchareceive.Set(v, float64(pinleveldata.Receive))
 	}
 
 	//给分红者分钱
 	for _, v := range commodity.ReceiveCharactersMap {
 		oldplayer := this.Server.GetPlayerByChaID(v)
 		//根据品级来分红
-		huode := float64(allchareceive.Get(v).(float32)) / allbilie
+		huode := allchareceive.Get(v).(float64) / allbilie
+		getmoney := int32(math.Floor((float64(commodity.Price) * huode)))
+		log.Info("--fenhong--%f--%f--%f", allchareceive.Get(v).(float64), allbilie, float64(commodity.Price))
 
-		Create_AuctionFenHong_Mail(commodity.PriceType, int32(math.Floor((float64(commodity.Price) * huode))), v, oldplayer)
+		Create_AuctionFenHong_Mail(commodity.PriceType, getmoney, v, oldplayer)
 	}
 
 	//本地删除该道具
@@ -170,16 +172,20 @@ func (this *AuctionManager) NewPrice(price int32, id int32, player *Player) bool
 	commodity1 := this.Commoditys.Get(id)
 	if commodity1 == nil {
 		//未找到该商品
+		player.SendNoticeWordToClient(33)
 		return false
 	}
 	commodity := commodity1.(*AuctionInfo)
 	if price <= commodity.Price {
 		//报价低于当前价格
+		player.SendNoticeWordToClient(34)
 		return false
 	}
 	//
 	if player.BuyItemSubMoney(commodity.PriceType, price) == false {
 		//当前没有这么多钱
+		//货币不足
+		player.SendNoticeWordToClient(commodity.PriceType)
 		return false
 	}
 
@@ -215,8 +221,8 @@ func (this *AuctionManager) Close() {
 
 //更新
 func (this *AuctionManager) Update() {
-	this.OperateLock.Lock()
-	defer this.OperateLock.Unlock()
+	//	this.OperateLock.Lock()
+	//	defer this.OperateLock.Unlock()
 
 	//检查玩家上架的物品是否结束
 	teams := this.Commoditys.Items()
