@@ -113,4 +113,6 @@ type UnitFileData struct {
 	Death2RemoveTime float64 //死亡到删除的时间
 
 	NPCItemDropInfo string //NPC道具掉落信息 逗号分隔概率 分号分隔种类 1,0.02;2,0.03
+	IsGuildItemDrop int32  //掉落的装备是否是公会拍卖行装备 1是 2否
+
 }

@@ -26,7 +26,9 @@ type SceneItem struct {
 	LifeTime   float64    //剩余生命时间 时间到了就删除
 	CreateTime float64    // 创建的时间
 
-	IsOver bool //是否结束
+	IsOver          bool  //是否结束
+	IsGuildItemDrop int32 //掉落的装备是否是公会拍卖行装备 1是 2否
+	AttackUnits     *utils.BeeMap
 
 	//发送数据部分
 	ClientData *protomsg.SceneItemDatas //客户端显示数据
@@ -63,13 +65,16 @@ func (this *SceneItem) BeSelect() {
 }
 
 //创建buf
-func NewSceneItem(typeid int32, pos vec2d.Vec2) *SceneItem {
+func NewSceneItem(typeid int32, pos vec2d.Vec2, isguilddrop int32, attackunit *utils.BeeMap) *SceneItem {
 	item := &SceneItem{}
 	item.TypeID = typeid
 	item.Position = pos
 	item.LifeTime = 120.0
 	item.CreateTime = utils.GetCurTimeOfSecond()
 	item.IsOver = false
+
+	item.IsGuildItemDrop = isguilddrop
+	item.AttackUnits = attackunit
 	//唯一ID处理
 	item.ID = GetSceneItemID()
 

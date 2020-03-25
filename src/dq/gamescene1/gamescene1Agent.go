@@ -52,7 +52,7 @@ func (a *GameScene1Agent) ceshi() {
 	fenhong.Set(int32(36), int32(36))
 	fenhong.Set(int32(40), int32(40))
 	fenhong.Set(int32(41), int32(41))
-	gamecore.GuildManagerObj.AddAuctionItem(5, 63, 1, fenhong)
+	gamecore.GuildManagerObj.AddAuctionItem(7, 63, 1, fenhong)
 }
 
 func (a *GameScene1Agent) Init() {
@@ -67,7 +67,7 @@ func (a *GameScene1Agent) Init() {
 	gamecore.GuildManagerObj.Init(a)
 
 	//-------测试--------
-	a.ceshi()
+	//a.ceshi()
 
 	//----------------
 
@@ -141,6 +141,7 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_DeleteGuildPlayer"] = a.DoDeleteGuildPlayer
 	a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
 	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
+	a.handles["CS_GuildOperate"] = a.DoGuildOperate
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -709,6 +710,27 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 //	a.handles["CS_DeleteGuildPlayer"] = a.DoDeleteGuildPlayer
 //a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
 //	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
+//a.handles["CS_GuildOperate"] = a.DoGuildOperate
+func (a *GameScene1Agent) DoGuildOperate(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GuildOperate{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	if gamecore.GuildManagerObj.GuildOperate(player.(*gamecore.Player), h2) == true {
+		//操作成功 返回所有公会信息
+		msg := gamecore.GuildManagerObj.GetAllGuildsInfo()
+		player.(*gamecore.Player).SendMsgToClient("SC_GetAllGuildsInfo", msg)
+	}
+
+}
+
 //获取公会拍卖物品
 func (a *GameScene1Agent) DoGetAuctionItems(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_GetAuctionItems{}
@@ -1110,7 +1132,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 	//过滤非法字符
 	h2.Content = wordsfilter.WF.DoReplace(h2.Content)
 
-	////聊天频道 1附近 2全服 3私聊 4队伍
+	////聊天频道 1附近 2全服 3私聊 4队伍 5公会
 	if h2.Channel == 1 {
 		if player.(*gamecore.Player).CurScene == nil {
 			return
@@ -1165,6 +1187,32 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 				continue
 			}
 			v.(*gamecore.Player).SendMsgToClient("SC_ChatInfo", msg)
+		}
+	} else if h2.Channel == 5 {
+		if player.(*gamecore.Player).MyGuild == nil {
+			return
+		}
+		guild := gamecore.GuildManagerObj.GetGuild(player.(*gamecore.Player).MyGuild.GuildId)
+		if guild == nil {
+			return
+		}
+
+		msg := &protomsg.SC_ChatInfo{}
+		msg.Channel = h2.Channel
+		msg.Time = time.Now().Format("15:04")
+		msg.SrcName = mainunit.Name
+		msg.SrcPlayerUID = data.Uid
+		msg.Content = h2.Content //内容过滤
+		allplayer := guild.CharactersMap.Items()
+		for _, v := range allplayer {
+			if v == nil {
+				continue
+			}
+			player1 := a.GetPlayerByChaID(v.(*gamecore.GuildCharacterInfo).Characterid)
+			if player1 != nil {
+				player1.SendMsgToClient("SC_ChatInfo", msg)
+			}
+
 		}
 	}
 

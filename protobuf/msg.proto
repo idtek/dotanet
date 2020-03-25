@@ -664,6 +664,10 @@ message CS_ResponseJoinGuildPlayer{
 message CS_DeleteGuildPlayer{
     int32 Characterid = 1;
 }
+//公会操作
+message CS_GuildOperate{
+    int32 Code = 1; //1表示自己退出公会 2表示解散公会
+}
 //获取公会拍卖物品
 message CS_GetAuctionItems{
     int32 ID = 1;

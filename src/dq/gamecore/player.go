@@ -632,6 +632,7 @@ func (this *Player) GetBagNilCount() int32 {
 
 //拾取地面物品
 func (this *Player) SelectSceneItem(sceneitem *SceneItem) bool {
+
 	return this.AddItem(sceneitem.TypeID, 1)
 }
 

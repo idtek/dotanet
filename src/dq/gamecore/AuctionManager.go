@@ -105,20 +105,23 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 	if this.Commoditys.Check(commodity.Id) == false {
 		return
 	}
-
-	guild1 := GuildManagerObj.Guilds.Get(commodity.Guildid)
-	if guild1 == nil {
-		//不存在该公会
-		return
-	}
-	guild := guild1.(*GuildInfo)
-
 	//成功
 	if commodity.BidderCharacterid > 0 {
 		//给竞拍者发道具
 		oldplayer := this.Server.GetPlayerByChaID(commodity.BidderCharacterid)
 		Create_AuctionSucc_Mail(commodity.ItemID, commodity.Level, commodity.BidderCharacterid, oldplayer)
 	}
+
+	guild1 := GuildManagerObj.Guilds.Get(commodity.Guildid)
+	if guild1 == nil {
+		//不存在该公会
+		//本地删除该道具
+		this.Commoditys.Delete(commodity.Id)
+		//数据库删除
+		db.DbOne.DeleteAuction(commodity.Id)
+		return
+	}
+	guild := guild1.(*GuildInfo)
 
 	//all 计算分红的钱
 	allchareceive := utils.NewBeeMap()
@@ -151,7 +154,6 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 
 		Create_AuctionFenHong_Mail(commodity.PriceType, getmoney, v, oldplayer)
 	}
-
 	//本地删除该道具
 	this.Commoditys.Delete(commodity.Id)
 	//数据库删除

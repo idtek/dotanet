@@ -1229,6 +1229,15 @@ func (this *Unit) CheckIsEnemy(target *Unit) bool {
 	if target == nil {
 		return false
 	}
+	//同一个公会的不能成为敌人
+	if this.MyPlayer != nil && target.MyPlayer != nil {
+		if this.MyPlayer.MyGuild != nil && target.MyPlayer.MyGuild != nil {
+			if this.MyPlayer.MyGuild.GuildId == target.MyPlayer.MyGuild.GuildId {
+				return false
+			}
+		}
+	}
+
 	//攻击模式(1:和平模式 2:组队模式 3:全体模式 4:阵营模式(玩家,NPC) 5:行会模式)
 	if this.AttackMode == 1 {
 		//阵营不同 //阵营(1:玩家 2:NPC)
@@ -1591,6 +1600,8 @@ type UnitProperty struct {
 	ControlID int32 //控制者ID
 	IsMain    int32 //是否是主单位 1:是  2:不是
 
+	//allhurtunit := utils.NewBeeMap()
+
 	AnimotorState int32 //动画状态 1:idle 2:walk 3:attack 4:skill 5:death
 	AttackAnim    int32 //攻击动画
 	//-------------新加----------
@@ -1724,6 +1735,9 @@ type Unit struct {
 
 	//记录时间点的伤害
 	TimeHurts []TimeAndHurt
+
+	//记录攻击过我的characterid
+	AttackUnitCharacter *utils.BeeMap
 
 	//每秒钟干事 剩余时间
 	EveryTimeDoRemainTime float32 //每秒钟干事 的剩余时间
@@ -1901,8 +1915,10 @@ func (this *Unit) DropItem() {
 
 		}
 	}
+	//IsGuildItemDrop
+	//allhurtunit := utils.NewBeeMap()
 	if len(drop) > 0 {
-		this.InScene.CreateSceneItems(drop, this.Body.Position)
+		this.InScene.CreateSceneItems(drop, this.Body.Position, this.IsGuildItemDrop, this.AttackUnitCharacter)
 	}
 	//CreateSceneItems
 }
@@ -2125,6 +2141,7 @@ func (this *Unit) Init() {
 
 	//this.TestData()
 	this.TimeHurts = make([]TimeAndHurt, 0)
+	this.AttackUnitCharacter = utils.NewBeeMap()
 }
 
 //设置强制移动相关
@@ -3459,6 +3476,12 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 
 	lasthp := this.HP
 	this.ChangeHP(-hurtvalue)
+
+	//记录玩家角色单位攻击者伤害
+	if bullet.SrcUnit != nil && bullet.SrcUnit.MyPlayer != nil {
+		this.AttackUnitCharacter.Set(bullet.SrcUnit.MyPlayer.Characterid, hurtvalue)
+		//log.Info("---记录玩家角色单位攻击者伤害---:%d   %d", bullet.SrcUnit.MyPlayer.Characterid, hurtvalue)
+	}
 
 	//客户端显示自己受伤数字
 	this.CreateShowHurt(-hurtvalue)

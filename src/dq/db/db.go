@@ -530,6 +530,22 @@ func (a *DB) CreateGuild(name string, day string) (error, int32) {
 	return err1, int32(id)
 }
 
+//删除公会
+func (a *DB) DeleteGuild(id int32) error {
+	tx, _ := a.Mydb.Begin()
+	res, err1 := tx.Exec("DELETE FROM guild WHERE id=" + strconv.Itoa(int(id)))
+	n, e := res.RowsAffected()
+	_, err2 := res.LastInsertId()
+	if err1 != nil || n == 0 || e != nil || err2 != nil {
+		log.Info("DeleteGuild err")
+		return tx.Rollback()
+	}
+
+	err1 = tx.Commit()
+
+	return err1
+}
+
 //保存公会信息
 func (a *DB) SaveGuild(guild DB_GuildInfo) error {
 	tx, e1 := a.Mydb.Begin()

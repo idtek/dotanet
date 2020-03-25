@@ -204,6 +204,62 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 
 }
 
+//Operate
+//
+func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOperate) bool {
+	if player == nil || data == nil || player.MyGuild == nil {
+		return false
+	}
+
+	//找到当前公会
+	guild1 := this.Guilds.Get(player.MyGuild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		player.SendNoticeWordToClient(29)
+		return false
+	}
+	guild := guild1.(*GuildInfo)
+
+	postdata := conf.GetGuildPostFileData(player.MyGuild.Post)
+	if data.Code == 1 { //退出公会
+		if postdata == nil || postdata.ExitWriteAble != 1 {
+			//没有权限 31
+			player.SendNoticeWordToClient(31)
+			return false
+		} else {
+			//
+			player.MyGuild = nil
+			//把数据存入公会中
+			guild.CharactersMap.Delete(player.Characterid)
+		}
+	} else if data.Code == 2 { //解散公会
+		if postdata == nil || postdata.DismissWriteAble != 1 {
+			//没有权限 31
+			player.SendNoticeWordToClient(31)
+			return false
+		} else {
+			//---------在线的玩家 踢出公会--不在线的玩家上线后会找不到公会自动退出
+
+			allplayer := guild.CharactersMap.Items()
+			for _, v := range allplayer {
+				if v == nil {
+					continue
+				}
+				player1 := this.Server.GetPlayerByChaID(v.(*GuildCharacterInfo).Characterid)
+				if player1 != nil {
+					player1.MyGuild = nil
+				}
+
+			}
+			//从内存中删除公会
+			this.Guilds.Delete(guild.Id)
+			//从数据库中删除公会
+			db.DbOne.DeleteGuild(guild.Id)
+		}
+	}
+	return true
+}
+
 //踢人
 func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_DeleteGuildPlayer, targetplayer *Player) {
 	if player == nil || data == nil || player.MyGuild == nil || player == targetplayer {
@@ -408,9 +464,9 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 
 	receivecharacter := make([]int32, 0)
 	chaitems := receivecharacters.Items()
-	for _, v := range chaitems {
-		if guild.CharactersMap.Check(v.(int32)) == true {
-			receivecharacter = append(receivecharacter, v.(int32))
+	for k, _ := range chaitems {
+		if guild.CharactersMap.Check(k.(int32)) == true {
+			receivecharacter = append(receivecharacter, k.(int32))
 		}
 	}
 
@@ -536,6 +592,16 @@ func (this *GuildManager) GetAuctionItems(player *Player) *protomsg.SC_GetAuctio
 
 }
 
+func (this *GuildManager) GetGuild(id int32) *GuildInfo {
+	guild1 := this.Guilds.Get(id)
+	if guild1 == nil {
+		//不存在该公会
+		return nil
+	}
+	guild := guild1.(*GuildInfo)
+	return guild
+}
+
 //type GuildInfo struct {
 //	db.DB_GuildInfo
 //	CharactersMap            *utils.BeeMap //公会成员
@@ -562,7 +628,7 @@ func (this *GuildManager) SaveDBGuildInfo(guild *GuildInfo) {
 	for _, item := range auctionitems {
 		guild.Auction += strconv.Itoa(int(item.(int32))) + ";"
 	}
-
+	//db.DbOne.DeleteGuild
 	db.DbOne.SaveGuild(guild.DB_GuildInfo)
 }
 

@@ -587,7 +587,7 @@ func (this *Scene) UpdateHalo(dt float32) {
 }
 
 //单位死亡后创建道具
-func (this Scene) CreateSceneItems(typeid []int32, centerpos vec2d.Vec2) {
+func (this Scene) CreateSceneItems(typeid []int32, centerpos vec2d.Vec2, isguilddrop int32, attackunit *utils.BeeMap) {
 	//CheckItemCollision
 	positions := make([]vec2d.Vec2, 8)
 	size := 1.0
@@ -610,7 +610,7 @@ func (this Scene) CreateSceneItems(typeid []int32, centerpos vec2d.Vec2) {
 			posindex = 0
 		}
 		if this.MoveCore.CheckItemCollision(positions[posindex]) == true {
-			this.CreateSceneItem(typeid[createitemid], positions[posindex])
+			this.CreateSceneItem(typeid[createitemid], positions[posindex], isguilddrop, attackunit)
 			createitemid++
 			if createitemid >= len(typeid) {
 				break
@@ -620,8 +620,8 @@ func (this Scene) CreateSceneItems(typeid []int32, centerpos vec2d.Vec2) {
 }
 
 //创建场景道具
-func (this *Scene) CreateSceneItem(typeid int32, pos vec2d.Vec2) {
-	sceneitem := NewSceneItem(typeid, pos)
+func (this *Scene) CreateSceneItem(typeid int32, pos vec2d.Vec2, isguilddrop int32, attackunit *utils.BeeMap) {
+	sceneitem := NewSceneItem(typeid, pos, isguilddrop, attackunit)
 	this.AddSceneItem(sceneitem)
 }
 
@@ -685,10 +685,18 @@ func (this *Scene) UpdateSceneItem(dt float32) {
 				//LengthSquared
 				dir := vec2d.Sub(unit.Body.Position, v.Position)
 				if dir.LengthSquared() <= 1 {
-					if player.SelectSceneItem(v) == true {
+					if v.IsGuildItemDrop == 1 && player.MyGuild != nil {
+						//拾取到公会拍卖行
+						GuildManagerObj.AddAuctionItem(player.MyGuild.GuildId, v.TypeID, 1, v.AttackUnits)
 						v.BeSelect()
-						break
+					} else {
+						//拾取到背包
+						if player.SelectSceneItem(v) == true {
+							v.BeSelect()
+							break
+						}
 					}
+
 				}
 			}
 		}
