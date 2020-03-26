@@ -22,18 +22,16 @@ import (
 var (
 	GuildPostFileDatas     = make(map[interface{}]interface{})
 	GuildPinLevelFileDatas = make(map[interface{}]interface{})
+	GuildLevelFileDatas    = make(map[interface{}]interface{})
+	GuildMaxPinLevel       = int32(10)
+	GuildMaxLevel          = int32(10)
 )
 
 //场景配置文件
 func LoadGuildFileData() {
 	_, GuildPostFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "Post", (*GuildPostFileData)(nil))
 	_, GuildPinLevelFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "PinLevel", (*GuildPinLevelFileData)(nil))
-
-	for _, v := range GuildPinLevelFileDatas {
-
-		t1 := v.(*GuildPinLevelFileData)
-		log.Info("GuildPinLevelFileDatas:%d  %f  %s  %d", t1.PinLevel, t1.Receive, t1.Name, t1.UpgradeEx)
-	}
+	_, GuildLevelFileDatas = utils.ReadXlsxOneSheetData("bin/conf/guild.xlsx", "Guild", (*GuildLevelFileData)(nil))
 
 }
 func GetGuildPostFileData(level int32) *GuildPostFileData {
@@ -77,4 +75,23 @@ type GuildPinLevelFileData struct {
 	Name      string  //名字
 	Receive   float32 //分成比列Receive
 	UpgradeEx int32   //升级所需要的经验
+}
+
+func GetGuildLevelFileData(level int32) *GuildLevelFileData {
+	//log.Info("find unitfile:%d", typeid)
+
+	re := (GuildLevelFileDatas[int(level)])
+	if re == nil {
+		log.Info("not find GuildLevelFileDatas:%d", level)
+		return nil
+	}
+	return (GuildLevelFileDatas[int(level)]).(*GuildLevelFileData)
+}
+
+//单位配置文件数据
+type GuildLevelFileData struct {
+	//配置文件数据
+	GuildLevel int32 //职位
+	UpgradeEx  int32 //升级所需要的经验
+	MaxCount   int32 //最大成员数量
 }

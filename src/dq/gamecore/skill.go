@@ -354,7 +354,7 @@ func NewOneSkill(skillid int32, skilllevel int32, unit *Unit) *Skill {
 	return sk
 }
 
-//通过数据库数据和单位基本数据创建技能 (1,2,0) ID,LEVEL,CD剩余时间
+//通过数据库数据和单位基本数据创建技能 (1,2,0) ID,LEVEL,CD剩余时间 剩余点数
 func NewUnitSkills(dbdata []string, unitskilldata string, unit *Unit) map[int32]*Skill {
 	re := make(map[int32]*Skill)
 

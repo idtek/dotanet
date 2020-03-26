@@ -1738,6 +1738,8 @@ type Unit struct {
 
 	//记录攻击过我的characterid
 	AttackUnitCharacter *utils.BeeMap
+	//记录击杀我的单位
+	Killer *Unit
 
 	//每秒钟干事 剩余时间
 	EveryTimeDoRemainTime float32 //每秒钟干事 的剩余时间
@@ -1919,6 +1921,24 @@ func (this *Unit) DropItem() {
 	//allhurtunit := utils.NewBeeMap()
 	if len(drop) > 0 {
 		this.InScene.CreateSceneItems(drop, this.Body.Position, this.IsGuildItemDrop, this.AttackUnitCharacter)
+
+	}
+	//增加PIN经验
+	if this.GuildPinExp > 0 && this.InScene != nil && this.InScene.Sverver != nil {
+		attackchas := this.AttackUnitCharacter.Items()
+		for k, _ := range attackchas {
+			p1 := this.InScene.Sverver.GetPlayerByChaID(k.(int32))
+			if p1 != nil {
+				p1.AddPinExp(this.GuildPinExp)
+			}
+		}
+	}
+	//增加公会经验
+	if this.GuildExp > 0 && this.Killer != nil && this.Killer.MyPlayer != nil {
+		guild := this.Killer.MyPlayer.MyGuild
+		if guild != nil {
+			GuildManagerObj.AddGuildExp(this.GuildExp, guild.GuildId)
+		}
 	}
 	//CreateSceneItems
 }
@@ -2111,6 +2131,13 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 	unitre.AddItem(4, NewItemFromDB(characterinfo.Item5))
 	unitre.AddItem(5, NewItemFromDB(characterinfo.Item6))
 	//unitre.FreshUseableItem()
+
+	//创建回城技能
+	skillhuicheng := NewOneSkill(121, 1, unitre)
+	if skillhuicheng != nil {
+		skillhuicheng.Index = 7
+		unitre.AddItemSkill(skillhuicheng)
+	}
 
 	unitre.FreshHaloInSkills()
 
@@ -3806,7 +3833,7 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 
 //被杀死时 buff异常处理
 func (this *Unit) CheckTriggerDie(killer *Unit) {
-
+	this.Killer = killer
 	//处理死亡单位
 	//重置死亡复活时间
 	leveldata := conf.GetLevelFileData(this.Level)

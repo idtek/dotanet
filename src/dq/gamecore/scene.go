@@ -57,15 +57,17 @@ type Scene struct {
 	NextRemovePlayer *utils.BeeMap //下一帧需要删除的玩家
 
 	ChangeScene ChangeSceneFunc
+	Sverver     ServerInterface
 	Quit        bool //是否退出
 	SceneFrame  int32
 
 	playerlock *sync.RWMutex //玩家操作同步操作锁
 }
 
-func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc) *Scene {
+func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc, server ServerInterface) *Scene {
 	scene := &Scene{}
 	scene.ChangeScene = parent
+	scene.Sverver = server
 	scene.SceneFileData = *data
 	scene.SceneName = data.ScenePath
 	scene.Quit = false
@@ -185,6 +187,8 @@ func (this *Scene) CreateUnitByConf(v conf.Unit) *Unit {
 	unit.SetReCreateInfo(&v)
 	//log.Info("Collide %v  %f", unit.Body.Direction, v.Rotation)
 	this.Units[unit.ID] = unit
+	//添加场景BUFF
+	//unit.AddBuffFromStr("236", 1, unit)
 	return unit
 }
 
@@ -731,6 +735,9 @@ func (this *Scene) DoAddAndRemoveUnit() {
 		v.(*Unit).Body.BlinkToPos(v.(*Unit).InitPosition, 0)
 
 		this.Units[k.(int32)] = v.(*Unit)
+
+		//添加场景BUFF
+		v.(*Unit).AddBuffFromStr(this.SceneBuff, 1, v.(*Unit))
 
 		this.NextAddUnit.Delete(k)
 

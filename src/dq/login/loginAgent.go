@@ -251,6 +251,13 @@ func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 		players[0].SceneID = 1
 		players[0].X = 16
 		players[0].Y = 25
+
+	}
+	//拖回安全地图
+	if players[0].SceneID != 1000 {
+		players[0].SceneID = 1000
+		players[0].X = float32(utils.RandInt64(70, 80))
+		players[0].Y = float32(utils.RandInt64(70, 80))
 	}
 
 	//通知进入场景

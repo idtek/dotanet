@@ -646,6 +646,9 @@ message GuildChaInfo{
     int32 PinLevel = 6;
     int32 PinExperience = 7;
     int32 Post = 8;
+    string PinLevelName = 9;
+    string PostName = 10;
+    int32 PinMaxExperience = 11;
 }
 
 //获取公会申请列表

@@ -151,7 +151,7 @@ func (a *GameScene1Agent) Init() {
 			continue
 		}
 		log.Info("scene succ:%d ", v.(*conf.SceneFileData).TypeID)
-		scene := gamecore.CreateScene(v.(*conf.SceneFileData), a)
+		scene := gamecore.CreateScene(v.(*conf.SceneFileData), a, a)
 		time.Sleep(time.Duration(33/len(allscene)) * time.Millisecond)
 		a.Scenes.Set(v.(*conf.SceneFileData).TypeID, scene)
 		a.wgScene.Add(1)

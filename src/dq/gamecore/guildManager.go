@@ -46,6 +46,15 @@ func NewGuildCharacterInfo(characterinfo *db.DB_CharacterInfo) *GuildCharacterIn
 	guildchainfo.PinLevel = characterinfo.GuildPinLevel
 	guildchainfo.PinExperience = characterinfo.GuildPinExperience
 	guildchainfo.Post = characterinfo.GuildPost
+	postdata := conf.GetGuildPostFileData(characterinfo.GuildPost)
+	if postdata != nil {
+		guildchainfo.PostName = postdata.Name
+	}
+	pinleveldata := conf.GetGuildPinLevelFileData(characterinfo.GuildPinLevel)
+	if pinleveldata != nil {
+		guildchainfo.PinLevelName = pinleveldata.Name
+		guildchainfo.PinMaxExperience = pinleveldata.UpgradeEx
+	}
 
 	return guildchainfo
 }
@@ -56,6 +65,8 @@ type GuildInfo struct {
 	CharactersMap            *utils.BeeMap //公会成员
 	RequestJoinCharactersMap *utils.BeeMap //请求加入公会角色
 	AuctionMap               *utils.BeeMap //正在拍卖的商品
+	conf.GuildLevelFileData
+	//UpgradeEx                int32         //最大经验值 (升级需要的经验值)
 }
 
 //公会管理器
@@ -110,9 +121,9 @@ func (this *GuildManager) GuildInfo2ProtoGuildShortInfo(guild *GuildInfo) *proto
 	guildBaseInfo.Name = guild.Name
 	guildBaseInfo.Level = guild.Level
 	guildBaseInfo.Experience = guild.Experience
-	guildBaseInfo.MaxExperience = int32(10000)
+	guildBaseInfo.MaxExperience = guild.UpgradeEx
 	guildBaseInfo.CharacterCount = int32(guild.CharactersMap.Size())
-	guildBaseInfo.MaxCount = int32(100)
+	guildBaseInfo.MaxCount = guild.MaxCount
 	guildBaseInfo.PresidentName = ""
 	guildBaseInfo.Notice = guild.Notice
 	president := guild.CharactersMap.Get(guild.PresidentCharacterid)
@@ -185,6 +196,11 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 	guild.Createday = time.Now().Format("2006-01-02")
 	guild.Name = name
 	guild.Level = 1
+	leveldata := conf.GetGuildLevelFileData(guild.Level)
+	if leveldata != nil {
+		guild.GuildLevelFileData = *leveldata
+	}
+
 	guild.Notice = "欢迎来到(" + name + ")大家庭!"
 	guild.Joinaudit = 0
 	guild.Joinlevellimit = 1
@@ -375,6 +391,17 @@ func (this *GuildManager) ResponseJoinGuild(player *Player, data *protomsg.CS_Re
 		guildchainfo.PinLevel = players[0].GuildPinLevel
 		guildchainfo.PinExperience = players[0].GuildPinExperience
 		guildchainfo.Post = players[0].GuildPost
+
+		postdata := conf.GetGuildPostFileData(players[0].GuildPost)
+		if postdata != nil {
+			guildchainfo.PostName = postdata.Name
+		}
+		pinleveldata := conf.GetGuildPinLevelFileData(players[0].GuildPinLevel)
+		if pinleveldata != nil {
+			guildchainfo.PinLevelName = pinleveldata.Name
+			guildchainfo.PinMaxExperience = pinleveldata.UpgradeEx
+		}
+
 		guild.CharactersMap.Set(guildchainfo.Characterid, guildchainfo)
 
 	} else { //在线
@@ -426,6 +453,35 @@ func (this *GuildManager) RequestJoinGuild(player *Player, guildid int32) {
 	player.SendNoticeWordToClient(30)
 
 	log.Info("----------RequestJoinGuild--")
+}
+
+//增加公会经验
+func (this *GuildManager) AddGuildExp(addexp int32, guildid int32) {
+	this.OperateLock.Lock()
+	defer this.OperateLock.Unlock()
+	guild1 := this.Guilds.Get(guildid)
+	if guild1 == nil {
+		//不存在该公会
+		return
+	}
+	guild := guild1.(*GuildInfo)
+	if guild.Level >= conf.GuildMaxLevel {
+		//已经最大等级
+		return
+	}
+
+	guild.Experience += addexp
+	//升级pin
+	if guild.Experience >= guild.UpgradeEx {
+		guild.Experience = 0
+		guild.Level++
+
+		leveldata := conf.GetGuildLevelFileData(guild.Level)
+		if leveldata != nil {
+			guild.GuildLevelFileData = *leveldata
+		}
+	}
+
 }
 
 //添加公会拍卖装备
@@ -489,6 +545,12 @@ func (this *GuildManager) LoadDataFromDB() {
 		//log.Info("----------ExchangeManager load %d %v", v.Id, &commoditys[k])
 		guild := &GuildInfo{}
 		guild.DB_GuildInfo = v
+
+		leveldata := conf.GetGuildLevelFileData(guild.Level)
+		if leveldata != nil {
+			guild.GuildLevelFileData = *leveldata
+		}
+
 		guild.CharactersMap = utils.NewBeeMap()
 		guild.RequestJoinCharactersMap = utils.NewBeeMap()
 		guild.AuctionMap = utils.NewBeeMap()
@@ -508,6 +570,17 @@ func (this *GuildManager) LoadDataFromDB() {
 			guildchainfo.PinLevel = v1.GuildPinLevel
 			guildchainfo.PinExperience = v1.GuildPinExperience
 			guildchainfo.Post = v1.GuildPost
+
+			postdata := conf.GetGuildPostFileData(v1.GuildPost)
+			if postdata != nil {
+				guildchainfo.PostName = postdata.Name
+			}
+			pinleveldata := conf.GetGuildPinLevelFileData(v1.GuildPinLevel)
+			if pinleveldata != nil {
+				guildchainfo.PinLevelName = pinleveldata.Name
+				guildchainfo.PinMaxExperience = pinleveldata.UpgradeEx
+			}
+
 			guild.CharactersMap.Set(guildchainfo.Characterid, guildchainfo)
 		}
 		//解析请求加入公会的角色

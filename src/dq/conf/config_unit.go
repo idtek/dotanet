@@ -114,5 +114,7 @@ type UnitFileData struct {
 
 	NPCItemDropInfo string //NPC道具掉落信息 逗号分隔概率 分号分隔种类 1,0.02;2,0.03
 	IsGuildItemDrop int32  //掉落的装备是否是公会拍卖行装备 1是 2否
+	GuildPinExp     int32  //品经验
+	GuildExp        int32  //公会经验(只有击杀者的公会会有公会经验)
 
 }

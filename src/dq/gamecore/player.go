@@ -559,6 +559,25 @@ func (this *Player) SendGetItemNotice(typeid int32, level int32) {
 //	}
 //	return false
 //}
+//增加公会PIN经验
+func (this *Player) AddPinExp(exp int32) {
+	myguild := this.MyGuild
+	if myguild == nil || myguild.PinLevel >= conf.GuildMaxPinLevel {
+		return
+	}
+	myguild.PinExperience += exp
+	//升级pin
+	if myguild.PinExperience >= myguild.PinMaxExperience {
+		myguild.PinExperience = 0
+		myguild.PinLevel++
+
+		pinleveldata := conf.GetGuildPinLevelFileData(myguild.PinLevel)
+		if pinleveldata != nil {
+			myguild.PinLevelName = pinleveldata.Name
+			myguild.PinMaxExperience = pinleveldata.UpgradeEx
+		}
+	}
+}
 
 //新加入公会信息
 func (this *Player) NewAddGuildInfo(guildid int32, post int32) {
