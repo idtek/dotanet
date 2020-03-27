@@ -53,6 +53,8 @@ type Scene struct {
 	NextAddUnit    *utils.BeeMap //下一帧需要增加的单位
 	NextRemoveUnit *utils.BeeMap //下一帧需要删除的单位
 
+	HuiChengPlayer *utils.BeeMap //回城的玩家
+
 	NextAddPlayer    *utils.BeeMap //下一帧需要增加的玩家
 	NextRemovePlayer *utils.BeeMap //下一帧需要删除的玩家
 
@@ -86,6 +88,7 @@ func (this *Scene) Init() {
 
 	this.NextAddUnit = utils.NewBeeMap()
 	this.NextRemoveUnit = utils.NewBeeMap()
+	this.HuiChengPlayer = utils.NewBeeMap()
 
 	this.NextAddPlayer = utils.NewBeeMap()
 	this.NextRemovePlayer = utils.NewBeeMap()
@@ -264,6 +267,30 @@ func (this *Scene) FindVisibleUnits(my *Unit) []*Unit {
 //	return units
 //}
 
+//传送到和平城
+func (this *Scene) HuiCheng(player *Player) {
+	if this.ChangeScene == nil || player == nil {
+		return
+	}
+	doorway := conf.DoorWay{}
+	doorway.NextX = float32(utils.RandInt64(70, 80))
+	doorway.NextY = float32(utils.RandInt64(70, 80))
+	doorway.NextSceneID = 1000
+
+	this.HuiChengPlayer.Set(player, &doorway)
+}
+
+func (this *Scene) DoHuiCheng() {
+	if this.ChangeScene == nil {
+		return
+	}
+	allhuicheng := this.HuiChengPlayer.Items()
+	for k, v := range allhuicheng {
+		this.ChangeScene.PlayerChangeScene(k.(*Player), *v.(*conf.DoorWay))
+		this.HuiChengPlayer.Delete(k)
+	}
+}
+
 //传送门检查
 func (this *Scene) DoDoorWay() {
 	if this.ChangeScene == nil {
@@ -334,6 +361,8 @@ func (this *Scene) Update() {
 
 		time1 := utils.GetCurTimeOfSecond()
 		this.EveryTimeDo(1 / float32(this.SceneFrame))
+
+		this.DoHuiCheng()
 
 		this.DoRemoveBullet()
 		this.DoRemoveHalo()

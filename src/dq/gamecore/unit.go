@@ -401,11 +401,14 @@ func (this *Unit) GetTriggerAttackFromAttackAnim() []int32 {
 }
 
 //刷新技能CD 检查道具同CD技能
-func (this *Unit) FreshCDTime(skill *Skill, time float32) {
+func (this *Unit) FreshCDTime(skill *Skill) {
 
 	if skill == nil {
 		return
 	}
+
+	time := skill.Cooldown - this.MagicCD*skill.Cooldown
+
 	skill.FreshCDTime(time)
 
 	//刷新同种的道具技能CD
@@ -487,9 +490,9 @@ func (this *Unit) CheckTriggerAttackOneSkill(b *Bullet, animattack []int32, v *S
 			b.PhysicalHurtAddHP += v.PhysicalHurtAddHP
 			b.MagicHurtAddHP += v.MagicHurtAddHP
 
-			cdtime := v.Cooldown - this.MagicCD*v.Cooldown
+			//cdtime := v.Cooldown - this.MagicCD*v.Cooldown
 			//v.FreshCDTime(cdtime)
-			this.FreshCDTime(v, cdtime)
+			this.FreshCDTime(v)
 
 			//}
 		}
@@ -530,9 +533,9 @@ func (this *Unit) CheckTriggerAttackOneSkill(b *Bullet, animattack []int32, v *S
 		//消耗 CD
 		this.ChangeMP(float32(-shouldmp))
 
-		cdtime := v.Cooldown - this.MagicCD*v.Cooldown
+		//cdtime := v.Cooldown - this.MagicCD*v.Cooldown
 		//v.FreshCDTime(cdtime)
-		this.FreshCDTime(v, cdtime)
+		this.FreshCDTime(v)
 
 	}
 }
@@ -589,6 +592,7 @@ func (this *Unit) CheckTriggerAttackSkill(b *Bullet, animattack []int32) {
 
 //技能特殊处理
 func (this *Unit) DoSkillException(skilldata *Skill, targetunit *Unit, b *Bullet) {
+	log.Info("DoSkillException---%d", skilldata.Exception)
 	if skilldata.Exception == 0 {
 		return
 	}
@@ -710,6 +714,18 @@ func (this *Unit) DoSkillException(skilldata *Skill, targetunit *Unit, b *Bullet
 			for i := int32(0); i < count; i++ {
 				this.AddBuffFromStr(buffid, skilldata.Level, this)
 			}
+		}
+	case 9: //回城
+		{
+			if targetunit == nil {
+				targetunit = this
+			}
+
+			if targetunit == nil || targetunit.MyPlayer == nil || targetunit.InScene == nil {
+				return
+			}
+
+			targetunit.InScene.HuiCheng(targetunit.MyPlayer)
 		}
 	default:
 	}
@@ -847,9 +863,9 @@ func (this *Unit) CheckTriggerKillerSkill(target *Unit) {
 					namacost := skilldata.GetManaCost() - int32(this.ManaCost*float32(skilldata.GetManaCost()))
 					this.ChangeMP(float32(-namacost))
 
-					cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
+					//cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
 					//skilldata.FreshCDTime(cdtime)
-					this.FreshCDTime(skilldata, cdtime)
+					this.FreshCDTime(skilldata)
 
 				}
 			}
@@ -928,9 +944,9 @@ func (this *Unit) CheckTriggerBeAttackSkill(target *Unit) {
 					namacost := skilldata.GetManaCost() - int32(this.ManaCost*float32(skilldata.GetManaCost()))
 					this.ChangeMP(float32(-namacost))
 
-					cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
+					//cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
 					//skilldata.FreshCDTime(cdtime)
-					this.FreshCDTime(skilldata, cdtime)
+					this.FreshCDTime(skilldata)
 
 				}
 			}
@@ -1001,7 +1017,7 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 			}
 			this.AddBullet(v)
 		}
-
+		log.Info("3333")
 		this.DoSkillException(skilldata, targetunit, bullets[0])
 
 	} else {
@@ -1022,9 +1038,9 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 	namacost := skilldata.GetManaCost() - int32(this.ManaCost*float32(skilldata.GetManaCost()))
 	this.ChangeMP(float32(-namacost))
 
-	cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
+	//cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
 	//skilldata.FreshCDTime(cdtime)
-	this.FreshCDTime(skilldata, cdtime)
+	this.FreshCDTime(skilldata)
 
 	//删除技能命令
 	this.StopSkillCmd()
@@ -3398,9 +3414,9 @@ func (this *Unit) CheckAttackSucOneSkillTrigger(v *Skill, bullet *Bullet) {
 			namacost := skilldata.GetManaCost() - int32(this.ManaCost*float32(skilldata.GetManaCost()))
 			this.ChangeMP(float32(-namacost))
 
-			cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
+			//cdtime := skilldata.Cooldown - this.MagicCD*skilldata.Cooldown
 			//skilldata.FreshCDTime(cdtime)
-			this.FreshCDTime(skilldata, cdtime)
+			this.FreshCDTime(skilldata)
 
 			//}
 		}

@@ -532,6 +532,10 @@ type ChantState struct {
 	CastPoint float32
 
 	StartTargetPos vec2d.Vec2 //开始时的 目标位置
+
+	ChantSkill *Skill //技能
+
+	CastBuf []*Buff //施法时的buf 施法结束时删除 被打断施法也删除
 }
 
 func NewChantState(p *Unit) *ChantState {
@@ -597,6 +601,7 @@ func (this *ChantState) Update(dt float64) {
 			//			b.SetProjectileMode(this.Parent.ProjectileMode, this.Parent.ProjectileSpeed)
 			//			this.Parent.CreateBullet(b)
 			this.Parent.RemoveBuffForDoSkilled()
+			this.OverCastBuf()
 
 			this.Parent.DoSkill(this.ChantData, this.StartTargetPos)
 
@@ -614,7 +619,41 @@ func (this *ChantState) Update(dt float64) {
 }
 func (this *ChantState) OnEnd() {
 	//log.Info(" ChantState end%f", utils.GetCurTimeOfSecond())
+	this.OverCastBuf()
+
+	if this.ChantSkill != nil && this.ChantSkill.CastOverFreshCD == 1 {
+
+		this.Parent.FreshCDTime(this.ChantSkill)
+
+	}
+
 }
+
+//结束施法buf
+func (this *ChantState) OverCastBuf() {
+	for _, v := range this.CastBuf {
+		v.IsEnd = true
+	}
+	this.CastBuf = make([]*Buff, 0)
+}
+
+//添加施法buf
+func (this *ChantState) StartCastBuf(bufs string) {
+	if len(bufs) <= 0 {
+		this.CastBuf = make([]*Buff, 0)
+		return
+	}
+
+	//添加施法buf
+	casttime := float32(this.OneChantTime) * this.CastPoint
+	//添加施法BUFF
+	this.CastBuf = this.Parent.AddBuffFromStr(bufs, 1, this.Parent)
+	for _, v := range this.CastBuf {
+		v.RemainTime = casttime
+		v.Time = casttime
+	}
+}
+
 func (this *ChantState) OnStart() {
 
 	this.ChantData = this.Parent.SkillCmdData
@@ -624,6 +663,7 @@ func (this *ChantState) OnStart() {
 		this.IsDone = true
 		return
 	}
+	this.ChantSkill = skilldata
 	//AnimotorState
 	this.Parent.SetAnimotorState(skilldata.AnimotorState)
 	//--转向处理--
@@ -652,4 +692,7 @@ func (this *ChantState) OnStart() {
 	this.IsDone = false
 	this.OneChantTime = float64(skilldata.CastTime)
 	this.CastPoint = skilldata.CastPoint
+
+	this.StartCastBuf(skilldata.CastBuf)
+
 }

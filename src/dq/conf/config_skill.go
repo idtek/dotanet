@@ -104,6 +104,8 @@ type SkillBaseData struct {
 	TriggerAttackEffect    int32   //能否触发普通攻击特效 (1:触发 2:不触发)
 	CastPoint              float32 //施法前摇(以施法时间为比列 0.5表示 施法的中间时间点触发)
 	CastTime               float32 //施法时间(以秒为单位的时间 比如1秒)
+	CastBuf                string  //施法时的buf 施法结束时删除 被打断施法也删除
+	CastOverFreshCD        int32   //技能施法结束(或被打断)是否都会刷新CD 1是 2否
 	AnimotorState          int32   //动画
 	RequiredLevel          int32   //初始等级需求 1级 需要玩家多少级才能学习
 	LevelsBetweenUpgrades  int32   //等级需求步长 2
