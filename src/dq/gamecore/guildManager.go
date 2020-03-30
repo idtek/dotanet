@@ -74,6 +74,9 @@ type GuildManager struct {
 	Guilds      *utils.BeeMap //当前服务器组队信息
 	OperateLock *sync.RWMutex //同步操作锁
 	Server      ServerInterface
+
+	//地图信息
+	MapInfo *protomsg.SC_GetGuildMapsInfo
 }
 
 //初始化
@@ -607,6 +610,76 @@ func (this *GuildManager) LoadDataFromDB() {
 
 	}
 
+}
+
+//进入公会地图
+func (this *GuildManager) GotoGuildMap(player *Player, mapid int32) *protomsg.SC_GotoGuildMap {
+	re := &protomsg.SC_GotoGuildMap{}
+	if player == nil {
+		return re
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
+		return re
+	}
+	guild1 := this.Guilds.Get(myguild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		return re
+	}
+	guild := guild1.(*GuildInfo)
+
+	mapfiledata := conf.CheckGotoGuildMap(mapid, guild.DB_GuildInfo.Level)
+	if mapfiledata == nil {
+		player.SendNoticeWordToClient(35)
+		return re
+	}
+	re.Result = 1
+
+	//进入成功
+	doorway := conf.DoorWay{}
+	doorway.NextX = mapfiledata.X
+	doorway.NextY = mapfiledata.Y
+	doorway.NextSceneID = mapfiledata.NextSceneID
+	mainunit := player.MainUnit
+	if mainunit != nil {
+		oldscene := mainunit.InScene
+		oldscene.HuiChengPlayer.Set(player, &doorway)
+	}
+
+	return re
+
+}
+
+//获取公会地图信息
+func (this *GuildManager) GetGuildMapsInfo() *protomsg.SC_GetGuildMapsInfo {
+	if this.MapInfo != nil {
+		return this.MapInfo
+	}
+
+	data := &protomsg.SC_GetGuildMapsInfo{}
+	data.Maps = make([]*protomsg.GuildMapInfo, 0)
+
+	for _, v := range conf.GuildMapFileDatas {
+		mapdata := v.(*conf.GuildMapFileData)
+		if mapdata.IsOpen != 1 {
+			continue
+		}
+		one := &protomsg.GuildMapInfo{}
+
+		one.ID = mapdata.ID
+		one.OpenMonthDay = mapdata.OpenMonthDay
+		one.OpenWeekhDay = mapdata.OpenWeekhDay
+		one.OpenStartTime = mapdata.OpenStartTime
+		one.OpenEndTime = mapdata.OpenEndTime
+		one.NeedGuildLevel = mapdata.NeedGuildLevel
+		one.NextSceneID = mapdata.NextSceneID
+
+		data.Maps = append(data.Maps, one)
+
+	}
+	this.MapInfo = data
+	return this.MapInfo
 }
 
 //获取公会拍卖物品

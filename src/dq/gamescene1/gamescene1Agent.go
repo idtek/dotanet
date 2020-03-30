@@ -142,6 +142,8 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
 	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
 	a.handles["CS_GuildOperate"] = a.DoGuildOperate
+	a.handles["CS_GetGuildMapsInfo"] = a.DoGetGuildMapsInfo
+	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -711,6 +713,40 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 //a.handles["CS_GetAuctionItems"] = a.DoGetAuctionItems
 //	a.handles["CS_NewPriceAuctionItem"] = a.DoNewPriceAuctionItem
 //a.handles["CS_GuildOperate"] = a.DoGuildOperate
+//a.handles["CS_GetGuildMapsInfo"] = a.DoGetGuildMapsInfo
+//	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
+
+func (a *GameScene1Agent) DoGotoGuildMap(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GotoGuildMap{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	msg := gamecore.GuildManagerObj.GotoGuildMap(player.(*gamecore.Player), h2.ID)
+	player.(*gamecore.Player).SendMsgToClient("SC_GotoGuildMap", msg)
+
+}
+
+func (a *GameScene1Agent) DoGetGuildMapsInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetGuildMapsInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	msg := gamecore.GuildManagerObj.GetGuildMapsInfo()
+	player.(*gamecore.Player).SendMsgToClient("SC_GetGuildMapsInfo", msg)
+}
+
 func (a *GameScene1Agent) DoGuildOperate(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_GuildOperate{}
 	err := proto.Unmarshal(data.Datas, h2)

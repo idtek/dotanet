@@ -10,7 +10,8 @@ import (
 	//	"net/http"
 	//	_ "net/http/pprof"
 	//	"dq/wordsfilter"
-	//	"fmt"
+	//"fmt"
+	//"time"
 	//	"os"
 )
 
@@ -21,6 +22,16 @@ import (
 //}
 
 func main() {
+	//	format := "15:04:05"
+	//	a, _ := time.Parse(format, "11:00:00")
+	//	b, _ := time.Parse(format, "16:00:00")
+	//	c, _ := time.Parse(format, "16:01:10")
+	//	fmt.Println("11time: ", a.After(b))
+	//	fmt.Println("22time: ", b.After(c))
+	//	fmt.Println("33time: ", c.After(a))
+	//	fmt.Println("44time: ", a.After(c))
+	//	fmt.Println("55time: ", b.After(a))
+	//	fmt.Println("66time: ", c.After(b))
 	//log.Info("test:%d", test(30))
 	//
 	//	ApplicationDir, _ := os.Getwd()
