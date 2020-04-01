@@ -414,6 +414,7 @@ func (this *Bullet) OnCreate() {
 	if this.MoveType == 1 {
 		this.Position = this.DestPos
 		this.NextState = 3
+		//log.Info("11111111111")
 	} else {
 		this.NextState = 2
 	}
@@ -767,14 +768,14 @@ func (this *Bullet) DoException(unit *Unit) {
 
 //对单位造成伤害 只计算一次 hurtratio 伤害系数 狂战斧 60%
 func (this *Bullet) HurtUnit(unit *Unit) int32 {
-	//log.Info("222222222")
+	//log.Info("222222222aa")
 	if unit == nil {
 		return 0
 	}
 	if _, ok := this.HurtUnits[unit.ID]; ok {
 		return 0
 	}
-	//log.Info("33333333")
+	//log.Info("33333333aa")
 	this.DoException(unit)
 
 	this.DoFreshSkillTime(unit)
@@ -935,10 +936,12 @@ func (this *Bullet) DoHurt() {
 	//log.Info("111111111111")
 	if this.HurtRange.RangeType == 1 {
 		this.DoHalo()
+		//log.Info("22222222")
 		//单体范围
 		if this.DestUnit == nil {
 			return
 		}
+		//log.Info("33333333")
 		hurtvalue := this.HurtUnit(this.DestUnit)
 		this.DoSpurting(hurtvalue)
 	} else if this.HurtRange.RangeType == 2 {

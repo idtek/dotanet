@@ -765,8 +765,10 @@ func (this *Scene) DoAddAndRemoveUnit() {
 
 		this.Units[k.(int32)] = v.(*Unit)
 
-		//添加场景BUFF
-		v.(*Unit).AddBuffFromStr(this.SceneBuff, 1, v.(*Unit))
+		//添加场景BUFF 英雄且非幻象
+		if v.(*Unit).UnitType == 1 && v.(*Unit).IsMirrorImage != 1 {
+			v.(*Unit).AddBuffFromStr(this.SceneBuff, 1, v.(*Unit))
+		}
 
 		this.NextAddUnit.Delete(k)
 

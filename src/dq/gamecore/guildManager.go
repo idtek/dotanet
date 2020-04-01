@@ -669,7 +669,7 @@ func (this *GuildManager) GetGuildMapsInfo() *protomsg.SC_GetGuildMapsInfo {
 
 		one.ID = mapdata.ID
 		one.OpenMonthDay = mapdata.OpenMonthDay
-		one.OpenWeekhDay = mapdata.OpenWeekhDay
+		one.OpenWeekDay = mapdata.OpenWeekDay
 		one.OpenStartTime = mapdata.OpenStartTime
 		one.OpenEndTime = mapdata.OpenEndTime
 		one.NeedGuildLevel = mapdata.NeedGuildLevel

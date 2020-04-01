@@ -710,7 +710,7 @@ message SC_GetGuildMapsInfo{
 message GuildMapInfo{
     int32 ID = 1;              //ID
     int32 OpenMonthDay = 2;    //在月份的几号开启    -1表示所有 10表示10号
-    int32 OpenWeekhDay = 3;    //在一周中的星期几开启 -1表示所有 5表示星期五
+    string OpenWeekDay = 3;    //在一周中的星期几开启 -1表示所有 5表示星期五
     string OpenStartTime = 4;  //开始时间 字符串
     string OpenEndTime = 5;    //结束时间 字符串
     int32 NeedGuildLevel = 6;  //需要的公会等级

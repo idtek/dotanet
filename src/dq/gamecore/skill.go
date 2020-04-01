@@ -381,12 +381,15 @@ func NewUnitSkills(dbdata []string, unitskilldata string, unit *Unit) map[int32]
 	for _, v := range dbdata {
 
 		oneskilldbdata := utils.GetFloat32FromString2(v)
-		if len(oneskilldbdata) < 3 {
+		if len(oneskilldbdata) < 2 {
 			continue
 		}
 		skillid := int32(oneskilldbdata[0])
 		skilllevel := int32(oneskilldbdata[1])
-		skillcd := oneskilldbdata[2]
+		skillcd := float32(0)
+		if len(oneskilldbdata) >= 3 {
+			skillcd = oneskilldbdata[2]
+		}
 
 		sk := &Skill{}
 		skdata := conf.GetSkillData(skillid, skilllevel)

@@ -117,4 +117,7 @@ type UnitFileData struct {
 	GuildPinExp     int32  //品经验
 	GuildExp        int32  //公会经验(只有击杀者的公会会有公会经验)
 
+	DefaultEquipItems string //默认装备(只有普通单位可以设置)
+	DefaultSkills     string //默认技能(只有普通单位可以设置)
+
 }

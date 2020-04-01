@@ -253,9 +253,15 @@ func (this *Buff) Update(dt float64) {
 		this.UpdateForceAttack()
 
 		this.TriggerRemainTime -= float32(dt)
-		//log.Info("time:%f  :%f", this.RemainTime, this.TriggerRemainTime)
+		//		if this.TypeID == 8 {
+		//			log.Info("aaa time:%f  :%f", this.RemainTime, this.TriggerRemainTime)
+		//		}
+
 		//检查是否触发
 		if this.TriggerRemainTime <= 0.00001 {
+			//			if this.TypeID == 8 {
+			//				log.Info("bbb time:%f  :%f", this.RemainTime, this.TriggerRemainTime)
+			//			}
 			//重置触发时间
 			this.TriggerRemainTime = this.HurtTimeInterval + this.TriggerRemainTime
 
@@ -269,11 +275,15 @@ func (this *Buff) Update(dt float64) {
 					}
 					b := NewBullet1(castunit, this.Parent)
 					b.SetProjectileMode("", 0)
+					b.NoCareDodge = 1 //无视闪避
 					this.ExceptionTrigger()
 					b.AddOtherHurt(HurtInfo{HurtType: this.HurtType, HurtValue: this.GetHurtValue(castunit, this.Parent)})
 					if b != nil {
 						this.Parent.AddBullet(b)
 					}
+					//					if this.TypeID == 8 {
+					//						log.Info("ccc time:%v  :%v", castunit, this.Parent)
+					//					}
 				} else {
 					this.ExceptionTrigger()
 				}

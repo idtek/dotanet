@@ -58,7 +58,10 @@ func (this *NormalAI) Update(dt float64) {
 	bigEnemies := this.GetBigEnemies()
 	if bigEnemies != nil {
 		this.AttackTarget = bigEnemies.Target
-		this.CreateAttackCmd(this.AttackTarget)
+		if this.CheckUseSkill(this.AttackTarget) == false {
+			this.CreateAttackCmd(this.AttackTarget)
+		}
+
 		//log.Info("bigEnemies:%d", this.AttackTarget.ID)
 		return
 	}
@@ -108,6 +111,19 @@ func (this *NormalAI) CreateAttackCmd(target *Unit) {
 	data.IDs = append(data.IDs, this.Parent.ID)
 	data.TargetUnitID = target.ID
 	this.Parent.AttackCmd(data)
+}
+
+//检查技能是否可以使用
+func (this *NormalAI) CheckUseSkill(target *Unit) bool {
+	if this.Parent == nil {
+		return false
+	}
+	this.Parent.AutoUseOneCanUseSkill(target)
+	if this.Parent.SkillCmdData != nil {
+		return true
+	}
+	return false
+
 }
 
 //更新仇恨列表(5秒)

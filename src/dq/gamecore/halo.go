@@ -121,7 +121,17 @@ func (this *Halo) Update(dt float32) {
 		//检查是否触发
 		if this.TriggerRemainTime <= 0.00001 {
 			//重置触发时间
-			this.TriggerRemainTime = this.Cooldown + this.TriggerRemainTime
+			if int32(this.Cooldown) == int32(-1) {
+
+				if this.Parent != nil {
+					this.TriggerRemainTime = this.Parent.GetOneAttackTime() + this.TriggerRemainTime
+				} else {
+					this.TriggerRemainTime = 10 //找不到父节点 就随便设置个数
+				}
+
+			} else {
+				this.TriggerRemainTime = this.Cooldown + this.TriggerRemainTime
+			}
 
 			if this.Parent != nil && this.Parent.InScene != nil && this.Parent.IsDisappear() == false && this.GetCastUnit().IsDisappear() == false {
 				//创建触发子弹 //伤害类型(1:物理伤害 2:魔法伤害 3:纯粹伤害 4:不造成伤害)
@@ -248,8 +258,9 @@ func (this *Halo) SetParent(parent *Unit) {
 	}
 
 	if int32(this.Cooldown) == int32(-1) {
-		this.Cooldown = parent.GetOneAttackTime()
-		this.TriggerRemainTime = this.Cooldown
+		//this.Cooldown = parent.GetOneAttackTime()
+		//this.TriggerRemainTime = this.Cooldown
+		this.TriggerRemainTime = parent.GetOneAttackTime()
 	}
 
 }

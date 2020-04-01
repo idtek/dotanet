@@ -592,7 +592,7 @@ func (this *Unit) CheckTriggerAttackSkill(b *Bullet, animattack []int32) {
 
 //技能特殊处理
 func (this *Unit) DoSkillException(skilldata *Skill, targetunit *Unit, b *Bullet) {
-	log.Info("DoSkillException---%d", skilldata.Exception)
+	//log.Info("DoSkillException---%d", skilldata.Exception)
 	if skilldata.Exception == 0 {
 		return
 	}
@@ -1180,6 +1180,37 @@ func (this *Unit) GetSkillFromTypeID(typeid int32) (*Skill, bool) {
 	}
 
 	return nil, false
+}
+
+//获取1个可以对目标使用的主动技能
+func (this *Unit) AutoUseOneCanUseSkill(target *Unit) {
+	if this.SkillCmdData != nil {
+		return
+	}
+	if target == nil || target.IsDisappear() || target.Body == nil {
+		return
+	}
+
+	useskillcmd := &protomsg.CS_PlayerSkill{}
+	useskillcmd.ID = this.ID
+	useskillcmd.X = float32(target.Body.Position.X)
+	useskillcmd.Y = float32(target.Body.Position.Y)
+	useskillcmd.TargetUnitID = target.ID
+	for _, v := range this.ItemSkills {
+		useskillcmd.SkillID = v.TypeID
+		if this.UseSkillEnable(useskillcmd) {
+			this.SkillCmdData = useskillcmd
+			return
+		}
+	}
+	for _, v := range this.Skills {
+		useskillcmd.SkillID = v.TypeID
+		if this.UseSkillEnable(useskillcmd) {
+			this.SkillCmdData = useskillcmd
+			return
+		}
+	}
+
 }
 
 //技能行为命令
@@ -1851,11 +1882,11 @@ func (this *Unit) AddItem(index int32, item *Item) bool {
 func (this *Unit) AddItemSkill(skill *Skill) bool {
 	//this.ItemSkills[skill] = skill //所有道具技能
 	if skill.ActiveUnitAcpabilities == 1 && this.AttackAcpabilities != 1 {
-		log.Info("no AddItemSkill Acpabilities %d", skill.TypeID)
+		//log.Info("no AddItemSkill Acpabilities %d", skill.TypeID)
 		return false
 	}
 	if skill.ActiveUnitAcpabilities == 2 && this.AttackAcpabilities != 2 {
-		log.Info("no AddItemSkill Acpabilities %d", skill.TypeID)
+		//log.Info("no AddItemSkill Acpabilities %d", skill.TypeID)
 		return false
 	}
 
@@ -1979,14 +2010,30 @@ func CreateUnit(scene *Scene, typeid int32) *Unit {
 	}
 
 	//初始化技能被动光环
-	unitre.ItemSkills = make([]*Skill, 0)  //所有道具技能
-	unitre.Skills = make(map[int32]*Skill) //所有技能
+	unitre.ItemSkills = make([]*Skill, 0) //所有道具技能
+	//unitre.Skills = make(map[int32]*Skill) //所有技能
+
+	//创建默认技能
+	skilldbdata := strings.Split(unitre.DefaultSkills, ";")
+	unitre.Skills = NewUnitSkills(skilldbdata, unitre.InitSkillsInfo, unitre) //所有技能
+	if len(unitre.Skills) > 0 {
+		log.Info("---NewUnitSkills---%s  %v", unitre.DefaultSkills, unitre.Skills)
+	}
+	//
+
 	unitre.HaloInSkills = make(map[int32][]int32)
 	unitre.FreshHaloInSkills()
 
 	unitre.Init()
+
 	//创建道具
 	unitre.Items = make([]*Item, UnitEquitCount)
+
+	defaultitems := strings.Split(unitre.DefaultEquipItems, ";")
+	for k, v := range defaultitems {
+		unitre.AddItem(int32(k), NewItemFromDB(v))
+	}
+	//
 	unitre.InitHPandMP(1.0, 1.0)
 	unitre.IsMain = 2
 	//unitre.UnitType = 2 //单位类型(1:英雄 2:普通单位 3:远古 4:boss)
@@ -2015,6 +2062,16 @@ func (this *Unit) CopyItem(unit *Unit) {
 	}
 
 }
+
+//创建回城技能
+func (this *Unit) AddHuichengSkill() {
+	skillhuicheng := NewOneSkill(121, 1, this)
+	if skillhuicheng != nil {
+		skillhuicheng.Index = 7
+		this.AddItemSkill(skillhuicheng)
+	}
+}
+
 func CreateUnitByCopyUnit(unit *Unit, controlplayer *Player) *Unit {
 	if unit == nil || unit.InScene == nil {
 		return nil
@@ -2122,6 +2179,7 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 	//创建技能
 	unitre.ItemSkills = make([]*Skill, 0) //所有道具技能
 	skilldbdata := strings.Split(characterinfo.Skill, ";")
+	//5,4,18.0000,1;6,2,18.2673,0;
 	unitre.Skills = NewUnitSkills(skilldbdata, unitre.InitSkillsInfo, unitre) //所有技能
 	for _, v := range unitre.Skills {
 		log.Info("-------new skill:%v", v)
@@ -2134,12 +2192,6 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 
 	//创建道具
 	unitre.Items = make([]*Item, UnitEquitCount)
-	//	unitre.Items[0] = NewItemFromDB(characterinfo.Item1)
-	//	unitre.Items[1] = NewItemFromDB(characterinfo.Item2)
-	//	unitre.Items[2] = NewItemFromDB(characterinfo.Item3)
-	//	unitre.Items[3] = NewItemFromDB(characterinfo.Item4)
-	//	unitre.Items[4] = NewItemFromDB(characterinfo.Item5)
-	//	unitre.Items[5] = NewItemFromDB(characterinfo.Item6)
 	unitre.AddItem(0, NewItemFromDB(characterinfo.Item1))
 	unitre.AddItem(1, NewItemFromDB(characterinfo.Item2))
 	unitre.AddItem(2, NewItemFromDB(characterinfo.Item3))
@@ -2149,11 +2201,7 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 	//unitre.FreshUseableItem()
 
 	//创建回城技能
-	skillhuicheng := NewOneSkill(121, 1, unitre)
-	if skillhuicheng != nil {
-		skillhuicheng.Index = 7
-		unitre.AddItemSkill(skillhuicheng)
-	}
+	unitre.AddHuichengSkill()
 
 	unitre.FreshHaloInSkills()
 
@@ -3425,12 +3473,12 @@ func (this *Unit) CheckAttackSucOneSkillTrigger(v *Skill, bullet *Bullet) {
 
 //受到来自子弹的伤害 calcmiss是否计算miss 溅射不会miss
 func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
-
+	//log.Info("aaaa")
 	//无敌
 	if this.Invincible == 1 {
 		return false, 0, 0, 0
 	}
-
+	//log.Info("bbbb")
 	//计算闪避
 	if bullet.SkillID == -1 {
 		//普通攻击
@@ -3449,6 +3497,7 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 		//闪避了
 		if isDodge {
 			//本单位显示miss
+			//log.Info("cccc")
 			this.ShowMiss(true)
 			return true, 0, 0, 0
 		}
@@ -3503,6 +3552,8 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 
 	//-----扣血--
 	hurtvalue := (physicAttack + magicAttack + pureAttack)
+
+	//log.Info("hurt:%d  :%d :%d", physicAttack, magicAttack, pureAttack)
 
 	//伤害加深或者减免
 	doallhurtcv := float32(0)
