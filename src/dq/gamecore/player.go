@@ -243,8 +243,28 @@ func (this *Player) ChangeAttackMode(data *protomsg.CS_ChangeAttackMode) {
 	}
 }
 
+//获取等级
+func (this *Player) GetLevel() int32 {
+	if this.MainUnit == nil {
+		return 0
+	}
+	return this.MainUnit.Level
+}
+
 //交换道具位置 背包位置
 func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
+	if this.MainUnit == nil || this.MainUnit.InScene == nil {
+		return
+	}
+	//检查是否允许更换装备
+	if this.MainUnit.InScene.ChangeEquipAble != 1 {
+		if data.SrcType != data.DestType {
+			//本场景不支持更换装备
+			this.SendNoticeWordToClient(36)
+			return
+		}
+	}
+
 	//1表示装备栏 2表示背包
 	if data.SrcType == 1 {
 		if data.SrcPos < 0 || data.SrcPos >= UnitEquitCount {
@@ -264,9 +284,6 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 		if data.DestPos < 0 || data.DestPos >= MaxBagCount {
 			return
 		}
-	}
-	if this.MainUnit == nil {
-		return
 	}
 
 	log.Info("-------ChangeItemPos:%d  %d  %d  %d", data.SrcPos, data.DestPos, data.SrcType, data.DestType)

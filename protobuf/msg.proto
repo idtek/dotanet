@@ -723,3 +723,41 @@ message CS_GotoGuildMap{
 message SC_GotoGuildMap{
     int32 Result = 1;//1表示成功 其他表示失败
 }
+
+//获取活动地图
+message CS_GetActivityMapsInfo{
+    int32 ID = 1;
+}
+//返回活动地图信息
+message SC_GetActivityMapsInfo{
+    repeated ActivityMapInfo Maps = 1;//
+}
+//活动地图信息
+message ActivityMapInfo{
+    int32 ID = 1;              //ID
+    int32 OpenMonthDay = 2;    //在月份的几号开启    -1表示所有 10表示10号
+    string OpenWeekDay = 3;    //在一周中的星期几开启 -1表示所有 5表示星期五
+    string OpenStartTime = 4;  //开始时间 字符串
+    string OpenEndTime = 5;    //结束时间 字符串
+    int32 NeedLevel = 6;  //需要的公会等级
+    int32 NextSceneID = 7;     //场景ID
+    int32 PriceType = 8; //价格类型
+    int32 Price = 9;// 价格
+}
+//获取地图信息包括boss刷新时间和掉落道具
+message CS_GetMapInfo{
+    int32 SceneID = 1;
+}
+//返回地图信息
+message SC_GetMapInfo{
+    int32 SceneID = 1;
+    int32 BossFreshTime = 2;//boss刷新时间
+    repeated int32 DropItems = 3;//掉落道具类型ID
+}
+//进入活动地图
+message CS_GotoActivityMap{
+    int32 ID = 1; //活动地图ID
+}
+message SC_GotoActivityMap{
+    int32 Result = 1;//1表示成功 其他表示失败
+}

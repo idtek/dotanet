@@ -1946,6 +1946,26 @@ func (this *Unit) RemoveItemSkill(skill *Skill) {
 //	}
 //}
 
+//获取掉落道具ID
+func (this *Unit) GetDropItems() []int32 {
+	drop := make([]int32, 0)
+	if len(this.NPCItemDropInfo) > 0 {
+		dropitems := strings.Split(this.NPCItemDropInfo, ";")
+		for _, v := range dropitems {
+			param := utils.GetFloat32FromString3(v, ",")
+			if len(param) != 2 {
+				continue
+			}
+			//
+			if true {
+				drop = append(drop, int32(param[0]))
+			}
+
+		}
+	}
+	return drop
+}
+
 //掉落道具
 func (this *Unit) DropItem() {
 
@@ -2016,9 +2036,9 @@ func CreateUnit(scene *Scene, typeid int32) *Unit {
 	//创建默认技能
 	skilldbdata := strings.Split(unitre.DefaultSkills, ";")
 	unitre.Skills = NewUnitSkills(skilldbdata, unitre.InitSkillsInfo, unitre) //所有技能
-	if len(unitre.Skills) > 0 {
-		log.Info("---NewUnitSkills---%s  %v", unitre.DefaultSkills, unitre.Skills)
-	}
+	//	if len(unitre.Skills) > 0 {
+	//		log.Info("---NewUnitSkills---%s  %v", unitre.DefaultSkills, unitre.Skills)
+	//	}
 	//
 
 	unitre.HaloInSkills = make(map[int32][]int32)
@@ -2381,6 +2401,11 @@ func (this *Unit) DoAvive(postype int32, hp float32, mp float32) {
 	if this.InScene == nil {
 		return
 	}
+	if this.InScene.DeathHuicheng == 1 {
+		this.InScene.HuiCheng(this.MyPlayer)
+		return
+	}
+
 	if postype == 2 {
 		////StartX	StartY	EndX	EndY
 		x := utils.GetRandomFloatTwoNum(this.InScene.StartX, this.InScene.EndX)

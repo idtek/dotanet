@@ -150,15 +150,16 @@ func (app *DefaultApp) Run() error {
 	wordsfilter.WF.GenerateWithFile("/bin/conf/words_filter.txt") //字符串过滤
 	conf.LoadScene("/bin/conf/SceneCollides.sc")
 	conf.LoadCreateUnit("/bin/conf/CreateUnits.sc")
-	conf.LoadStoreFileData() //加载商店信息
-	conf.LoadLevelFileData() //加载等级相关配置
-	conf.LoadSceneFileData() //加载场景配置信息
-	conf.LoadUnitFileData()  //加载单位数据配置
-	conf.LoadSkillFileData() //加载技能数据配置
-	conf.LoadBuffFileData()  //加载buff数据配置
-	conf.LoadHaloFileData()  //加载halo数据配置
-	conf.LoadItemFileData()  //加载道具数据配置
-	conf.LoadGuildFileData() //加载公会数据配置
+	conf.LoadStoreFileData()    //加载商店信息
+	conf.LoadLevelFileData()    //加载等级相关配置
+	conf.LoadSceneFileData()    //加载场景配置信息
+	conf.LoadUnitFileData()     //加载单位数据配置
+	conf.LoadSkillFileData()    //加载技能数据配置
+	conf.LoadBuffFileData()     //加载buff数据配置
+	conf.LoadHaloFileData()     //加载halo数据配置
+	conf.LoadItemFileData()     //加载道具数据配置
+	conf.LoadGuildFileData()    //加载公会数据配置
+	conf.LoadActivityFileData() //加载活动地图数据配置
 
 	log.InitBeego(true, "dq", Logdir, make(map[string]interface{}))
 

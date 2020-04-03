@@ -45,17 +45,19 @@ func GetAllScene() map[interface{}]interface{} {
 //单位配置文件数据
 type SceneFileData struct {
 	//配置文件数据
-	TypeID         int32  //类型ID
-	ScenePath      string //场景路径
-	CreateUnit     string //创建单位
-	UnitExperience int32  //击杀单位获得经验
-	UnitGold       int32  //击杀单位获得金币
-	StartX         float32
-	StartY         float32
-	EndX           float32
-	EndY           float32
-	IsOpen         int32  //1表示开放 2表示关闭
-	SceneBuff      string //场景BUFF 进入场景的单位都会添加此BUFF
+	TypeID          int32  //类型ID
+	ScenePath       string //场景路径
+	CreateUnit      string //创建单位
+	UnitExperience  int32  //击杀单位获得经验
+	UnitGold        int32  //击杀单位获得金币
+	StartX          float32
+	StartY          float32
+	EndX            float32
+	EndY            float32
+	IsOpen          int32  //1表示开放 2表示关闭
+	SceneBuff       string //场景BUFF 进入场景的单位都会添加此BUFF
+	ChangeEquipAble int32  //是否可以更换装备 1表示可以 其他表示否
+	DeathHuicheng   int32  //死亡后是否回到和平世界 1表示是 其他表示否
 	//StartX	StartY	EndX	EndY
 
 }

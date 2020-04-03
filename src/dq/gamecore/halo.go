@@ -188,6 +188,8 @@ func (this *Halo) Update(dt float32) {
 								}
 								//log.Info("--create bullet %f", utils.GetCurTimeOfSecond())
 								b := NewBullet1(this.GetCastUnit(), v)
+								//无视闪避
+								b.AddNoCareDodge(1)
 								b.SetStartPosition(vec2d.NewVector3(this.Position.X, this.Position.Y, float64(this.PositionZ)))
 								b.SetNormalHurtRatio(this.NormalHurt)
 								b.SetProjectileMode(this.BulletModeType, this.BulletSpeed)

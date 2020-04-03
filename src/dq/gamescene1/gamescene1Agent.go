@@ -145,6 +145,11 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetGuildMapsInfo"] = a.DoGetGuildMapsInfo
 	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
 
+	//活动地图
+	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
+	a.handles["CS_GetMapInfo"] = a.DoGetMapInfo
+	a.handles["CS_GotoActivityMap"] = a.DoGotoActivityMap
+
 	//创建场景
 	allscene := conf.GetAllScene()
 	for _, v := range allscene {
@@ -700,6 +705,89 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 
 	}
 	player.(*gamecore.Player).SendMsgToClient("SC_GetFriendsList", d1)
+}
+
+//活动地图
+//	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
+//	a.handles["CS_GetMapInfo"] = a.DoGetMapInfo
+//a.handles["CS_GotoActivityMap"] = a.DoGotoActivityMap
+func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GotoActivityMap{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	level := player.(*gamecore.Player).GetLevel()
+	mapdata := conf.CheckGotoActivityMap(h2.ID, level)
+	if mapdata == nil {
+		player.(*gamecore.Player).SendNoticeWordToClient(35)
+		return
+	}
+	if player.(*gamecore.Player).BuyItemSubMoneyLock(mapdata.PriceType, mapdata.Price) == false {
+		player.(*gamecore.Player).SendNoticeWordToClient(mapdata.PriceType)
+	}
+	//进入新地图
+	doorway := conf.DoorWay{}
+	doorway.NextX = mapdata.X
+	doorway.NextY = mapdata.Y
+	doorway.NextSceneID = mapdata.NextSceneID
+	mainunit := player.(*gamecore.Player).MainUnit
+	if mainunit != nil {
+		oldscene := mainunit.InScene
+		oldscene.HuiChengPlayer.Set(player, &doorway)
+	}
+	//进入成功
+	re := &protomsg.SC_GotoActivityMap{}
+	re.Result = 1
+	player.(*gamecore.Player).SendMsgToClient("SC_GotoActivityMap", re)
+
+}
+func (a *GameScene1Agent) DoGetActivityMapsInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetActivityMapsInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	//msg := conf.SC_GetActivityMapsInfoMsg
+	player.(*gamecore.Player).SendMsgToClient("SC_GetActivityMapsInfo", conf.SC_GetActivityMapsInfoMsg)
+
+}
+func (a *GameScene1Agent) DoGetMapInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetMapInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	scene := a.Scenes.Get(h2.SceneID)
+	if scene == nil {
+		return
+	}
+
+	msg := &protomsg.SC_GetMapInfo{}
+	msg.SceneID = h2.SceneID
+	msg.BossFreshTime = scene.(*gamecore.Scene).BossFreshTime
+	msg.DropItems = make([]int32, 0)
+	items := scene.(*gamecore.Scene).DropItems.Items()
+	for _, v := range items {
+		msg.DropItems = append(msg.DropItems, v.(int32))
+	}
+	player.(*gamecore.Player).SendMsgToClient("SC_GetMapInfo", msg)
 }
 
 //公会相关

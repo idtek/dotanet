@@ -58,6 +58,10 @@ type Scene struct {
 	NextAddPlayer    *utils.BeeMap //下一帧需要增加的玩家
 	NextRemovePlayer *utils.BeeMap //下一帧需要删除的玩家
 
+	//地图信息
+	DropItems     *utils.BeeMap //本地图会掉落的道具
+	BossFreshTime int32         //boss刷新时间 秒为单位
+
 	ChangeScene ChangeSceneFunc
 	Sverver     ServerInterface
 	Quit        bool //是否退出
@@ -92,6 +96,8 @@ func (this *Scene) Init() {
 
 	this.NextAddPlayer = utils.NewBeeMap()
 	this.NextRemovePlayer = utils.NewBeeMap()
+
+	this.DropItems = utils.NewBeeMap()
 
 	//
 	this.ReCreateUnitInfo = make(map[*ReCreateUnit]*ReCreateUnit)
@@ -128,12 +134,19 @@ func (this *Scene) Init() {
 	//场景分区数据 创建100个单位
 	createunitdata := conf.GetCreateUnitData(this.CreateUnit)
 	for _, v := range createunitdata.Units {
-		v.ReCreateTime = v.ReCreateTime + 60 //敌人单位+30秒重生时间
+		v.ReCreateTime = v.ReCreateTime //敌人单位+30秒重生时间
 		oneunit := this.CreateUnitByConf(v)
 		if oneunit != nil {
-			//item := NewItem(77)
-			//oneunit.AddItem(-1, item)
-			//log.Info("createunity")
+			//保存会掉落的道具
+			dropitems := oneunit.GetDropItems()
+			for _, v1 := range dropitems {
+				this.DropItems.Set(v1, v1)
+			}
+			//boss刷新时间
+			if oneunit.UnitType == 4 {
+				this.BossFreshTime = int32(v.ReCreateTime)
+			}
+
 		}
 
 		//log.Info("createunity :%v", v)

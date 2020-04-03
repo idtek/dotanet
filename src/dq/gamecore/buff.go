@@ -275,7 +275,8 @@ func (this *Buff) Update(dt float64) {
 					}
 					b := NewBullet1(castunit, this.Parent)
 					b.SetProjectileMode("", 0)
-					b.NoCareDodge = 1 //无视闪避
+					//无视闪避
+					b.AddNoCareDodge(1)
 					this.ExceptionTrigger()
 					b.AddOtherHurt(HurtInfo{HurtType: this.HurtType, HurtValue: this.GetHurtValue(castunit, this.Parent)})
 					if b != nil {
