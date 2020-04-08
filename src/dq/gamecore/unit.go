@@ -1506,12 +1506,12 @@ func (this *Unit) MoveCmd(data *protomsg.CS_PlayerMove) {
 	}
 	//检测是否要中断攻击
 	if this.MoveCmdData == nil {
-		log.Info("---------111111")
+		//log.Info("---------111111")
 		this.StopAttackCmd()
 		//this.MoveCmdData = data
 	} else {
 		if this.MoveCmdData.IsStart == false && data.IsStart == true {
-			log.Info("---------2222")
+			//log.Info("---------2222")
 			this.StopAttackCmd()
 			//this.MoveCmdData = data
 		}
@@ -1534,7 +1534,7 @@ func (this *Unit) MoveCmd(data *protomsg.CS_PlayerMove) {
 
 	this.MoveCmdData = data
 
-	log.Info("---------MoveCmd")
+	//log.Info("---------MoveCmd")
 }
 
 //创建子弹的时候需要使用
@@ -3553,7 +3553,7 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 	if this.PhisicImmune != 1 {
 		physicAttack = bullet.GetAttackOfType(1) + magicdeletephisichurt //物理攻击
 		//log.Info("  physicAttack:%d    %d", physicAttack, magicdeletephisichurt)
-
+		//log.Info("11  physicAttack:%d    %d", physicAttack, this.CheckPhisicHurtBlock(physicAttack))
 		physicAttack = physicAttack - this.CheckPhisicHurtBlock(physicAttack) //伤害格挡
 		//计算护甲抵消后伤害
 		if bullet.DoHurtPhysicalAmaorCV == 0 {

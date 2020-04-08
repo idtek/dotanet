@@ -503,14 +503,14 @@ func (a *GameScene1Agent) DoGetUnitInfo(data *protomsg.MsgBase) {
 //DoPlayerSkill
 func (a *GameScene1Agent) DoPlayerSkill(data *protomsg.MsgBase) {
 
-	log.Info("---------DoPlayerSkill")
+	//log.Info("---------DoPlayerSkill")
 	h2 := &protomsg.CS_PlayerSkill{}
 	err := proto.Unmarshal(data.Datas, h2)
 	if err != nil {
 		log.Info(err.Error())
 		return
 	}
-	log.Info("---------%v  %f  %f", h2, h2.X, h2.Y)
+	//log.Info("---------%v  %f  %f", h2, h2.X, h2.Y)
 
 	player := a.Players.Get(data.Uid)
 	if player == nil {
@@ -523,14 +523,14 @@ func (a *GameScene1Agent) DoPlayerSkill(data *protomsg.MsgBase) {
 
 func (a *GameScene1Agent) DoPlayerAttack(data *protomsg.MsgBase) {
 
-	log.Info("---------DoPlayerAttack")
+	//log.Info("---------DoPlayerAttack")
 	h2 := &protomsg.CS_PlayerAttack{}
 	err := proto.Unmarshal(data.Datas, h2)
 	if err != nil {
 		log.Info(err.Error())
 		return
 	}
-	log.Info("---------%v", h2)
+	//log.Info("---------%v", h2)
 
 	player := a.Players.Get(data.Uid)
 	if player == nil {

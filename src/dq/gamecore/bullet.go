@@ -1052,6 +1052,11 @@ func (this *Bullet) DoEjection() {
 		if v.Body == nil {
 			continue
 		}
+		//如果是子弹的当前目标
+		if v == this.DestUnit {
+			continue
+		}
+
 		//目前只对敌人弹射
 		if this.SrcUnit.CheckUnitTargetTeam(v, 2) == false {
 			continue

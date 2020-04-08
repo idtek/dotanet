@@ -64,13 +64,13 @@ func (this *IdleState) OnTransform() {
 	if this.Parent.HaveSkillCmd() {
 		//在技能范围内
 		if this.Parent.IsInSkillRange(this.Parent.SkillCmdData) {
-			log.Info("-IsInSkillRange-")
+			//log.Info("-IsInSkillRange-")
 			this.OnEnd()
 			this.Parent.SetState(NewChantState(this.Parent))
 
 		} else {
 			//有攻击指令 却不在攻击范围内
-			log.Info("-IsOutSkillRange-")
+			//log.Info("-IsOutSkillRange-")
 			this.OnEnd()
 			this.Parent.SetState(NewMoveState(this.Parent))
 		}
@@ -680,7 +680,7 @@ func (this *ChantState) OnStart() {
 
 	} else if skilldata.CastTargetType == 3 || skilldata.CastTargetType == 5 {
 		targetpos := vec2d.Vec2{X: float64(this.Parent.SkillCmdData.X), Y: float64(this.Parent.SkillCmdData.Y)}
-		log.Info("---chanttargetpos:%v", targetpos)
+		//log.Info("---chanttargetpos:%v", targetpos)
 		this.StartTargetPos = targetpos
 		this.Parent.SetDirection(vec2d.Sub(targetpos, this.Parent.Body.Position))
 	}
