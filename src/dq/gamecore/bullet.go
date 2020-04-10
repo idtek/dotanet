@@ -864,7 +864,7 @@ func (this *Bullet) HurtUnit(unit *Unit) int32 {
 		unit.ClearBuffForTarget(this.SrcUnit, this.ClearLevel)
 		//buff
 		for _, v := range this.TargetBuff {
-			buffs := unit.QuickAddBuffFromStr(v.Buff, v.BuffLevel, this.SrcUnit)
+			buffs := unit.QuickAddBuffFromStr(v.Buff, v.BuffLevel, this.SrcUnit, true)
 			//DoBuffException
 			for _, v1 := range buffs {
 				this.DoBuffException(v1)

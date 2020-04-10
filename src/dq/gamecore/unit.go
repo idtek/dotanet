@@ -974,7 +974,7 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 	this.ClearBuffForTarget(this, skilldata.MyClearLevel)
 
 	//MyBuff
-	buffs := this.QuickAddBuffFromStr(skilldata.MyBuff, skilldata.Level, this)
+	buffs := this.QuickAddBuffFromStr(skilldata.MyBuff, skilldata.Level, this, true)
 	for _, v := range buffs {
 		v.UseableUnitID = data.TargetUnitID
 	}
@@ -3307,7 +3307,7 @@ func (this *Unit) GetBuff(typeid int32) *Buff {
 }
 
 //通过bufftypeid string 添加buff  castunit给我添加 立即生效
-func (this *Unit) QuickAddBuffFromStr(buffsstr string, level int32, castunit *Unit) []*Buff {
+func (this *Unit) QuickAddBuffFromStr(buffsstr string, level int32, castunit *Unit, isquick bool) []*Buff {
 	//log.Info("---------------------:%s", buffsstr)
 	buffs := utils.GetInt32FromString2(buffsstr)
 	re := make([]*Buff, 0)
@@ -3322,7 +3322,7 @@ func (this *Unit) QuickAddBuffFromStr(buffsstr string, level int32, castunit *Un
 
 		}
 	}
-	if len(re) > 0 {
+	if len(re) > 0 && isquick == true {
 		//添加了BUF 重新计算属性
 		this.CalProperty()
 	}
@@ -3331,21 +3331,7 @@ func (this *Unit) QuickAddBuffFromStr(buffsstr string, level int32, castunit *Un
 
 //通过bufftypeid string 添加buff  castunit给我添加 下一帧生效
 func (this *Unit) AddBuffFromStr(buffsstr string, level int32, castunit *Unit) []*Buff {
-	//log.Info("---------------------:%s", buffsstr)
-	buffs := utils.GetInt32FromString2(buffsstr)
-	re := make([]*Buff, 0)
-	for _, v := range buffs {
-		buff := NewBuff(v, level, this)
-		//log.Info("----------buff:%d", buff.TypeID)
-		if buff != nil {
-			buff = this.AddBuffFromBuff(buff, castunit)
-			if buff != nil {
-				re = append(re, buff)
-			}
-
-		}
-	}
-	return re
+	return this.QuickAddBuffFromStr(buffsstr, level, castunit, false)
 }
 
 //通过bufftypeid string 添加halo
