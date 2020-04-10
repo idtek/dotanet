@@ -797,9 +797,6 @@ func (this *Bullet) HurtUnit(unit *Unit) int32 {
 		unit.ChangeMP(this.AddMPValue)
 	}
 
-	//伤害
-	ismiss, hurtvalue, physichurt, magichurt := unit.BeAttacked(this)
-
 	//强制移动
 	if this.ForceMoveTime > 0 {
 
@@ -859,14 +856,15 @@ func (this *Bullet) HurtUnit(unit *Unit) int32 {
 
 	}
 
+	ismiss := unit.CheckBeAttackMiss(this)
+
 	//小于0 表示被miss
 	if ismiss == false {
-
 		//驱散buff
 		unit.ClearBuffForTarget(this.SrcUnit, this.ClearLevel)
 		//buff
 		for _, v := range this.TargetBuff {
-			buffs := unit.AddBuffFromStr(v.Buff, v.BuffLevel, this.SrcUnit)
+			buffs := unit.QuickAddBuffFromStr(v.Buff, v.BuffLevel, this.SrcUnit)
 			//DoBuffException
 			for _, v1 := range buffs {
 				this.DoBuffException(v1)
@@ -878,6 +876,10 @@ func (this *Bullet) HurtUnit(unit *Unit) int32 {
 				}
 			}
 		}
+
+		//伤害
+		hurtvalue, physichurt, magichurt := unit.BeAttacked(this)
+
 		if this.SrcUnit == nil || this.SrcUnit.IsDisappear() {
 			return hurtvalue
 		}
@@ -904,8 +906,10 @@ func (this *Bullet) HurtUnit(unit *Unit) int32 {
 			mph.IsCrit = 1
 		}
 		this.SrcUnit.MyPlayer.AddHurtValue(mph)
+
+		return hurtvalue
 	}
-	return hurtvalue
+	return 0
 
 }
 func (this *Bullet) DoHalo() {

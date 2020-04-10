@@ -1435,14 +1435,14 @@ func (a *GameScene1Agent) DoLodingScene(data *protomsg.MsgBase) {
 
 func (a *GameScene1Agent) DoPlayerMove(data *protomsg.MsgBase) {
 
-	//log.Info("---------DoPlayerOperate")
+	log.Info("---------DoPlayerOperate")
 	h2 := &protomsg.CS_PlayerMove{}
 	err := proto.Unmarshal(data.Datas, h2)
 	if err != nil {
 		log.Info(err.Error())
 		return
 	}
-	//log.Info("---------%v", h2)
+	log.Info("---------%v", h2)
 
 	player := a.Players.Get(data.Uid)
 	if player == nil {

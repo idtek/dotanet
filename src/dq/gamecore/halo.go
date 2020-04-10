@@ -259,9 +259,8 @@ func (this *Halo) SetParent(parent *Unit) {
 		this.Position = parent.Body.Position
 	}
 
-	if int32(this.Cooldown) == int32(-1) {
-		//this.Cooldown = parent.GetOneAttackTime()
-		//this.TriggerRemainTime = this.Cooldown
+	if int32(this.InitCooldown) == int32(-1) {
+
 		this.TriggerRemainTime = parent.GetOneAttackTime()
 	}
 
@@ -281,7 +280,8 @@ func NewHalo(typeid int32, level int32) *Halo {
 	halo.HaloData = *halodata
 	halo.Level = level
 	halo.RemainTime = halodata.Time
-	halo.TriggerRemainTime = halodata.Cooldown
+	//halo.TriggerRemainTime = halodata.Cooldown
+	halo.TriggerRemainTime = halodata.InitCooldown
 	halo.IsEnd = false
 	halo.IsActive = true
 	halo.IsForbidden = false

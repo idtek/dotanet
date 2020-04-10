@@ -112,6 +112,8 @@ type HaloData struct {
 	NormalHurt         float32 //附带普通攻击百分比 (0.5 为 50%的普通攻击伤害) 一般为0
 	ExceptionParam     string  //特殊情况处理参数
 
+	InitCooldown float32 //初始生效冷却时间
+
 }
 
 //单位配置文件数据
@@ -126,6 +128,7 @@ type HaloFileData struct {
 	HaloRange          string //光环范围 小于等于0表示单体
 	NormalHurt         string //附带普通攻击百分比 (0.5 为 50%的普通攻击伤害) 一般为0
 	ExceptionParam     string //特殊情况处理参数
+	InitCooldown       string //初始生效冷却时间
 
 }
 
@@ -141,6 +144,8 @@ func (this *HaloFileData) Trans2HaloData(re *[]HaloData) {
 	HaloRange := utils.GetFloat32FromString2(this.HaloRange)
 	NormalHurt := utils.GetFloat32FromString2(this.NormalHurt)
 	ExceptionParam := utils.GetStringFromString2(this.ExceptionParam)
+
+	InitCooldown := utils.GetFloat32FromString2(this.InitCooldown)
 
 	for i := int32(0); i < this.MaxLevel; i++ {
 		ssd := HaloData{}
@@ -159,6 +164,11 @@ func (this *HaloFileData) Trans2HaloData(re *[]HaloData) {
 			ssd.Cooldown = Cooldown[len(Cooldown)-1]
 		} else {
 			ssd.Cooldown = Cooldown[i]
+		}
+		if int32(len(InitCooldown)) <= i {
+			ssd.InitCooldown = InitCooldown[len(InitCooldown)-1]
+		} else {
+			ssd.InitCooldown = InitCooldown[i]
 		}
 		if int32(len(HurtValue)) <= i {
 			ssd.HurtValue = HurtValue[len(HurtValue)-1]

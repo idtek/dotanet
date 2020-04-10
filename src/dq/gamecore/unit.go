@@ -974,7 +974,7 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 	this.ClearBuffForTarget(this, skilldata.MyClearLevel)
 
 	//MyBuff
-	buffs := this.AddBuffFromStr(skilldata.MyBuff, skilldata.Level, this)
+	buffs := this.QuickAddBuffFromStr(skilldata.MyBuff, skilldata.Level, this)
 	for _, v := range buffs {
 		v.UseableUnitID = data.TargetUnitID
 	}
@@ -2830,10 +2830,12 @@ func (this *Unit) CalControlState() {
 
 	this.RecoverHurt = 0
 
-	this.Body.IsCollisoin = true
-	this.Body.TurnDirection = true
-	this.Body.CollisoinLevel = this.CollisoinLevel
-	this.Body.MoveDir = vec2d.Vec2{}
+	if this.Body != nil {
+		this.Body.IsCollisoin = true
+		this.Body.TurnDirection = true
+		this.Body.CollisoinLevel = this.CollisoinLevel
+		this.Body.MoveDir = vec2d.Vec2{}
+	}
 
 	this.Z = 0
 }
@@ -3304,7 +3306,30 @@ func (this *Unit) GetBuff(typeid int32) *Buff {
 	return nil
 }
 
-//通过bufftypeid string 添加buff  castunit给我添加
+//通过bufftypeid string 添加buff  castunit给我添加 立即生效
+func (this *Unit) QuickAddBuffFromStr(buffsstr string, level int32, castunit *Unit) []*Buff {
+	//log.Info("---------------------:%s", buffsstr)
+	buffs := utils.GetInt32FromString2(buffsstr)
+	re := make([]*Buff, 0)
+	for _, v := range buffs {
+		buff := NewBuff(v, level, this)
+		//log.Info("----------buff:%d", buff.TypeID)
+		if buff != nil {
+			buff = this.AddBuffFromBuff(buff, castunit)
+			if buff != nil {
+				re = append(re, buff)
+			}
+
+		}
+	}
+	if len(re) > 0 {
+		//添加了BUF 重新计算属性
+		this.CalProperty()
+	}
+	return re
+}
+
+//通过bufftypeid string 添加buff  castunit给我添加 下一帧生效
 func (this *Unit) AddBuffFromStr(buffsstr string, level int32, castunit *Unit) []*Buff {
 	//log.Info("---------------------:%s", buffsstr)
 	buffs := utils.GetInt32FromString2(buffsstr)
@@ -3496,14 +3521,8 @@ func (this *Unit) CheckAttackSucOneSkillTrigger(v *Skill, bullet *Bullet) {
 	}
 }
 
-//受到来自子弹的伤害 calcmiss是否计算miss 溅射不会miss
-func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
-	//log.Info("aaaa")
-	//无敌
-	if this.Invincible == 1 {
-		return false, 0, 0, 0
-	}
-	//log.Info("bbbb")
+//检查当次攻击是否miss
+func (this *Unit) CheckBeAttackMiss(bullet *Bullet) bool {
 	//计算闪避
 	if bullet.SkillID == -1 {
 		//普通攻击
@@ -3521,12 +3540,24 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 
 		//闪避了
 		if isDodge {
-			//本单位显示miss
-			//log.Info("cccc")
 			this.ShowMiss(true)
-			return true, 0, 0, 0
+			return true
 		}
 
+	}
+	return false
+}
+
+//受到来自子弹的伤害 calcmiss是否计算miss 溅射不会miss
+func (this *Unit) BeAttacked(bullet *Bullet) (int32, int32, int32) {
+	//log.Info("aaaa")
+	//无敌
+	if this.Invincible == 1 {
+		return 0, 0, 0
+	}
+	//log.Info("bbbb")
+	//计算闪避
+	if bullet.SkillID == -1 {
 		//触发攻击命中
 		if bullet.SrcUnit != nil && bullet.SrcUnit.IsDisappear() == false && bullet.IsRecoverHurt != 1 {
 			bullet.SrcUnit.CheckAttackSucAllSkillTrigger(bullet)
@@ -3621,7 +3652,7 @@ func (this *Unit) BeAttacked(bullet *Bullet) (bool, int32, int32, int32) {
 
 	this.SaveTimeAndHurt(-hurtvalue)
 	//log.Info("---hurtvalue---:%d   %f", hurtvalue, this.PhysicalResist)
-	return false, -hurtvalue, -physicAttack, -magicAttack
+	return -hurtvalue, -physicAttack, -magicAttack
 }
 func (this *Unit) CheckTriggerCreateBuff(v1 *Buff) {
 	if v1 == nil {
