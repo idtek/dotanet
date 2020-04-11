@@ -3273,7 +3273,7 @@ func (this *Unit) AddBuffFromBuff(buff *Buff, castunit *Unit) *Buff {
 	bf, ok := this.Buffs[buff.TypeID]
 
 	//叠加机制
-	//		OverlyingType          int32 //叠加类型 1:只更新最大时间 2:完美叠加(小鱼的偷属性) 4:添加时叠加 发生作用时不叠加
+	//		OverlyingType          int32 //叠加类型 1:只更新最大时间 2:完美叠加(小鱼的偷属性) 3:替换之前的4:添加时叠加 发生作用时不叠加
 	//	OverlyingAddTag        int32 //叠加时是否增加标记数字 1:表示增加 2:表示不增加 3:最大标记覆盖原值
 	if ok == true && len(bf) > 0 {
 		if buff.OverlyingType == 1 {
