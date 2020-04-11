@@ -1028,7 +1028,7 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 			}
 			this.AddBullet(v)
 		}
-		log.Info("3333")
+		//log.Info("3333")
 		this.DoSkillException(skilldata, targetunit, bullets[0])
 
 	} else {
