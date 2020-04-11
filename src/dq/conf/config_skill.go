@@ -138,7 +138,7 @@ type SkillBaseData struct {
 	MirrorUsed int32 //幻象是否继承此技能  1:是 2:否
 
 	//被动技能相关参数
-	TriggerTime           int32 //触发时间 0:表示不触发 1:攻击时 2:被攻击时 4:每秒钟触发(龙心buff) 5:命中后触发
+	TriggerTime           int32 //触发时间 0:表示不触发 1:攻击时 2:被攻击时 4:每秒钟触发(龙心buff) 5:普通攻击命中后触发
 	TriggerOtherRule      int32 //触发需满足的额外条件 0:表示没有额外条件 1:表示范围内地方英雄不超过几个
 	NoReCheckTriggerIndex int32 //不重复检测触发索引(如果索引不等于0 且相同的多个被动技能 只会检测一次触发情况)
 

@@ -275,6 +275,7 @@ func (this *Buff) Update(dt float64) {
 					}
 					b := NewBullet1(castunit, this.Parent)
 					b.SetProjectileMode("", 0)
+					b.SkillID = 0 //不是普通攻击
 					//无视闪避
 					b.AddNoCareDodge(1)
 					this.ExceptionTrigger()
