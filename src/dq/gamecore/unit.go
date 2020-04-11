@@ -9,6 +9,7 @@ import (
 	"dq/utils"
 	"dq/vec2d"
 	"math"
+
 	//"math"
 	"strconv"
 	"strings"
@@ -328,7 +329,7 @@ func (this *Unit) CheckCastSkillTarget(target *Unit, skilldata *Skill) bool {
 }
 
 //检查额外触发条件
-func (this *Unit) CheckTriggerOtherRule(rule int32, param string) bool {
+func (this *Unit) CheckTriggerOtherRule(rule int32, param string, targetunit *Unit) bool {
 	if rule <= 0 {
 		return true
 	}
@@ -336,23 +337,33 @@ func (this *Unit) CheckTriggerOtherRule(rule int32, param string) bool {
 	case 1, 2: //1:表示范围内地方英雄不超过几个
 		{
 			param := utils.GetFloat32FromString3(param, ":")
-			if len(param) < 2 {
+			if len(param) < 3 { //
 				return false
 			}
-			allunit := this.InScene.FindVisibleUnitsByPos(this.Body.Position)
+			targetpos := this.Body.Position
+			p1 := int32(param[0])
+			if p1 == 1 { //以自身位范围中心点
+				targetpos = this.Body.Position
+			} else if p1 == 2 { //以目标为范围中心点
+				if targetunit != nil && targetunit.Body != nil {
+					targetpos = targetunit.Body.Position
+				}
+
+			}
+			allunit := this.InScene.FindVisibleUnitsByPos(targetpos)
 			count := int32(0)
 			for _, v := range allunit {
 				if rule == 1 && v.UnitType != 1 {
 					continue
 				}
 				if v.IsDisappear() == false && this.CheckIsEnemy(v) == true {
-					dis := float32(vec2d.Distanse(this.Body.Position, v.Body.Position))
-					if dis <= param[0] {
+					dis := float32(vec2d.Distanse(targetpos, v.Body.Position))
+					if dis <= param[1] {
 						count++
 					}
 				}
 
-				if count >= int32(param[1]) {
+				if count >= int32(param[2]) {
 					return false
 				}
 			}
@@ -391,7 +402,7 @@ func (this *Unit) GetTriggerAttackFromAttackAnim() []int32 {
 			//检查cd 魔法消耗
 			if v.CheckCDTime() {
 				//检查 触发概率 和额外条件
-				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam) {
+				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam, nil) {
 					re = append(re, v.TypeID)
 				}
 			}
@@ -439,7 +450,7 @@ func (this *Unit) CheckTriggerAttackOneSkill(b *Bullet, animattack []int32, v *S
 			if v.CheckCDTime() {
 				//检查 触发概率 和额外条件
 				//log.Info("CheckRandom %f", v.TriggerProbability)
-				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam) {
+				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam, b.DestUnit) {
 					isTrigger = true
 				}
 			}
@@ -816,7 +827,7 @@ func (this *Unit) CheckTriggerKillerSkill(target *Unit) {
 			//检查cd 魔法消耗
 			if v.CheckCDTime() {
 				//检查 触发概率 和额外条件
-				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam) {
+				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam, target) {
 
 					skilldata := v
 					data := &protomsg.CS_PlayerSkill{}
@@ -897,7 +908,7 @@ func (this *Unit) CheckTriggerBeAttackSkill(target *Unit) {
 			//检查cd 魔法消耗
 			if v.CheckCDTime() {
 				//检查 触发概率 和额外条件
-				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam) {
+				if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam, target) {
 
 					skilldata := v
 					data := &protomsg.CS_PlayerSkill{}
@@ -2092,6 +2103,7 @@ func (this *Unit) AddHuichengSkill() {
 	}
 }
 
+//幻象
 func CreateUnitByCopyUnit(unit *Unit, controlplayer *Player) *Unit {
 	if unit == nil || unit.InScene == nil {
 		return nil
@@ -2120,7 +2132,8 @@ func CreateUnitByCopyUnit(unit *Unit, controlplayer *Player) *Unit {
 	unitre.ItemSkills = make([]*Skill, 0)  //所有道具技能
 	unitre.Skills = make(map[int32]*Skill) //所有技能
 	for _, v := range unit.Skills {
-		if v.CastType == 2 {
+		//if v.CastType == 2{
+		if v.MirrorUsed == 1 { //幻象可以继承
 			skill := NewOneSkill(v.TypeID, v.Level, unitre)
 			if skill != nil {
 				unitre.Skills[v.TypeID] = skill
@@ -2892,8 +2905,18 @@ func (this *Unit) CalPropertyByBuff(v1 *Buff, add *UnitBaseProperty) {
 	add.AttributeIntelligence += v1.AttributeIntelligenceCV
 	add.AttributeAgility += v1.AttributeAgilityCV
 	add.AttackSpeed += v1.AttackSpeedCV
-	add.Attack += int32(v1.AttackCV)
-	add.Attack += int32(float32(this.Attack) * v1.AttackCR)
+	if this.IsMirrorImage == 1 { //幻象不继承攻击增加buf
+		if v1.AttackCV < 0 {
+			add.Attack += int32(v1.AttackCV)
+		}
+		if v1.AttackCR < 0 {
+			add.Attack += int32(float32(this.Attack) * v1.AttackCR)
+		}
+	} else {
+		add.Attack += int32(v1.AttackCV)
+		add.Attack += int32(float32(this.Attack) * v1.AttackCR)
+	}
+
 	add.MoveSpeed += float64(v1.MoveSpeedCV)
 	add.MPRegain += v1.MPRegainCV
 	add.PhysicalAmaor += v1.PhysicalAmaorCV
@@ -2989,6 +3012,7 @@ func (this *Unit) AddBuffProperty(add *UnitBaseProperty) {
 	//this.AttributeAgility += add.AttributeAgility
 	this.AttackSpeed += add.AttackSpeed
 	this.Attack += add.Attack
+
 	this.MoveSpeed += add.MoveSpeed
 	this.MPRegain += add.MPRegain
 	this.PhysicalAmaor += add.PhysicalAmaor
@@ -3434,7 +3458,7 @@ func (this *Unit) CheckAttackSucOneSkillTrigger(v *Skill, bullet *Bullet) {
 		if v.CheckCDTime() {
 			//检查 触发概率 和额外条件
 			//log.Info("CheckRandom %f", v.TriggerProbability)
-			if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam) {
+			if utils.CheckRandom(v.TriggerProbability) && this.CheckTriggerOtherRule(v.TriggerOtherRule, v.TriggerOtherRuleParam, bullet.DestUnit) {
 				isTrigger = true
 			}
 		}
