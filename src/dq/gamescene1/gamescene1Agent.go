@@ -726,7 +726,7 @@ func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	level := player.(*gamecore.Player).GetLevel()
 	mapdata := conf.CheckGotoActivityMap(h2.ID, level)
 	if mapdata == nil {
-		player.(*gamecore.Player).SendNoticeWordToClient(35)
+		player.(*gamecore.Player).SendNoticeWordToClient(37)
 		return
 	}
 	if player.(*gamecore.Player).BuyItemSubMoneyLock(mapdata.PriceType, mapdata.Price) == false {
@@ -734,6 +734,21 @@ func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	}
 	//进入新地图
 	doorway := conf.DoorWay{}
+	//随机位置
+	//	nextscene := a.Scenes.Get(mapdata.NextSceneID)
+	//	if nextscene == nil {
+	//		log.Info("找不到该地图 %d", mapdata.NextSceneID)
+	//		return
+	//	}
+	//	if mapdata.X == -1 || mapdata.Y == -1 {
+	//		x := utils.GetRandomFloatTwoNum(nextscene.(*gamecore.Scene).StartX, nextscene.(*gamecore.Scene).EndX)
+	//		y := utils.GetRandomFloatTwoNum(nextscene.(*gamecore.Scene).StartY, nextscene.(*gamecore.Scene).EndY)
+	//		doorway.NextX = x
+	//		doorway.NextY = y
+	//	} else {
+	//		doorway.NextX = mapdata.X
+	//		doorway.NextY = mapdata.Y
+	//	}
 	doorway.NextX = mapdata.X
 	doorway.NextY = mapdata.Y
 	doorway.NextSceneID = mapdata.NextSceneID

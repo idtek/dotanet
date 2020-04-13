@@ -638,6 +638,7 @@ func (this *GuildManager) GotoGuildMap(player *Player, mapid int32) *protomsg.SC
 
 	//进入成功
 	doorway := conf.DoorWay{}
+	
 	doorway.NextX = mapfiledata.X
 	doorway.NextY = mapfiledata.Y
 	doorway.NextSceneID = mapfiledata.NextSceneID

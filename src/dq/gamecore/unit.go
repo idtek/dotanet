@@ -3921,10 +3921,14 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 		}
 
 	} else {
+		//死亡单位为玩家本体
 		if deathunit.InScene == nil || this.MyPlayer == nil || this.MyPlayer.MainUnit == nil ||
 			deathunit.MyPlayer == nil || deathunit.MyPlayer.MainUnit != deathunit {
 			return
 		}
+
+		//场景统计
+		this.InScene.KillAction(this.MyPlayer.MainUnit, deathunit)
 
 		addgold := lostgold
 		leveldata := conf.GetLevelFileData(deathunit.Level)
@@ -3936,6 +3940,7 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 			addgold += conf.FirstKillGetGold
 			this.MyPlayer.SendNoticeWordToClient(11)
 		}
+		//奖励给击杀者玩家本体
 		this.MyPlayer.MainUnit.Gold += addgold
 
 		this.MyPlayer.MainUnit.KillCount++
@@ -3966,6 +3971,9 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 
 //被杀死时 buff异常处理
 func (this *Unit) CheckTriggerDie(killer *Unit) {
+
+	//击杀幻象特殊处理
+
 	this.Killer = killer
 	//处理死亡单位
 	//重置死亡复活时间

@@ -24,7 +24,60 @@ type ChangeSceneFunc interface {
 	PlayerChangeScene(player *Player, doorway conf.DoorWay)
 }
 
+//场景统计角色信息
+type SceneStatisticsCharacterInfo struct {
+	Characterid int32  //角色id
+	Name        string //角色名字
+	Typeid      int32  //英雄类型
+	GuildId     int32  //公会ID
+	GuildName   string //公会名字
+	//统计数据
+	KillCount  int32 //击杀次数
+	DeathCount int32 //死亡次数
+
+}
+
+//场景统计 (击杀死亡)
+type SceneStatistics struct {
+	KillData *utils.BeeMap //击杀数据 key:Characterid value:SceneStatisticsCharacterInfo
+}
+
+//击杀动作(不需要加锁 场景逻辑循坏里执行)
+func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
+	if killer == nil || bekiller == nil {
+		return
+	}
+	if killer.MyPlayer == nil || bekiller.MyPlayer == nil {
+		return
+	}
+
+	killdata1 := this.KillData.Get(killer.MyPlayer.Characterid)
+	if killdata1 == nil {
+		killdata1 = &SceneStatisticsCharacterInfo{}
+		killdata1.(*SceneStatisticsCharacterInfo).Characterid = killer.MyPlayer.Characterid
+		killdata1.(*SceneStatisticsCharacterInfo).Name = killer.Name
+		killdata1.(*SceneStatisticsCharacterInfo).Typeid = killer.TypeID
+		killguild := killer.MyPlayer.MyGuild
+		if killguild != nil {
+			killdata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
+			//killdata1.GuildName = killguild.GuildChaInfo.
+		}
+
+		this.KillData.Set(killer.MyPlayer.Characterid, killdata1)
+	}
+	killdata1.(*SceneStatisticsCharacterInfo).KillCount += 1
+
+	log.Info("kill action:%d", killdata1.(*SceneStatisticsCharacterInfo).KillCount)
+
+}
+
+//清除击杀数据
+func (this *SceneStatistics) KillClean() {
+	this.KillData = utils.NewBeeMap()
+}
+
 type Scene struct {
+	SceneStatistics
 	conf.SceneFileData                  //场景文件信息
 	FirstUpdateTime    int64            //上次更新时间
 	MoveCore           *cyward.WardCore //移动核心
@@ -98,6 +151,8 @@ func (this *Scene) Init() {
 	this.NextRemovePlayer = utils.NewBeeMap()
 
 	this.DropItems = utils.NewBeeMap()
+
+	this.KillClean()
 
 	//
 	this.ReCreateUnitInfo = make(map[*ReCreateUnit]*ReCreateUnit)
@@ -774,7 +829,14 @@ func (this *Scene) DoAddAndRemoveUnit() {
 		r := vec2d.Vec2{v.(*Unit).CollisionR, v.(*Unit).CollisionR}
 		v.(*Unit).Body = this.MoveCore.CreateBody(pos, r, 0, 1)
 		v.(*Unit).Body.Tag = int(v.(*Unit).ID)
-		v.(*Unit).Body.BlinkToPos(v.(*Unit).InitPosition, 0)
+		//出现位置小于0 则随机一个位置
+		if v.(*Unit).InitPosition.X < 0 || v.(*Unit).InitPosition.Y < 0 {
+			x := utils.GetRandomFloatTwoNum(this.StartX, this.EndX)
+			y := utils.GetRandomFloatTwoNum(this.StartY, this.EndY)
+			v.(*Unit).Body.BlinkToPos(vec2d.Vec2{X: float64(x), Y: float64(y)}, 0)
+		} else {
+			v.(*Unit).Body.BlinkToPos(v.(*Unit).InitPosition, 0)
+		}
 
 		this.Units[k.(int32)] = v.(*Unit)
 
