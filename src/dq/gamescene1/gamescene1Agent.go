@@ -217,6 +217,30 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 		}
 
 	}
+	//公会地图
+	for _, v := range conf.GuildMapFileDatas {
+		if v == nil {
+			continue
+		}
+		//如果场景地图不存在
+		scenefile := conf.GetSceneFileData(v.(*conf.GuildMapFileData).NextSceneID)
+		if scenefile == nil {
+			continue
+		}
+		onescnee := a.Scenes.Get(v.(*conf.GuildMapFileData).NextSceneID)
+		if onescnee == nil {
+			continue
+		}
+		//id 和 等级
+		mapdata := conf.CheckGotoGuildMap(v.(*conf.GuildMapFileData).ID, 10000)
+
+		if mapdata != nil { //如果可以进入地图  就开启地图
+			onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+		} else if mapdata == nil { //如果不可以进入就关闭地图
+			onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+		}
+
+	}
 }
 
 //

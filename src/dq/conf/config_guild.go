@@ -125,7 +125,7 @@ func CheckGotoGuildMap(id int32, guildlevel int32) *GuildMapFileData {
 	nowtime_today, _ := time.Parse("15:04:05", nowtime.Format("15:04:05"))
 
 	if mapfiledata.StartTime.After(nowtime_today) || nowtime_today.After(mapfiledata.EndTime) {
-		log.Info("nowtime_today:")
+		//log.Info("nowtime_today:")
 		return nil
 	}
 
