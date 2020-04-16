@@ -118,6 +118,7 @@ type Scene struct {
 	ChangeScene ChangeSceneFunc
 	Sverver     ServerInterface
 	Quit        bool //是否退出
+	CleanPlayer bool //清除玩家到和平世界
 	SceneFrame  int32
 
 	playerlock *sync.RWMutex //玩家操作同步操作锁
@@ -130,6 +131,8 @@ func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc, server Server
 	scene.SceneFileData = *data
 	scene.SceneName = data.ScenePath
 	scene.Quit = false
+	scene.CleanPlayer = false
+
 	scene.playerlock = new(sync.RWMutex)
 	scene.Init()
 	return scene
@@ -457,6 +460,8 @@ func (this *Scene) Update() {
 		}
 
 		this.CurFrame++
+		//清除玩家到和平世界
+		this.DoCleanPlayer()
 
 		this.DoSleep()
 
@@ -467,7 +472,7 @@ func (this *Scene) Update() {
 		}
 
 	}
-
+	log.Info("Scene Quit:%d", this.TypeID)
 	//t2 := time.Now().UnixNano()
 	//log.Info("t2:%d   delta:%d    frame:%d", (t2)/1e6, (t2-t1)/1e6, this.CurFrame)
 
@@ -903,6 +908,26 @@ func (this *Scene) GetAllPlayerUseLock() map[int32]*Player {
 	}
 	this.playerlock.RUnlock()
 	return r
+}
+
+//场景结束  把玩家转移到 和平地图
+func (this *Scene) SetCleanPlayer(b bool) {
+	this.CleanPlayer = b
+
+}
+
+//
+func (this *Scene) DoCleanPlayer() {
+	if this.CleanPlayer == false {
+		return
+	}
+
+	for _, player := range this.Players {
+		this.HuiCheng(player)
+	}
+
+	this.DoHuiCheng()
+
 }
 
 func (this *Scene) Close() {

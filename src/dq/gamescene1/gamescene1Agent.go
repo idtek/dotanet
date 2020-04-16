@@ -6,7 +6,6 @@ import (
 	//"dq/db"
 	"dq/log"
 	"dq/network"
-	"fmt"
 	"net"
 	"time"
 
@@ -35,6 +34,8 @@ type GameScene1Agent struct {
 	Characters *utils.BeeMap
 
 	wgScene sync.WaitGroup
+
+	IsClose bool
 }
 
 func (a *GameScene1Agent) GetConnectId() int32 {
@@ -56,6 +57,8 @@ func (a *GameScene1Agent) ceshi() {
 }
 
 func (a *GameScene1Agent) Init() {
+
+	a.IsClose = false
 
 	//初始化 组队信息
 	gamecore.TeamManagerObj.Init(a)
@@ -168,6 +171,52 @@ func (a *GameScene1Agent) Init() {
 		}()
 	}
 
+	//自己的更新
+	a.wgScene.Add(1)
+	go func() {
+		a.Update()
+		a.wgScene.Done()
+	}()
+
+}
+
+//自己的更新
+func (a *GameScene1Agent) Update() {
+	for {
+		a.CheckSceneCloseAndOpen()
+		time.Sleep(time.Duration(time.Second * 2))
+		if a.IsClose {
+			break
+		}
+	}
+}
+
+//检测地图开启与关闭
+func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
+	//活动地图
+	for _, v := range conf.ActivityMapFileDatas {
+		if v == nil {
+			continue
+		}
+		//如果场景地图不存在
+		scenefile := conf.GetSceneFileData(v.(*conf.ActivityMapFileData).NextSceneID)
+		if scenefile == nil {
+			continue
+		}
+		onescnee := a.Scenes.Get(v.(*conf.ActivityMapFileData).NextSceneID)
+		if onescnee == nil {
+			continue
+		}
+		//id 和 等级
+		mapdata := conf.CheckGotoActivityMap(v.(*conf.ActivityMapFileData).ID, 10000)
+
+		if mapdata != nil { //如果可以进入地图  就开启地图
+			onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+		} else if mapdata == nil { //如果不可以进入就关闭地图
+			onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+		}
+
+	}
 }
 
 //
@@ -1504,6 +1553,8 @@ func (a *GameScene1Agent) doMessage(data []byte) {
 
 func (a *GameScene1Agent) OnClose() {
 
+	a.IsClose = true
+
 	scenes := a.Scenes.Items()
 	for _, v := range scenes {
 		v.(*gamecore.Scene).Close()
@@ -1521,7 +1572,6 @@ func (a *GameScene1Agent) OnClose() {
 	//存储玩家数据
 
 	log.Debug("GameScene1Agent OnClose")
-	fmt.Print("-----------")
 }
 
 func (a *GameScene1Agent) WriteMsg(msg interface{}) {

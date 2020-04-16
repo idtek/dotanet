@@ -58,7 +58,7 @@ func CheckGotoActivityMap(id int32, level int32) *ActivityMapFileData {
 	nowtime_today, _ := time.Parse("15:04:05", nowtime.Format("15:04:05"))
 
 	if mapfiledata.StartTime.After(nowtime_today) || nowtime_today.After(mapfiledata.EndTime) {
-		log.Info("nowtime_today:")
+		//log.Info("nowtime_today:")
 		return nil
 	}
 
@@ -73,7 +73,7 @@ func CheckGotoActivityMap(id int32, level int32) *ActivityMapFileData {
 
 }
 
-//公会地图
+//活动地图
 func GetActivityMapFileData(id int32) *ActivityMapFileData {
 	//log.Info("find unitfile:%d", typeid)
 

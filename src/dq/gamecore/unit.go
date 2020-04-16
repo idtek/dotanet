@@ -2154,6 +2154,8 @@ func CreateUnitByCopyUnit(unit *Unit, controlplayer *Player) *Unit {
 	unitre.FreshHaloInSkills()
 	unitre.IsMain = 0
 	unitre.IsMirrorImage = 1
+	//攻击模式
+	unitre.AttackMode = unit.AttackMode
 	//复制主体道具
 	unitre.CopyItem(unit)
 
