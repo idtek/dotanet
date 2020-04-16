@@ -337,6 +337,7 @@ message MsgPlayerHurt{
     int32 HurtMagicValue = 3;//魔法伤害值
     int32 IsCrit = 4;   //是否暴击
     int32 GetGold = 5;//获取到的金币数量
+    int32 GetDiamond = 6;//获取的砖石
 }
 
 //每帧更新单位数据

@@ -1032,7 +1032,7 @@ func (this *Player) AddBulletData(bullet *Bullet) {
 
 }
 func (this *Player) AddHurtValue(hv *protomsg.MsgPlayerHurt) {
-	if hv == nil || (hv.HurtAllValue == 0 && hv.GetGold == 0) {
+	if hv == nil || (hv.HurtAllValue == 0 && hv.GetGold == 0 && hv.GetDiamond == 0) {
 		return
 	}
 

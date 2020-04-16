@@ -3893,6 +3893,7 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 		}
 		addgold := float64(deathunit.InScene.UnitGold)
 		addExp := float64(deathunit.InScene.UnitExperience)
+		adddiamond := float64(deathunit.InScene.UnitDiamond)
 		var team interface{}
 		if this.MyPlayer.TeamID > 0 {
 			team = TeamManagerObj.Teams.Get(this.MyPlayer.TeamID)
@@ -3907,6 +3908,7 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 				if player != nil && player.MainUnit != nil {
 					player.MainUnit.Gold += int32(addgold)
 					player.MainUnit.AddExperience(int32(addExp))
+					player.MainUnit.Diamond += int32(adddiamond)
 					//显示奖励的金币
 					mph := &protomsg.MsgPlayerHurt{HurtUnitID: deathunit.ID, GetGold: int32(addgold)}
 					player.AddHurtValue(mph)
@@ -3915,8 +3917,10 @@ func (this *Unit) GetRewardForKill(deathunit *Unit, lostgold int32) {
 		} else {
 			this.MyPlayer.MainUnit.Gold += int32(addgold)
 			this.MyPlayer.MainUnit.AddExperience(int32(addExp))
+			this.MyPlayer.MainUnit.Diamond += int32(adddiamond)
 			//显示奖励的金币
-			mph := &protomsg.MsgPlayerHurt{HurtUnitID: deathunit.ID, GetGold: int32(addgold)}
+			mph := &protomsg.MsgPlayerHurt{HurtUnitID: deathunit.ID, GetGold: int32(addgold), GetDiamond: int32(adddiamond)}
+
 			if this.MyPlayer != nil {
 				this.MyPlayer.AddHurtValue(mph)
 			}
