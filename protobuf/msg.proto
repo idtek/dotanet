@@ -278,9 +278,10 @@ message UnitDatas{
     int32   RemainWatchVedioCountToday = 41;//今日剩余观看视频次数
     int32   WatchVedioAddDiamond = 42;//当前观看视频奖励砖石
     int32   GuildID = 43;//公会ID
-    repeated SkillDatas SD = 44;//技能数据
-    repeated BuffDatas BD = 45;//buff数据
-    repeated SkillDatas ISD = 46;//道具技能数据
+    string  GuildName = 44; //公会名字
+    repeated SkillDatas SD = 45;//技能数据
+    repeated BuffDatas BD = 46;//buff数据
+    repeated SkillDatas ISD = 47;//道具技能数据
 
     //单位状态(idle walk attack skill die)
     //各种buff状态(单位身上的buff 包括剩余时间)

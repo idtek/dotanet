@@ -115,6 +115,7 @@ func (app *DefaultApp) Run() error {
 	if err != nil {
 		return errors.New("cannot find dir")
 	}
+	//报错捕捉信息
 	if runtime.GOOS == "linux" {
 		errfile := fmt.Sprintf("%s/bin/logs/errfile.json", ApplicationDir)
 		if crashFile, err := os.OpenFile(errfile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0664); err == nil {

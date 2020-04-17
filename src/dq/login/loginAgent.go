@@ -249,12 +249,10 @@ func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 	//新创建的角色初始位置
 	if isNewCharacter == true {
 		players[0].SceneID = 1
-		players[0].X = 16
-		players[0].Y = 25
+		players[0].X = -1
+		players[0].Y = -1
 
-	}
-	//拖回安全地图
-	if players[0].SceneID != 1000 {
+	} else if players[0].SceneID != 1000 { //拖回安全地图
 		players[0].SceneID = 1000
 		players[0].X = float32(utils.RandInt64(70, 80))
 		players[0].Y = float32(utils.RandInt64(70, 80))

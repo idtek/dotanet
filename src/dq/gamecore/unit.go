@@ -4154,6 +4154,7 @@ func (this *Unit) FreshClientData() {
 		this.ClientData.Characterid = this.MyPlayer.Characterid
 		if this.MyPlayer.MyGuild != nil {
 			this.ClientData.GuildID = this.MyPlayer.MyGuild.GuildId
+			this.ClientData.GuildName = this.MyPlayer.MyGuild.GuildName
 		} else {
 			this.ClientData.GuildID = 0
 		}
@@ -4330,6 +4331,12 @@ func (this *Unit) FreshClientDataSub() {
 
 		if this.MyPlayer.MyGuild != nil {
 			this.ClientDataSub.GuildID = this.MyPlayer.MyGuild.GuildId - this.ClientData.GuildID
+			if strings.Compare(this.MyPlayer.MyGuild.GuildName, this.ClientData.GuildName) != 0 {
+				this.ClientDataSub.GuildName = this.MyPlayer.MyGuild.GuildName
+			} else {
+				this.ClientDataSub.GuildName = ""
+			}
+
 		} else {
 			this.ClientDataSub.GuildID = 0 - this.ClientData.GuildID
 		}

@@ -23,7 +23,8 @@ var (
 //公会成员信息
 type GuildCharacterInfo struct {
 	protomsg.GuildChaInfo
-	GuildId int32 //公会ID
+	GuildId   int32  //公会ID
+	GuildName string //公会名字
 
 }
 
@@ -40,6 +41,7 @@ func NewGuildCharacterInfo(characterinfo *db.DB_CharacterInfo) *GuildCharacterIn
 	guildchainfo.Uid = characterinfo.Uid
 	guildchainfo.Characterid = characterinfo.Characterid
 	guildchainfo.GuildId = characterinfo.GuildId
+	guildchainfo.GuildName = guild.(*GuildInfo).Name
 	guildchainfo.Name = characterinfo.Name
 	guildchainfo.Level = characterinfo.Level
 	guildchainfo.Typeid = characterinfo.Typeid
@@ -638,7 +640,7 @@ func (this *GuildManager) GotoGuildMap(player *Player, mapid int32) *protomsg.SC
 
 	//进入成功
 	doorway := conf.DoorWay{}
-	
+
 	doorway.NextX = mapfiledata.X
 	doorway.NextY = mapfiledata.Y
 	doorway.NextSceneID = mapfiledata.NextSceneID
