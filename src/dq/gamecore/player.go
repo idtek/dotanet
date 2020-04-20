@@ -347,7 +347,8 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 			}
 		} else {
 			dest := this.BagInfo[data.DestPos]
-			if src != nil && dest != nil && src.TypeID == dest.TypeID && src.Level == dest.Level {
+			if src != nil && dest != nil && src.TypeID == dest.TypeID && src.Level == dest.Level && data.SrcPos != data.DestPos {
+				//if src != nil && dest != nil && src.TypeID == dest.TypeID && src.Level == dest.Level {
 				//相同道具且等级相同为合成
 				maxlevel := int32(4)
 				itemdata := conf.GetItemData(dest.TypeID)
@@ -1172,6 +1173,9 @@ func (this *Player) GoInScene(scene *Scene, datas []byte) {
 
 //玩家移动操作
 func (this *Player) MoveCmd(data *protomsg.CS_PlayerMove) {
+	if this.MainUnit == nil {
+		return
+	}
 	this.CheckOtherUnit()
 	for _, v := range data.IDs {
 		if this.MainUnit.ID == v {
@@ -1189,6 +1193,9 @@ func (this *Player) MoveCmd(data *protomsg.CS_PlayerMove) {
 
 //SkillCmd
 func (this *Player) SkillCmd(data *protomsg.CS_PlayerSkill) {
+	if this.MainUnit == nil {
+		return
+	}
 	this.CheckOtherUnit()
 	if this.MainUnit.ID == data.ID {
 		this.MainUnit.PlayerControl_SkillCmd(data)
@@ -1197,6 +1204,9 @@ func (this *Player) SkillCmd(data *protomsg.CS_PlayerSkill) {
 
 //玩家攻击操作
 func (this *Player) AttackCmd(data *protomsg.CS_PlayerAttack) {
+	if this.MainUnit == nil {
+		return
+	}
 	this.CheckOtherUnit()
 	for _, v := range data.IDs {
 		if this.MainUnit.ID == v {

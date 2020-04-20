@@ -17,6 +17,10 @@ import (
 	//"dq/timer"
 	//"dq/vec2d"
 	"dq/wordsfilter"
+	"io"
+	//"io/ioutil"
+	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -178,6 +182,21 @@ func (a *GameScene1Agent) Init() {
 		a.wgScene.Done()
 	}()
 
+	a.ShowData2Http()
+}
+
+//查看数据
+func (a *GameScene1Agent) ShowData2Http() {
+	//http://127.0.0.1:9999//?sd=1
+	httpserver := &http.Server{Addr: ":9999", Handler: nil}
+
+	http.HandleFunc("/sd", func(w http.ResponseWriter, r *http.Request) {
+
+		playercount := a.Players.Size()
+		io.WriteString(w, "playercount:"+strconv.Itoa(int(playercount)))
+	})
+
+	go httpserver.ListenAndServe()
 }
 
 //自己的更新
@@ -375,7 +394,7 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 
 func (a *GameScene1Agent) DoMsgUserEnterScene(data *protomsg.MsgBase) {
 
-	log.Info("---------DoMsgUserEnterScene")
+	log.Info("---------DoMsgUserEnterScene:playercount:%d", a.Players.Size())
 	h2 := &protomsg.MsgUserEnterScene{}
 	err := proto.Unmarshal(data.Datas, h2)
 	if err != nil {
@@ -1523,14 +1542,14 @@ func (a *GameScene1Agent) DoLodingScene(data *protomsg.MsgBase) {
 
 func (a *GameScene1Agent) DoPlayerMove(data *protomsg.MsgBase) {
 
-	log.Info("---------DoPlayerOperate")
+	//log.Info("---------DoPlayerOperate")
 	h2 := &protomsg.CS_PlayerMove{}
 	err := proto.Unmarshal(data.Datas, h2)
 	if err != nil {
 		log.Info(err.Error())
 		return
 	}
-	log.Info("---------%v", h2)
+	//log.Info("---------%v", h2)
 
 	player := a.Players.Get(data.Uid)
 	if player == nil {

@@ -645,7 +645,7 @@ func (this *Scene) AddHalo(halo *Halo) {
 		this.CanRemoveHalos[halo.ID] = halo
 	}
 
-	log.Info("------AddHalo----%d", halo.TypeID)
+	//log.Info("------AddHalo----%d", halo.TypeID)
 }
 
 //删除光环
@@ -982,7 +982,10 @@ func (this *Scene) PlayerGoout(player *Player) {
 	//删除主单位
 	//this.NextRemoveUnit.Set(player.MainUnit.ID, player.MainUnit)
 	this.RemoveUnit(player.MainUnit)
-	this.NextAddUnit.Delete(player.MainUnit.ID)
+	if player.MainUnit != nil {
+		this.NextAddUnit.Delete(player.MainUnit.ID)
+	}
+
 	items := player.OtherUnit.Items()
 	for _, v := range items {
 		this.RemoveUnit(v.(*Unit))

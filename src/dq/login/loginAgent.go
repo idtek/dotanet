@@ -10,6 +10,7 @@ import (
 	"dq/wordsfilter"
 	"math/rand"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -23,6 +24,8 @@ type LoginAgent struct {
 	handles map[string]func(data *protomsg.MsgBase)
 
 	LoginPlayers *utils.BeeMap
+
+	LoginLock *sync.RWMutex //锁
 }
 
 func (a *LoginAgent) registerDataHandle(msgtype string, f func(data *protomsg.MsgBase)) {
@@ -51,6 +54,8 @@ func (a *LoginAgent) Init() {
 
 	a.registerDataHandle("LoginOut", a.DoLoginOut)
 	a.registerDataHandle("Disconnect", a.DoDisconnect)
+
+	a.LoginLock = new(sync.RWMutex)
 
 	rand.Seed(time.Now().UnixNano())
 }
@@ -172,6 +177,9 @@ func (a *LoginAgent) DoQuickLoginData(data *protomsg.MsgBase) {
 
 func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 
+	a.LoginLock.Lock()
+	defer a.LoginLock.Unlock()
+
 	uid := data.Uid
 	log.Info("---------DoSelectCharacter")
 	h2 := &protomsg.CS_SelectCharacter{}
@@ -183,6 +191,8 @@ func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 	if h2.SelectCharacter == nil {
 		return
 	}
+
+	log.Info("---------DoSelectCharacter:%v", h2.SelectCharacter)
 
 	characterid := h2.SelectCharacter.Characterid
 

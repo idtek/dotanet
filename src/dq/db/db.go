@@ -50,6 +50,7 @@ func (a *DB) GetJSON(sqlString string) (string, error) {
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query()
+	//rows, err := a.Mydb.Query(sqlString)
 	if err != nil {
 		return "", err
 	}
@@ -163,6 +164,9 @@ func (a *DB) newUser(machineid string, platfom string, phonenumber string, openi
 
 //检查快速登录
 func (a *DB) CheckQuickLogin(machineid string, platfom string) int {
+
+	//sqlstr := "SELECT uid FROM user where BINARY (machineid='" + machineid + "' and platform='" + platfom + "')"
+
 	var uid int
 
 	stmt, err := a.Mydb.Prepare("SELECT uid FROM user where BINARY (machineid=? and platform=?)")
@@ -173,6 +177,7 @@ func (a *DB) CheckQuickLogin(machineid string, platfom string) int {
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(machineid, platfom)
+	//rows, err := a.Mydb.Query(sqlstr)
 	if err != nil {
 		log.Info(err.Error())
 		return uid
@@ -215,6 +220,12 @@ func (a *DB) GetCharactersInfo(uid int32, playersInfo *[]DB_CharacterInfo) error
 //获取角色信息通过名字
 func (a *DB) GetCharactersInfoByName(name string, playersInfo *[]DB_CharacterInfo) error {
 	sqlstr := "SELECT * FROM characterinfo where name=" + "'" + name + "'"
+	return a.QueryAnything(sqlstr, playersInfo)
+}
+
+//获取角色信息通过typeid和uid
+func (a *DB) GetCharactersInfoByUidAndTypeID(uid int32, typeid int32, playersInfo *[]DB_CharacterInfo) error {
+	sqlstr := "SELECT * FROM characterinfo where uid=" + strconv.Itoa(int(uid)) + " and typeid=" + strconv.Itoa(int(typeid))
 	return a.QueryAnything(sqlstr, playersInfo)
 }
 
@@ -298,6 +309,10 @@ func (a *DB) CreateCharacter(uid int32, name string, typeid int32) (error, int32
 	nameerr := a.GetCharactersInfoByName(name, &players)
 	if nameerr != nil || len(players) > 0 {
 		return errors.New("name repeat"), -1
+	}
+	uidandtypeid := a.GetCharactersInfoByUidAndTypeID(uid, typeid, &players)
+	if uidandtypeid != nil || len(players) > 0 {
+		return errors.New("uidandtypeid repeat"), -1
 	}
 
 	tx, _ := a.Mydb.Begin()
