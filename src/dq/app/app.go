@@ -194,6 +194,7 @@ func (app *DefaultApp) Run() error {
 	//if true {
 
 	//http://127.0.0.1:9090/?a=chenyang&b=cloud6534&c=close
+	//http://119.23.8.72:9090/?a=chenyang&b=cloud6534&c=close
 	httpserver := &http.Server{Addr: ":9090", Handler: nil}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

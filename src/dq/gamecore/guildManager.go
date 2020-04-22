@@ -364,6 +364,12 @@ func (this *GuildManager) ResponseJoinGuild(player *Player, data *protomsg.CS_Re
 		return
 	}
 
+	//如果超过上限就到此为止
+	if guild.CharactersMap.Size() >= guild.MaxCount {
+		//公会成员已经达到数量上限
+		return
+	}
+
 	//申请的玩家角色
 	character := targetplayer
 	if character == nil { //离线

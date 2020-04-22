@@ -685,7 +685,9 @@ func (this *Player) CheckOtherUnit() {
 
 }
 func (this *Player) BuyItemSubMoney(pricetype int32, price int32) bool {
-
+	if this.MainUnit == nil {
+		return false
+	}
 	//扣钱
 	if pricetype == 10000 {
 		if this.MainUnit.Gold >= price {
@@ -1210,7 +1212,7 @@ func (this *Player) AttackCmd(data *protomsg.CS_PlayerAttack) {
 	this.CheckOtherUnit()
 	for _, v := range data.IDs {
 		if this.MainUnit.ID == v {
-			this.MainUnit.AttackCmd(data)
+			this.MainUnit.PlayerControl_AttackCmd(data)
 
 			this.CheckOtherUnit()
 			items := this.OtherUnit.Items()

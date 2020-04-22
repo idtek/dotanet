@@ -187,7 +187,8 @@ func (a *GameScene1Agent) Init() {
 
 //查看数据
 func (a *GameScene1Agent) ShowData2Http() {
-	//http://127.0.0.1:9999//?sd=1
+	//http://127.0.0.1:9999/sd
+	//http://119.23.8.72:9999/sd
 	httpserver := &http.Server{Addr: ":9999", Handler: nil}
 
 	http.HandleFunc("/sd", func(w http.ResponseWriter, r *http.Request) {

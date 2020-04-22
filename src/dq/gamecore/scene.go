@@ -140,7 +140,7 @@ func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc, server Server
 
 //初始化
 func (this *Scene) Init() {
-	this.SceneFrame = 30
+	this.SceneFrame = 22
 	this.CurFrame = 0
 	this.EveryTimeDoRemainTime = 1
 
@@ -183,10 +183,10 @@ func (this *Scene) Init() {
 		if v.IsRect == true {
 			pos := vec2d.Vec2{v.CenterX, v.CenterY}
 			r := vec2d.Vec2{v.Width, v.Height}
-			this.MoveCore.CreateBody(pos, r, 1, 2)
+			this.MoveCore.CreateBody(pos, r, 1, 3)
 		} else {
 			pos := vec2d.Vec2{v.CenterX, v.CenterY}
-			this.MoveCore.CreateBodyPolygon(pos, v.Points, 1, 2)
+			this.MoveCore.CreateBodyPolygon(pos, v.Points, 1, 3)
 		}
 	}
 	//场景分区数据 创建100个单位

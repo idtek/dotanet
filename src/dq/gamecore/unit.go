@@ -1129,6 +1129,8 @@ func (this *Unit) UseSkillEnable(data *protomsg.CS_PlayerSkill) bool {
 
 //玩家操作技能行为命令
 func (this *Unit) PlayerControl_SkillCmd(data *protomsg.CS_PlayerSkill) {
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	if this.PlayerControlEnable != 1 {
 		return
 	}
@@ -1137,6 +1139,8 @@ func (this *Unit) PlayerControl_SkillCmd(data *protomsg.CS_PlayerSkill) {
 
 //切换攻击模式命令
 func (this *Unit) ChangeAttackMode(data *protomsg.CS_ChangeAttackMode) {
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	this.ChangeAttackModeData = data
 }
 func (this *Unit) DoChangeAttackMode() {
@@ -1150,6 +1154,8 @@ func (this *Unit) DoChangeAttackMode() {
 
 //玩家操作技能行为命令
 func (this *Unit) UpgradeSkill(data *protomsg.CS_PlayerUpgradeSkill) {
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	this.UpgradeSkillData = data
 }
 
@@ -1348,6 +1354,8 @@ func (this *Unit) CheckAttackEnable2Target(target *Unit) bool {
 
 //玩家操作攻击行为命令
 func (this *Unit) PlayerControl_AttackCmd(data *protomsg.CS_PlayerAttack) {
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	if this.PlayerControlEnable != 1 {
 		return
 	}
@@ -1479,7 +1487,8 @@ var PlayerMoveOverTime = float64(0)
 
 //玩家操作行为命令
 func (this *Unit) PlayerControl_MoveCmd(data *protomsg.CS_PlayerMove) {
-
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	//移动结束命令可执行
 	if data.IsStart == false {
 		this.MoveCmdData = data
@@ -1488,7 +1497,7 @@ func (this *Unit) PlayerControl_MoveCmd(data *protomsg.CS_PlayerMove) {
 		//PlayerControl_MoveCmdtest++
 		return
 	} else {
-		if utils.GetCurTimeOfSecond()-PlayerMoveOverTime <= 0.1 {
+		if utils.GetCurTimeOfSecond()-PlayerMoveOverTime <= 0.01 {
 			return
 		}
 		//log.Info("-----PlayerControl_MoveCmd")
@@ -1805,6 +1814,9 @@ type Unit struct {
 	//场景中的NPC 死亡后重新创建信息
 	ReCreateInfo *conf.Unit
 	//场景中的NPC 死亡后掉落道具
+
+	//
+	unitlock *sync.RWMutex //玩家操作同步操作锁
 
 	//发送数据部分
 	ClientData    *protomsg.UnitDatas //客户端显示数据
@@ -2251,6 +2263,7 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 //初始化
 func (this *Unit) Init() {
 	this.State = NewIdleState(this)
+	this.unitlock = new(sync.RWMutex)
 
 	this.AttackMode = 1 //和平攻击模式
 	this.EveryTimeDoRemainTime = 1
@@ -2475,6 +2488,8 @@ func (this *Unit) PreUpdate(dt float64) {
 	if this.IsDisappear() {
 		return
 	}
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	this.NextAttackRemainTime -= float32(dt)
 
 	this.DoUpgradeSkill()
@@ -2485,6 +2500,9 @@ func (this *Unit) PreUpdate(dt float64) {
 
 //更新
 func (this *Unit) Update(dt float64) {
+
+	this.unitlock.Lock()
+	defer this.unitlock.UnLock()
 	//设置是否有碰撞  设置移动速度 和逻辑状态
 
 	//技能更新
