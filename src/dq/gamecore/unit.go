@@ -9,6 +9,7 @@ import (
 	"dq/utils"
 	"dq/vec2d"
 	"math"
+	"sync"
 
 	//"math"
 	"strconv"
@@ -1130,7 +1131,7 @@ func (this *Unit) UseSkillEnable(data *protomsg.CS_PlayerSkill) bool {
 //玩家操作技能行为命令
 func (this *Unit) PlayerControl_SkillCmd(data *protomsg.CS_PlayerSkill) {
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	if this.PlayerControlEnable != 1 {
 		return
 	}
@@ -1140,7 +1141,7 @@ func (this *Unit) PlayerControl_SkillCmd(data *protomsg.CS_PlayerSkill) {
 //切换攻击模式命令
 func (this *Unit) ChangeAttackMode(data *protomsg.CS_ChangeAttackMode) {
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	this.ChangeAttackModeData = data
 }
 func (this *Unit) DoChangeAttackMode() {
@@ -1155,7 +1156,7 @@ func (this *Unit) DoChangeAttackMode() {
 //玩家操作技能行为命令
 func (this *Unit) UpgradeSkill(data *protomsg.CS_PlayerUpgradeSkill) {
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	this.UpgradeSkillData = data
 }
 
@@ -1355,7 +1356,7 @@ func (this *Unit) CheckAttackEnable2Target(target *Unit) bool {
 //玩家操作攻击行为命令
 func (this *Unit) PlayerControl_AttackCmd(data *protomsg.CS_PlayerAttack) {
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	if this.PlayerControlEnable != 1 {
 		return
 	}
@@ -1488,7 +1489,7 @@ var PlayerMoveOverTime = float64(0)
 //玩家操作行为命令
 func (this *Unit) PlayerControl_MoveCmd(data *protomsg.CS_PlayerMove) {
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	//移动结束命令可执行
 	if data.IsStart == false {
 		this.MoveCmdData = data
@@ -2489,7 +2490,7 @@ func (this *Unit) PreUpdate(dt float64) {
 		return
 	}
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	this.NextAttackRemainTime -= float32(dt)
 
 	this.DoUpgradeSkill()
@@ -2502,7 +2503,7 @@ func (this *Unit) PreUpdate(dt float64) {
 func (this *Unit) Update(dt float64) {
 
 	this.unitlock.Lock()
-	defer this.unitlock.UnLock()
+	defer this.unitlock.Unlock()
 	//设置是否有碰撞  设置移动速度 和逻辑状态
 
 	//技能更新

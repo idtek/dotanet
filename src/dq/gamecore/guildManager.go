@@ -3,6 +3,7 @@ package gamecore
 import (
 	"dq/log"
 	"dq/protobuf"
+
 	//"dq/timer"
 	"dq/conf"
 	"dq/db"
@@ -365,7 +366,7 @@ func (this *GuildManager) ResponseJoinGuild(player *Player, data *protomsg.CS_Re
 	}
 
 	//如果超过上限就到此为止
-	if guild.CharactersMap.Size() >= guild.MaxCount {
+	if guild.CharactersMap.Size() >= int(guild.MaxCount) {
 		//公会成员已经达到数量上限
 		return
 	}
