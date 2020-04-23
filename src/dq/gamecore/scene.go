@@ -99,7 +99,8 @@ type Scene struct {
 	SceneItems     map[int32]*SceneItem             //游戏场景中所有的道具
 	ZoneSceneItems map[utils.SceneZone][]*SceneItem //区域中的的道具
 
-	Halos          map[int32]*Halo             //游戏中所有的光环
+	//Halos          map[int32]*Halo             //游戏中所有的光环
+	Halos          *utils.BeeMap
 	ZoneHalos      map[utils.SceneZone][]*Halo //区域中的的光环
 	CanRemoveHalos map[int32]*Halo             //可以被删除的halo 比如击杀单位后 halo无效
 
@@ -170,7 +171,8 @@ func (this *Scene) Init() {
 	this.SceneItems = make(map[int32]*SceneItem)
 	this.ZoneSceneItems = make(map[utils.SceneZone][]*SceneItem)
 
-	this.Halos = make(map[int32]*Halo)
+	//this.Halos = make(map[int32]*Halo)
+	this.Halos = utils.NewBeeMap()
 	this.ZoneHalos = make(map[utils.SceneZone][]*Halo)
 	this.CanRemoveHalos = make(map[int32]*Halo)
 
@@ -494,9 +496,10 @@ func (this *Scene) DoSendData() {
 	}
 
 	//生成光环的 客户端 显示数据
-	for _, v := range this.Halos {
-		v.FreshClientDataSub()
-		v.FreshClientData()
+	haloitems := this.Halos.Items()
+	for _, v := range haloitems {
+		v.(*Halo).FreshClientDataSub()
+		v.(*Halo).FreshClientData()
 	}
 	var unitcount = 0
 	var bulletcount = 0
@@ -593,10 +596,11 @@ func (this *Scene) DoZone() {
 	}
 	//光环分区
 	this.ZoneHalos = make(map[utils.SceneZone][]*Halo)
-	for _, v := range this.Halos {
+	haloitems := this.Halos.Items()
+	for _, v := range haloitems {
 
-		zone := utils.GetSceneZone((v.Position.X), (v.Position.Y))
-		this.ZoneHalos[zone] = append(this.ZoneHalos[zone], v)
+		zone := utils.GetSceneZone((v.(*Halo).Position.X), (v.(*Halo).Position.Y))
+		this.ZoneHalos[zone] = append(this.ZoneHalos[zone], v.(*Halo))
 	}
 }
 
@@ -639,7 +643,8 @@ func (this *Scene) AddHalo(halo *Halo) {
 	if halo == nil {
 		return
 	}
-	this.Halos[halo.ID] = halo
+	//this.Halos[halo.ID] = halo
+	this.Halos.Set(halo.ID, halo)
 
 	if halo.KilledInvalid == 1 {
 		this.CanRemoveHalos[halo.ID] = halo
@@ -650,15 +655,16 @@ func (this *Scene) AddHalo(halo *Halo) {
 
 //删除光环
 func (this *Scene) RemoveHalo(id int32) {
-	delete(this.Halos, id)
+	//delete(this.Halos, id)
+	this.Halos.Delete(id)
 	delete(this.CanRemoveHalos, id)
 }
 
 //获取光环
 func (this *Scene) ForbiddenHalo(id int32, isForbidden bool) {
-	halo, ok := this.Halos[id]
-	if ok && halo != nil {
-		halo.IsForbidden = isForbidden
+	halo := this.Halos.Get(id)
+	if halo != nil {
+		halo.(*Halo).IsForbidden = isForbidden
 	}
 }
 
@@ -667,7 +673,8 @@ func (this *Scene) RemoveHaloForKilled(parent *Unit) {
 	for k, v := range this.CanRemoveHalos {
 		if v.Parent == parent && v.KilledInvalid == 1 {
 			delete(this.CanRemoveHalos, k)
-			delete(this.Halos, k)
+			//delete(this.Halos, k)
+			this.Halos.Delete(k)
 			return
 		}
 	}
@@ -676,19 +683,22 @@ func (this *Scene) RemoveHaloForKilled(parent *Unit) {
 //删除时间结束的光环
 func (this *Scene) DoRemoveHalo() {
 	//ZoneBullets
-	for k, v := range this.Halos {
-		if v.IsDone() {
+	haloitems := this.Halos.Items()
+	for k, v := range haloitems {
+		if v.(*Halo).IsDone() {
 			//log.Info("------DoRemoveHalo----%d", v.TypeID)
-			delete(this.Halos, k)
-			delete(this.CanRemoveHalos, k)
+			//delete(this.Halos, k)
+			this.Halos.Delete(k)
+			delete(this.CanRemoveHalos, k.(int32))
 		}
 	}
 }
 
 //更新光环
 func (this *Scene) UpdateHalo(dt float32) {
-	for _, v := range this.Halos {
-		v.Update(dt)
+	haloitems := this.Halos.Items()
+	for _, v := range haloitems {
+		v.(*Halo).Update(dt)
 	}
 }
 

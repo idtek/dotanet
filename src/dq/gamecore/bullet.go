@@ -245,6 +245,9 @@ func (this *Bullet) Init() {
 
 //设置弹射
 func (this *Bullet) SetEjection(count int32, ejrange float32, ejdecay float32, repeat int32) {
+	if count <= 0 {
+		return
+	}
 	this.Ejection.EjectionCount = count
 	this.Ejection.EjectionRange = ejrange
 	this.Ejection.EjectionDecay = ejdecay

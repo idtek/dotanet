@@ -824,6 +824,7 @@ func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	}
 	if player.(*gamecore.Player).BuyItemSubMoneyLock(mapdata.PriceType, mapdata.Price) == false {
 		player.(*gamecore.Player).SendNoticeWordToClient(mapdata.PriceType)
+		return
 	}
 	//进入新地图
 	doorway := conf.DoorWay{}

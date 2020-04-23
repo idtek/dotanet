@@ -385,6 +385,21 @@ func (this *Unit) CheckTriggerOtherRule(rule int32, param string, targetunit *Un
 			}
 			return true
 		}
+	case 4: //目标单位类型为指定类型 UnitType
+		{
+			//log.Info("---11---目标单位类型为指定类型 UnitType----%s", param)
+			paramint32 := utils.GetInt32FromString3(param, ":")
+			if len(paramint32) <= 0 || targetunit == nil {
+				return false
+			}
+			for _, v := range paramint32 {
+				//log.Info("--22----目标单位类型为指定类型 UnitType----%d   %d", v, targetunit.UnitType)
+				if v == targetunit.UnitType {
+					return true
+				}
+			}
+			return false
+		}
 	default:
 	}
 
@@ -3304,6 +3319,9 @@ func (this *Unit) AddBuffFromBuff(buff *Buff, castunit *Unit) *Buff {
 			}
 			if buff.OverlyingAddTag == 1 {
 				bf[0].TagNum += buff.TagNum
+				if bf[0].TagNum > buff.MaxOverlyingTag { //叠加最大值
+					bf[0].TagNum = buff.MaxOverlyingTag
+				}
 			} else if buff.OverlyingAddTag == 3 {
 				log.Info("--11111111---%d   %d", buff.TagNum, bf[0].TagNum)
 				if buff.TagNum > bf[0].TagNum {

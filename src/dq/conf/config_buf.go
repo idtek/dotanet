@@ -85,6 +85,7 @@ type BuffBaseData struct {
 	MaxLevel                 int32 //最高升级到的等级 5 表示能升级到5级
 	OverlyingType            int32 //叠加类型 1:只更新最大时间 2:完美叠加(小鱼的偷属性) 3:替换之前的
 	OverlyingAddTag          int32 //叠加时是否增加标记数字 1:表示增加 2:表示不增加
+	MaxOverlyingTag          int32 //叠加标记最大值
 	ActiveUnitAcpabilities   int32 //生效的单位攻击类型(1:近程攻击 2:远程攻击 3:都生效)
 	NoCareMagicImmuneAddBuff int32 //添加此buff时 是否无视单位魔法免疫 1:是 2:非
 

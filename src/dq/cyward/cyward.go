@@ -16,6 +16,7 @@ type DetourPathNode struct {
 	path1len    float64
 	path1       []vec2d.Vec2
 	path2       []vec2d.Vec2
+	startTime   float64
 }
 
 type MyPolygon struct {
@@ -795,9 +796,11 @@ func (this *WardCore) ChangeErrorPath(my *Body, detourBody *Body, staticbodys *[
 
 func (this *WardCore) CheckDetourPathNodeT(dpnode *DetourPathNode, staticbodys *[]*Body, path *[]vec2d.Vec2) bool {
 	var getPath [2][]vec2d.Vec2
+	dpnode.startTime = utils.GetCurTimeOfSecond()
 	this.CheckDetourPathNode1(dpnode, staticbodys, &getPath[0])
 	this.OptimizePath(dpnode.my, staticbodys, &getPath[0])
 
+	dpnode.startTime = utils.GetCurTimeOfSecond()
 	this.CheckDetourPathNode2(dpnode, staticbodys, &getPath[1])
 	this.OptimizePath(dpnode.my, staticbodys, &getPath[1])
 
@@ -862,6 +865,12 @@ func (this *WardCore) OptimizePath(me *Body, staticbodys *[]*Body, path *[]vec2d
 	}
 }
 func (this *WardCore) CheckDetourPathNode2(dpnode *DetourPathNode, staticbodys *[]*Body, path *[]vec2d.Vec2) bool {
+
+	time2 := utils.GetCurTimeOfSecond()
+	if (time2 - dpnode.startTime) > 0.02 {
+		log.Info("CheckDetourPathNode2:%f %f %f", time2, dpnode.startTime, (time2 - dpnode.startTime))
+		return false
+	}
 	for k := 0; k < 2; k++ {
 		dpnodepath1 := make([]vec2d.Vec2, 0)
 		if k == 1 {
@@ -965,6 +974,7 @@ func (this *WardCore) CheckDetourPathNode2(dpnode *DetourPathNode, staticbodys *
 
 						var dpNode1 DetourPathNode
 						dpNode1.parent = dpnode
+						dpNode1.startTime = dpnode.startTime
 						dpNode1.collions = minDisCollion
 						dpNode1.my = dpnode.my
 						dpNode1.serachIndex = pathindex
@@ -1017,6 +1027,12 @@ func (this *WardCore) CheckDetourPathNode2(dpnode *DetourPathNode, staticbodys *
 }
 
 func (this *WardCore) CheckDetourPathNode1(dpnode *DetourPathNode, staticbodys *[]*Body, path *[]vec2d.Vec2) bool {
+	time2 := utils.GetCurTimeOfSecond()
+	if (time2 - dpnode.startTime) > 0.02 {
+		log.Info("CheckDetourPathNode1:%f %f %f", time2, dpnode.startTime, (time2 - dpnode.startTime))
+		return false
+	}
+
 	for k := 0; k < 2; k++ {
 		dpnodepath1 := make([]vec2d.Vec2, 0)
 		if k == 0 {
@@ -1120,6 +1136,7 @@ func (this *WardCore) CheckDetourPathNode1(dpnode *DetourPathNode, staticbodys *
 
 						var dpNode1 DetourPathNode
 						dpNode1.parent = dpnode
+						dpNode1.startTime = dpnode.startTime
 						dpNode1.collions = minDisCollion
 						dpNode1.my = dpnode.my
 

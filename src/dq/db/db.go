@@ -101,7 +101,12 @@ func (a *DB) CreateQuickPlayer(machineid string, platfom string, name string) in
 //创建新玩家基础信息
 func (a *DB) newUserBaseInfo(id int, name string) error {
 
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 
 	res, err1 := tx.Exec("INSERT userbaseinfo (uid,name) values (?,?)",
 		id, name)
@@ -119,7 +124,12 @@ func (a *DB) newUserBaseInfo(id int, name string) error {
 //创建新玩家信息
 func (a *DB) newUser(machineid string, platfom string, phonenumber string, openid string, name string) (int, error) {
 
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 
 	res, err1 := tx.Exec("INSERT user (phonenumber,platform,machineid,wechat_id) values (?,?,?,?)",
 		phonenumber, platfom, machineid, openid)
@@ -315,7 +325,12 @@ func (a *DB) CreateCharacter(uid int32, name string, typeid int32) (error, int32
 		return errors.New("uidandtypeid repeat"), -1
 	}
 
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 
 	//a.Mydb.Exec()
 	//sqlstr :=
@@ -530,7 +545,12 @@ func (a *DB) SaveCharacter(playerInfo DB_CharacterInfo) error {
 
 //创建公会
 func (a *DB) CreateGuild(name string, day string) (error, int32) {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 
 	res, err1 := tx.Exec("INSERT guild (name,createday) values (?,?)", name, day)
 	n, e := res.RowsAffected()
@@ -547,7 +567,12 @@ func (a *DB) CreateGuild(name string, day string) (error, int32) {
 
 //删除公会
 func (a *DB) DeleteGuild(id int32) error {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 	res, err1 := tx.Exec("DELETE FROM guild WHERE id=" + strconv.Itoa(int(id)))
 	n, e := res.RowsAffected()
 	_, err2 := res.LastInsertId()
@@ -654,7 +679,12 @@ func (a *DB) CreateAndSaveAuction(mailInfo *DB_AuctionInfo) {
 
 //创建商品
 func (a *DB) CreateAuction() (error, int32) {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 	res, err1 := tx.Exec("INSERT auction (bidderCharacterid) values (?)", -1)
 	n, e := res.RowsAffected()
 	characterid, err2 := res.LastInsertId()
@@ -670,7 +700,12 @@ func (a *DB) CreateAuction() (error, int32) {
 
 //删除商品
 func (a *DB) DeleteAuction(id int32) error {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 	res, err1 := tx.Exec("DELETE FROM auction WHERE id=" + strconv.Itoa(int(id)))
 	n, e := res.RowsAffected()
 	_, err2 := res.LastInsertId()
@@ -776,7 +811,12 @@ func (a *DB) CreateAndSaveCommodity(mailInfo *DB_PlayerItemTransactionInfo) {
 
 //创建商品
 func (a *DB) CreateCommodity() (error, int32) {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 	res, err1 := tx.Exec("INSERT exchange (level) values (?)", 1)
 	n, e := res.RowsAffected()
 	characterid, err2 := res.LastInsertId()
@@ -792,7 +832,12 @@ func (a *DB) CreateCommodity() (error, int32) {
 
 //删除商品
 func (a *DB) DeleteCommodity(id int32) error {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 	res, err1 := tx.Exec("DELETE FROM exchange WHERE id=" + strconv.Itoa(int(id)))
 	n, e := res.RowsAffected()
 	_, err2 := res.LastInsertId()
@@ -897,7 +942,12 @@ func (a *DB) CreateAndSaveMail(mailInfo *DB_MailInfo) {
 
 //创建邮件
 func (a *DB) CreateMail() (error, int32) {
-	tx, _ := a.Mydb.Begin()
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
 
 	//a.Mydb.Exec()
 	//sqlstr :=
