@@ -213,6 +213,9 @@ func (a *GameScene1Agent) Update() {
 
 //检测地图开启与关闭
 func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
+
+	scenemap := make(map[*gamecore.Scene]bool)
+
 	//活动地图
 	for _, v := range conf.ActivityMapFileDatas {
 		if v == nil {
@@ -231,9 +234,15 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 		mapdata := conf.CheckGotoActivityMap(v.(*conf.ActivityMapFileData).ID, 10000)
 
 		if mapdata != nil { //如果可以进入地图  就开启地图
-			onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+
+			scenemap[onescnee.(*gamecore.Scene)] = false
+
 		} else if mapdata == nil { //如果不可以进入就关闭地图
-			onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+			//onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+			if _, ok := scenemap[onescnee.(*gamecore.Scene)]; ok == false {
+				scenemap[onescnee.(*gamecore.Scene)] = true
+			}
 		}
 
 	}
@@ -255,11 +264,19 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 		mapdata := conf.CheckGotoGuildMap(v.(*conf.GuildMapFileData).ID, 10000)
 
 		if mapdata != nil { //如果可以进入地图  就开启地图
-			onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+
+			scenemap[onescnee.(*gamecore.Scene)] = false
 		} else if mapdata == nil { //如果不可以进入就关闭地图
-			onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+			if _, ok := scenemap[onescnee.(*gamecore.Scene)]; ok == false {
+				scenemap[onescnee.(*gamecore.Scene)] = true
+			}
 		}
 
+	}
+
+	for k, v := range scenemap {
+		k.SetCleanPlayer(v)
 	}
 }
 

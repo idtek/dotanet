@@ -85,6 +85,8 @@ func CreatePlayer(uid int32, connectid int32, characterid int32) *Player {
 	re.ConnectId = connectid
 	re.Characterid = characterid
 	re.AutoSaveRemainTime = AutoSaveTime
+
+	re.BagInfo = make([]*BagItem, MaxBagCount)
 	re.ReInit()
 	return re
 }
@@ -138,6 +140,9 @@ func (this *Player) LoadItemSkillCDFromDB(itemskillcd string) {
 
 //载入背包信息 从数据库数据
 func (this *Player) LoadBagInfoFromDB(baginfo string) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	this.BagInfo = make([]*BagItem, MaxBagCount)
 	if len(baginfo) <= 0 {
 		return
 	}
@@ -164,7 +169,7 @@ func (this *Player) LoadBagInfoFromDB(baginfo string) {
 }
 
 func (this *Player) ReInit() {
-	this.MainUnit = nil
+	//this.MainUnit = nil
 	this.LastShowUnit = make(map[int32]*Unit)
 	this.CurShowUnit = make(map[int32]*Unit)
 	this.LastShowBullet = make(map[int32]*Bullet)
@@ -173,8 +178,6 @@ func (this *Player) ReInit() {
 	this.CurShowHalo = make(map[int32]*Halo)
 	this.LastShowSceneItem = make(map[int32]*SceneItem)
 	this.CurShowSceneItem = make(map[int32]*SceneItem)
-
-	this.BagInfo = make([]*BagItem, MaxBagCount)
 
 	this.ItemSkillCDDataInfo = make(map[int32]*ItemSkillCDData)
 

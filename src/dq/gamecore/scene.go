@@ -946,11 +946,11 @@ func (this *Scene) Close() {
 
 //玩家进入
 func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo) {
-	if player.MainUnit == nil {
+	//if player.MainUnit == nil {
 
-		player.MainUnit = CreateUnitByPlayer(this, player, characterinfo)
-		//player.Characterid =
-	}
+	player.MainUnit = CreateUnitByPlayer(this, player, characterinfo)
+	//player.Characterid =
+	//}
 
 	this.NextAddUnit.Set(player.MainUnit.ID, player.MainUnit)
 

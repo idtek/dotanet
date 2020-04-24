@@ -122,7 +122,7 @@ func (app *DefaultApp) Run() error {
 			crashFile.WriteString(fmt.Sprintf("%v Opened crashfile at %v", os.Getpid(), time.Now()))
 			os.Stderr = crashFile
 			fmt.Println(syscall.AF_INET)
-			syscall.Dup2(int(crashFile.Fd()), 2)
+			//syscall.Dup2(int(crashFile.Fd()), 2)
 		}
 	}
 
