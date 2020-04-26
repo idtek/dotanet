@@ -2252,6 +2252,8 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 
 	//初始化
 	unitre.Init()
+	//攻击模式
+	unitre.AttackMode = characterinfo.AttackMode
 
 	//创建道具
 	unitre.Items = make([]*Item, UnitEquitCount)

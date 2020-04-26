@@ -487,6 +487,7 @@ func (a *DB) SaveCharacter(playerInfo DB_CharacterInfo) error {
 	datastring["guildpinlevel"] = playerInfo.GuildPinLevel
 	datastring["guildpinexperience"] = playerInfo.GuildPinExperience
 	datastring["guildpost"] = playerInfo.GuildPost
+	datastring["attackmode"] = playerInfo.AttackMode
 
 	sqlstr := "UPDATE characterinfo SET "
 	count := 0

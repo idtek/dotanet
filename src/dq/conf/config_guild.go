@@ -130,7 +130,7 @@ func CheckGotoGuildMap(id int32, guildlevel int32) *GuildMapFileData {
 	}
 
 	for _, v := range mapfiledata.OpenWeekDayInt32 {
-		if nowtime.Weekday() == time.Weekday(v) {
+		if nowtime.Weekday() == time.Weekday(v%7) {
 
 			return mapfiledata
 		}

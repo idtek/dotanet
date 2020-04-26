@@ -63,7 +63,8 @@ func CheckGotoActivityMap(id int32, level int32) *ActivityMapFileData {
 	}
 
 	for _, v := range mapfiledata.OpenWeekDayInt32 {
-		if nowtime.Weekday() == time.Weekday(v) {
+		//log.Info("Weekday:%d   %d   %d", nowtime.Weekday(), time.Weekday(v%7), id)
+		if nowtime.Weekday() == time.Weekday(v%7) {
 
 			return mapfiledata
 		}

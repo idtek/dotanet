@@ -2,11 +2,14 @@ package utils
 
 import (
 	"bytes"
+	"crypto/md5"
 	"dq/log"
 	"encoding/gob"
+	"encoding/hex"
 	"errors"
 	"math/rand"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -223,6 +226,46 @@ func GetInt32FromString(str string, params ...(*int32)) {
 
 func GetCurTimeOfSecond() float64 {
 	return float64(time.Now().UnixNano()) / 1000000000.0
+}
+
+//签名
+func PaySign(parameters map[string]string, secret string) string {
+	var resultstr string
+	var keys []string
+	for k, _ := range parameters {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	// To perform the opertion you want
+	isfirst := true
+	for _, k := range keys {
+		//fmt.Println("Key:", k, "Value:", parameters[k])
+		if len(parameters[k]) <= 0 {
+			continue
+		}
+
+		if isfirst {
+			isfirst = false
+		} else {
+			resultstr += "&"
+		}
+
+		resultstr += k
+		resultstr += "="
+		resultstr += parameters[k]
+	}
+	resultstr += "&key=" + secret
+	log.Info("resultstr:%s", resultstr)
+	//md5加密
+	h := md5.New()
+	h.Write([]byte(resultstr))
+	resultstr = hex.EncodeToString(h.Sum(nil))
+
+	//字符串转大写
+	resultstr = strings.ToUpper(resultstr)
+
+	return resultstr
 }
 
 func Struct2Bytes(data interface{}) []byte {

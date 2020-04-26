@@ -805,6 +805,7 @@ func (this *Scene) UpdateSceneItem(dt float32) {
 						//拾取到公会拍卖行
 						GuildManagerObj.AddAuctionItem(player.MyGuild.GuildId, v.TypeID, 1, v.AttackUnits)
 						v.BeSelect()
+						break
 					} else {
 						//拾取到背包
 						if player.SelectSceneItem(v) == true {

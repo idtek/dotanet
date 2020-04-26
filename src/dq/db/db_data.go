@@ -42,6 +42,7 @@ type DB_CharacterInfo struct {
 	GuildPinLevel         int32   `json:"guildpinlevel"`
 	GuildPinExperience    int32   `json:"guildpinexperience"`
 	GuildPost             int32   `json:"guildpost"`
+	AttackMode            int32   `json:"attackmode"`
 }
 
 //角色邮件信息

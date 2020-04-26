@@ -805,6 +805,7 @@ func (this *Player) GetDBData() *db.DB_CharacterInfo {
 	dbdata.RemainExperience = this.MainUnit.RemainExperience
 	dbdata.GetExperienceDay = this.MainUnit.GetExperienceDay
 	dbdata.RemainReviveTime = this.MainUnit.RemainReviveTime
+	dbdata.AttackMode = this.MainUnit.AttackMode
 	//击杀相关
 	dbdata.KillCount = this.MainUnit.KillCount
 	dbdata.ContinuityKillCount = this.MainUnit.ContinuityKillCount
