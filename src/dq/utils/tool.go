@@ -7,7 +7,9 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"errors"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"reflect"
 	"sort"
 	"strconv"
@@ -226,6 +228,39 @@ func GetInt32FromString(str string, params ...(*int32)) {
 
 func GetCurTimeOfSecond() float64 {
 	return float64(time.Now().UnixNano()) / 1000000000.0
+}
+
+//请求支付
+func PayQuest() {
+	d1 := make(map[string]string)
+	d1["out_trade_no"] = "123456"
+	d1["total_fee"] = "1"
+	d1["mch_id"] = "2088202592605984"
+	d1["body"] = "ceshi"
+	//d1["attach"] = ""
+	//d1["notify_url"] = ""
+	//d1["sign"] = "6E9CFEACB260438DBDB1E836EF0C1A1F"
+
+	t1 := PaySign(d1, "64793DD75D3647389551627E8CEECD7E")
+	log.Info("sign:%s", t1)
+	param := "out_trade_no=123456&total_fee=1&mch_id=2088202592605984&body=ceshi&attach=&notify_url=&sign=" + t1
+	log.Info("param:%s", param)
+	resp, err := http.Post("https://api.pay.yungouos.com/api/pay/alipay/wapPay",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(param))
+
+	if err != nil {
+		// handle error
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+
+	//fmt.Println(string(body))
+	log.Info("%s", string(body))
 }
 
 //签名

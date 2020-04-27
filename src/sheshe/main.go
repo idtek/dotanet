@@ -7,17 +7,13 @@ import (
 	//"dq/db"
 	"dq/log"
 	//"dq/vec2d"
-	"net/http"
+
 	//	_ "net/http/pprof"
 	//	"dq/wordsfilter"
 	//"fmt"
 	//"time"
 	//	"os"
-	"dq/utils"
-	"io/ioutil"
-
-	//"net/url"
-	"strings"
+	//"dq/utils"
 )
 
 //func test(t interface{}) int32 {
@@ -27,40 +23,7 @@ import (
 //}
 
 func main() {
-
-	d1 := make(map[string]string)
-	d1["out_trade_no"] = "123456"
-	d1["total_fee"] = "1"
-	d1["mch_id"] = "2088202592605984"
-	d1["body"] = "ceshi"
-	//d1["attach"] = ""
-	//d1["notify_url"] = ""
-	//d1["sign"] = "6E9CFEACB260438DBDB1E836EF0C1A1F"
-
-	t1 := utils.PaySign(d1, "64793DD75D3647389551627E8CEECD7E")
-	log.Info("sign:%s", t1)
-	param := "out_trade_no=123456&total_fee=1&mch_id=2088202592605984&body=ceshi&attach=&notify_url=&sign=" + t1
-	log.Info("param:%s", param)
-	//d1["sign"] = t1
-
-	//	resp, err := http.PostForm("http://www.01happy.com/demo/accept.php",
-	//		url.Values{"key": {"Value"}, "id": {"123"}})
-	resp, err := http.Post("https://api.pay.yungouos.com/api/pay/alipay/wapPay",
-		"application/x-www-form-urlencoded",
-		strings.NewReader(param))
-
-	if err != nil {
-		// handle error
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		// handle error
-	}
-
-	//fmt.Println(string(body))
-	log.Info("%s", string(body))
+	//utils.PayQuest()
 	//	format := "15:04:05"
 	//	a, _ := time.Parse(format, "11:00:00")
 	//	b, _ := time.Parse(format, "16:00:00")
