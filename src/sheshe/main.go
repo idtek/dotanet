@@ -34,6 +34,7 @@ func main() {
 	//	fmt.Println("44time: ", a.After(c))
 	//	fmt.Println("55time: ", b.After(a))
 	//	fmt.Println("66time: ", c.After(b))
+	//主线
 	//log.Info("test:%d", test(30))
 	//
 	//	ApplicationDir, _ := os.Getwd()
