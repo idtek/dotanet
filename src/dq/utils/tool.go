@@ -230,7 +230,7 @@ func GetCurTimeOfSecond() float64 {
 	return float64(time.Now().UnixNano()) / 1000000000.0
 }
 
-//请求支付
+//请求支付 ff
 func PayQuest() {
 	d1 := make(map[string]string)
 	d1["out_trade_no"] = "123456"
