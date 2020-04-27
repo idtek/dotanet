@@ -90,13 +90,14 @@ func GetItemData(typeid int32) *ItemData {
 
 //技能基本数据
 type ItemBaseData struct {
-	TypeID   int32  //类型ID
-	ItemName string //名字
-	Buffs    string //buff
-	Halos    string //halo
-	Skills   string //skill
-	MaxLevel int32  //最高等级
-
+	TypeID    int32  //类型ID
+	ItemName  string //名字
+	Buffs     string //buff
+	Halos     string //halo
+	Skills    string //skill
+	MaxLevel  int32  //最高等级
+	PriceType int32  //回收价格类型
+	Price     int32  //回收价格
 }
 
 //技能数据 (会根据等级变化的数据)

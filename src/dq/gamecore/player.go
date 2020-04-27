@@ -8,6 +8,7 @@ import (
 	"dq/protobuf"
 	"dq/utils"
 	"dq/wordsfilter"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -384,6 +385,39 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 	}
 
 	this.lock.Unlock()
+}
+
+//系统回收道具位置 背包位置
+func (this *Player) SystemHuiShouItem(data *protomsg.CS_SystemHuiShouItem) {
+
+	if data.SrcPos < 0 || data.SrcPos >= MaxBagCount {
+		return
+	}
+	if this.MainUnit == nil {
+		return
+	}
+
+	bagitem := this.BagInfo[data.SrcPos]
+	if bagitem == nil {
+		return
+	}
+
+	//equip.TypdID = v.TypeID
+	//equip.Level = v.Level
+	item := conf.GetItemData(bagitem.TypeID)
+	if item != nil {
+		pricetype := item.PriceType
+		price := item.Price
+		//加钱
+		this.BuyItemSubMoneyLock(pricetype, -price*int32(math.Pow(float64(2), float64(bagitem.Level-1))))
+	}
+
+	log.Info("-------SystemHuiShouItem:%d ", data.SrcPos)
+
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	this.BagInfo[data.SrcPos] = nil
+
 }
 
 //交换道具位置 背包位置

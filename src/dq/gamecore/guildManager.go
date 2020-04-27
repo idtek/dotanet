@@ -225,16 +225,48 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 	return guild
 
 }
-
-//Operate
-//
-func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOperate) bool {
-	if player == nil || data == nil || player.MyGuild == nil {
+func (this *GuildManager) EditorGuildNotice(player *Player, data *protomsg.CS_EditorGuildNotice) bool {
+	if player == nil || data == nil {
+		return false
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
 		return false
 	}
 
 	//找到当前公会
-	guild1 := this.Guilds.Get(player.MyGuild.GuildId)
+	guild1 := this.Guilds.Get(myguild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		player.SendNoticeWordToClient(29)
+		return false
+	}
+	guild := guild1.(*GuildInfo)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
+	if postdata == nil || postdata.NoticeWriteAble != 1 {
+		//没有权限 31
+		player.SendNoticeWordToClient(31)
+		return false
+	} else {
+		guild.Notice = data.Notice
+	}
+
+	return true
+}
+
+//Operate
+//
+func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOperate) bool {
+	if player == nil || data == nil {
+		return false
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
+		return false
+	}
+
+	//找到当前公会
+	guild1 := this.Guilds.Get(myguild.GuildId)
 	if guild1 == nil {
 		//不存在该公会
 		player.SendNoticeWordToClient(29)
@@ -242,7 +274,7 @@ func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOp
 	}
 	guild := guild1.(*GuildInfo)
 
-	postdata := conf.GetGuildPostFileData(player.MyGuild.Post)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
 	if data.Code == 1 { //退出公会
 		if postdata == nil || postdata.ExitWriteAble != 1 {
 			//没有权限 31

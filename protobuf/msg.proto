@@ -58,6 +58,9 @@ message UnitEquip{
     int32 Pos = 1;//位置
     int32 TypdID = 2;//类型id
     int32 Level = 3;//等级
+    int32 PriceType = 4; //回收价格类型 1金币 2砖石
+    int32 Price = 5;    //回收价格
+
 }
 
 //单位面板详细信息
@@ -84,12 +87,32 @@ message UnitBoardDatas{
     int32   RemainExperience = 20;//今天剩余可以获取到的经验值
     repeated UnitEquip Equips = 21;//装备
 }
+//技能数据
+message SimpleSkillDatas{
+    int32   TypeID = 1;
+    int32   Level = 2;//技能等级
+    int32   Index = 5;//位置索引
+}
 
 
 //获取单位面板详细信息 
 message CS_GetUnitInfo {
     int32 UnitID = 1;//单位对象id
 }
+//获取角色简要信息(装备和技能)
+message CS_GetCharacterSimpleInfo{
+    int32 CharacterID = 1;//单位对象id
+}
+//返回获取角色简要信息(装备和技能)
+message SC_GetCharacterSimpleInfo{
+    int32 CharacterID = 1;//单位对象id
+    string  Name = 2;
+    int32   Level = 3;
+    string  ModeType = 4;//模型类型(客户端使用的模型名字)
+    repeated string  EquipItems = 5;//装备1
+    string  Skills = 6;//技能
+}
+
 //获取自己背包详细信息 
 message CS_GetBagInfo {
     int32 UnitID = 1;//单位对象id
@@ -104,6 +127,11 @@ message CS_ChangeItemPos {
 
 //删除道具
 message CS_DestroyItem{
+    int32 SrcPos = 1;//源位置
+}
+
+//系统回收道具
+message CS_SystemHuiShouItem{
     int32 SrcPos = 1;//源位置
 }
 
@@ -431,8 +459,9 @@ message SC_ChatInfo{
     string Time = 2;//时间
     string SrcName = 3;//发送者名字
     int32 SrcPlayerUID = 4;//发送者uid
-    int32 DestPlayerUID = 5;//目标者uid
-    string Content = 6;//内容
+    int32 SrcCharacterID = 5;//发送者角色ID
+    int32 DestPlayerUID = 6;//目标者uid
+    string Content = 7;//内容
 }
 //发送聊天信息
 message CS_ChatInfo{
@@ -673,6 +702,12 @@ message CS_DeleteGuildPlayer{
 message CS_GuildOperate{
     int32 Code = 1; //1表示自己退出公会 2表示解散公会
 }
+
+//修改公告
+message CS_EditorGuildNotice{
+    string Notice = 1;//公告内容
+}
+
 //获取公会拍卖物品
 message CS_GetAuctionItems{
     int32 ID = 1;

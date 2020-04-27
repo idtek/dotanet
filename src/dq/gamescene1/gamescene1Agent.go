@@ -94,9 +94,13 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_PlayerSkill"] = a.DoPlayerSkill
 
 	a.handles["CS_GetUnitInfo"] = a.DoGetUnitInfo
+	a.handles["CS_GetCharacterSimpleInfo"] = a.DoGetCharacterSimpleInfo
+
 	a.handles["CS_GetBagInfo"] = a.DoGetBagInfo
 	a.handles["CS_ChangeItemPos"] = a.DoChangeItemPos
 	a.handles["CS_DestroyItem"] = a.DoDestroyItem
+	a.handles["CS_SystemHuiShouItem"] = a.DoSystemHuiShouItem
+
 	a.handles["CS_PlayerUpgradeSkill"] = a.DoPlayerUpgradeSkill
 	a.handles["CS_ChangeAttackMode"] = a.DoChangeAttackMode
 
@@ -151,6 +155,7 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GuildOperate"] = a.DoGuildOperate
 	a.handles["CS_GetGuildMapsInfo"] = a.DoGetGuildMapsInfo
 	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
+	a.handles["CS_EditorGuildNotice"] = a.DoEditorGuildNotice
 
 	//活动地图
 	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
@@ -463,6 +468,27 @@ func (a *GameScene1Agent) DoPlayerUpgradeSkill(data *protomsg.MsgBase) {
 
 }
 
+//a.handles["CS_SystemHuiShouItem"] = a.DoSystemHuiShouItem
+func (a *GameScene1Agent) DoSystemHuiShouItem(data *protomsg.MsgBase) {
+
+	log.Info("---------CS_SystemHuiShouItem")
+	h2 := &protomsg.CS_SystemHuiShouItem{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	player.(*gamecore.Player).SystemHuiShouItem(h2)
+
+	a.SendBagInfo(player.(*gamecore.Player))
+
+}
+
 func (a *GameScene1Agent) DoDestroyItem(data *protomsg.MsgBase) {
 
 	log.Info("---------CS_DestroyItem")
@@ -517,6 +543,12 @@ func (a *GameScene1Agent) SendBagInfo(player *gamecore.Player) {
 			equip.Pos = v.Index
 			equip.TypdID = v.TypeID
 			equip.Level = v.Level
+			item := conf.GetItemData(v.TypeID)
+			if item != nil {
+				equip.PriceType = item.PriceType
+				equip.Price = item.Price
+			}
+
 			msg.Equips = append(msg.Equips, equip)
 		}
 	}
@@ -582,6 +614,64 @@ func (a *GameScene1Agent) SendUnitInfo(unit *gamecore.Unit, player *gamecore.Pla
 	msg := &protomsg.SC_UnitInfo{}
 	msg.UnitData = unitdata
 	player.SendMsgToClient("SC_UnitInfo", msg)
+}
+
+//a.handles["CS_GetCharacterSimpleInfo"] = a.DoGetCharacterSimpleInfo
+func (a *GameScene1Agent) DoGetCharacterSimpleInfo(data *protomsg.MsgBase) {
+
+	log.Info("---------CS_GetCharacterSimpleInfo")
+	h2 := &protomsg.CS_GetCharacterSimpleInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	chadata := &db.DB_CharacterInfo{}
+
+	character := a.Characters.Get(h2.CharacterID)
+	if character == nil {
+		//从数据库中读取数据
+		players := make([]db.DB_CharacterInfo, 0)
+		db.DbOne.GetCharactersInfoByCharacterid(h2.CharacterID, &players)
+		if len(players) <= 0 {
+			//找不到该用户
+			return
+		}
+		chadata = &players[0]
+	} else {
+		chadata = character.(*gamecore.Player).GetDBData()
+	}
+	if chadata == nil {
+		return
+	}
+
+	//读取配置文件
+	confdata := conf.GetUnitFileData(chadata.Typeid)
+	if confdata == nil {
+		return
+	}
+
+	msg := &protomsg.SC_GetCharacterSimpleInfo{}
+	msg.CharacterID = chadata.Characterid
+	msg.Name = chadata.Name
+	msg.Level = chadata.Level
+	msg.ModeType = confdata.ModeType
+	msg.EquipItems = make([]string, gamecore.UnitEquitCount)
+	msg.EquipItems[0] = chadata.Item1
+	msg.EquipItems[1] = chadata.Item2
+	msg.EquipItems[2] = chadata.Item3
+	msg.EquipItems[3] = chadata.Item4
+	msg.EquipItems[4] = chadata.Item5
+	msg.EquipItems[5] = chadata.Item6
+	msg.Skills = chadata.Skill
+	player.(*gamecore.Player).SendMsgToClient("SC_GetCharacterSimpleInfo", msg)
+
 }
 
 //DoGetUnitInfo
@@ -929,6 +1019,33 @@ func (a *GameScene1Agent) DoGetMapInfo(data *protomsg.MsgBase) {
 //a.handles["CS_GuildOperate"] = a.DoGuildOperate
 //a.handles["CS_GetGuildMapsInfo"] = a.DoGetGuildMapsInfo
 //	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
+//a.handles["CS_EditorGuildNotice"] = a.DoEditorGuildNotice
+func (a *GameScene1Agent) DoEditorGuildNotice(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_EditorGuildNotice{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	log.Info("DoEditorGuildNotice:%s", h2.Notice)
+	//过滤非法字符
+	h2.Notice = wordsfilter.WF.DoReplace(h2.Notice)
+
+	if gamecore.GuildManagerObj.EditorGuildNotice(player.(*gamecore.Player), h2) == true {
+		//操作成功 返回所有公会信息
+		myguild := player.(*gamecore.Player).MyGuild
+		if myguild != nil {
+			msg := gamecore.GuildManagerObj.GetGuildInfo(myguild.GuildId)
+			player.(*gamecore.Player).SendMsgToClient("SC_GetGuildInfo", msg)
+		}
+
+	}
+
+}
 
 func (a *GameScene1Agent) DoGotoGuildMap(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_GotoGuildMap{}
@@ -1378,6 +1495,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 	if mainunit == nil {
 		return
 	}
+	characterid := player.(*gamecore.Player).Characterid
 
 	//过滤非法字符
 	h2.Content = wordsfilter.WF.DoReplace(h2.Content)
@@ -1392,6 +1510,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 		msg.Time = time.Now().Format("15:04")
 		msg.SrcName = mainunit.Name
 		msg.SrcPlayerUID = data.Uid
+		msg.SrcCharacterID = characterid
 		msg.Content = h2.Content //内容过滤
 		allplayer := player.(*gamecore.Player).CurScene.GetAllPlayerUseLock()
 		for _, v := range allplayer {
@@ -1403,6 +1522,22 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 
 	} else if h2.Channel == 2 {
 
+		//收费
+
+		msg := &protomsg.SC_ChatInfo{}
+		msg.Channel = h2.Channel
+		msg.Time = time.Now().Format("15:04")
+		msg.SrcName = mainunit.Name
+		msg.SrcPlayerUID = data.Uid
+		msg.SrcCharacterID = characterid
+		msg.Content = h2.Content //内容过滤
+		allplayer := a.Players.Items()
+		for _, v := range allplayer {
+			if v == nil {
+				continue
+			}
+			v.(*gamecore.Player).SendMsgToClient("SC_ChatInfo", msg)
+		}
 	} else if h2.Channel == 3 {
 		destplayer := a.Players.Get(h2.DestPlayerUID)
 		if destplayer == nil {
@@ -1415,6 +1550,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 		msg.Time = time.Now().Format("15:04")
 		msg.SrcName = mainunit.Name
 		msg.SrcPlayerUID = data.Uid
+		msg.SrcCharacterID = characterid
 		msg.DestPlayerUID = h2.DestPlayerUID
 		msg.Content = h2.Content //内容过滤
 		player.(*gamecore.Player).SendMsgToClient("SC_ChatInfo", msg)
@@ -1430,6 +1566,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 		msg.Time = time.Now().Format("15:04")
 		msg.SrcName = mainunit.Name
 		msg.SrcPlayerUID = data.Uid
+		msg.SrcCharacterID = characterid
 		msg.Content = h2.Content //内容过滤
 		allplayer := team.Players.Items()
 		for _, v := range allplayer {
@@ -1452,6 +1589,7 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 		msg.Time = time.Now().Format("15:04")
 		msg.SrcName = mainunit.Name
 		msg.SrcPlayerUID = data.Uid
+		msg.SrcCharacterID = characterid
 		msg.Content = h2.Content //内容过滤
 		allplayer := guild.CharactersMap.Items()
 		for _, v := range allplayer {
