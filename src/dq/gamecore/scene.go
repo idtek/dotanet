@@ -470,6 +470,7 @@ func (this *Scene) Update() {
 		//处理分区
 
 		if this.Quit {
+			this.DoAddAndRemoveUnit()
 			break
 		}
 
@@ -938,6 +939,8 @@ func (this *Scene) DoCleanPlayer() {
 	}
 
 	this.DoHuiCheng()
+
+	this.Close()
 
 }
 

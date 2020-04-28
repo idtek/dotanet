@@ -3893,17 +3893,24 @@ func (this *Unit) AddExperience(add int32) {
 		return
 	}
 
-	//检查今天是否还能获取超过add的经验值
-	if this.RemainExperience < add {
+	//检查今天是否还能获取超过add的经验值 //如果当前等级小于全服最高等级2级 则可以一直加经验
+	if this.RemainExperience < add && this.Level > conf.CharacterMaxLevel-2 {
 		add = this.RemainExperience
-
 	}
+	//今日可以获取经验不能小于0
 	this.RemainExperience -= add
+	if this.RemainExperience < 0 {
+		this.RemainExperience = 0
+	}
 
 	this.Experience += add
 	if this.Experience >= this.MaxExperience {
 		//升级
 		this.Level += 1
+		//设置全服最高等级
+		if this.Level > conf.CharacterMaxLevel {
+			conf.CharacterMaxLevel = this.Level
+		}
 		this.Experience -= this.MaxExperience
 		//满血满蓝
 		this.InitHPandMP(1, 1)

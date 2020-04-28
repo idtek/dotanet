@@ -702,6 +702,11 @@ message CS_DeleteGuildPlayer{
 message CS_GuildOperate{
     int32 Code = 1; //1表示自己退出公会 2表示解散公会
 }
+//设置公会成员职位
+message CS_ChangePost{
+    int32 Characterid = 1; //角色ID
+    int32 Post = 2;//职位
+}
 
 //修改公告
 message CS_EditorGuildNotice{

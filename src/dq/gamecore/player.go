@@ -63,6 +63,8 @@ type Player struct {
 
 	AutoSaveRemainTime float32 //自动保存 剩余时间
 
+	LastSendChatTime float64 //上一次发送聊天的时间
+
 	//OtherUnit  *Unit //其他单位
 
 	//组合数据包相关
@@ -86,10 +88,22 @@ func CreatePlayer(uid int32, connectid int32, characterid int32) *Player {
 	re.ConnectId = connectid
 	re.Characterid = characterid
 	re.AutoSaveRemainTime = AutoSaveTime
+	re.LastSendChatTime = float64(0)
 
 	re.BagInfo = make([]*BagItem, MaxBagCount)
 	re.ReInit()
 	return re
+}
+
+//发送聊天判断
+func (this *Player) SendChatCheck() bool {
+	curtime := utils.GetCurTimeOfSecond()
+	//log.Info("curtime:%f %f %f", curtime, this.LastSendChatTime, float64(conf.Conf.NormalInfo.ChatMinTime))
+	if curtime-this.LastSendChatTime > float64(conf.Conf.NormalInfo.ChatMinTime) {
+		this.LastSendChatTime = curtime
+		return true
+	}
+	return false
 }
 
 //获取道具技能CD信息

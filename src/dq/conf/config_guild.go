@@ -67,6 +67,7 @@ type GuildPostFileData struct {
 	ResponseJoinPlayerWriteAble int32  ////回复玩家申请加入公会的权利 0表示无 1表示有
 	DismissWriteAble            int32  //解散公会的权利 0表示无 1表示有
 	ExitWriteAble               int32  //退出公会的权限 0表示没有 1表示有
+	PostWriteAble               int32  //更改职位的权利 0表示没有 1表示有
 }
 
 func GetGuildPinLevelFileData(pinlevel int32) *GuildPinLevelFileData {
