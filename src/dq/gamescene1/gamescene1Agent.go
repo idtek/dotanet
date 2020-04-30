@@ -246,7 +246,7 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 		}
 
 		//id 和 等级
-		mapdata := conf.CheckSceneStart_End(v.(*conf.ActivityMapFileData).ID)
+		mapdata := conf.CheckActivitySceneStart_End(v.(*conf.ActivityMapFileData).ID)
 
 		if mapdata == true { //如果可以进入地图  就开启地图
 			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
@@ -281,18 +281,26 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 		if scenefile == nil {
 			continue
 		}
-		onescnee := a.Scenes.Get(v.(*conf.GuildMapFileData).NextSceneID)
-		if onescnee == nil {
-			continue
-		}
 		//id 和 等级
-		mapdata := conf.CheckGotoGuildMap(v.(*conf.GuildMapFileData).ID, 10000)
+		mapdata := conf.CheckGuildSceneStart_End(v.(*conf.GuildMapFileData).ID)
 
-		if mapdata != nil { //如果可以进入地图  就开启地图
+		if mapdata == true { //如果可以进入地图  就开启地图
 			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
+			onescnee := a.Scenes.Get(v.(*conf.GuildMapFileData).NextSceneID)
+			if onescnee == nil { //
+				onescnee = a.CreateScene(scenefile)
 
-			scenemap[onescnee.(*gamecore.Scene)] = false
-		} else if mapdata == nil { //如果不可以进入就关闭地图
+			}
+			if onescnee != nil {
+				scenemap[onescnee.(*gamecore.Scene)] = false
+			}
+
+		} else { //如果不可以进入就关闭地图
+			//onescnee.(*gamecore.Scene).SetCleanPlayer(true)
+			onescnee := a.Scenes.Get(v.(*conf.GuildMapFileData).NextSceneID)
+			if onescnee == nil { //
+				continue
+			}
 			if _, ok := scenemap[onescnee.(*gamecore.Scene)]; ok == false {
 				scenemap[onescnee.(*gamecore.Scene)] = true
 			}
@@ -427,6 +435,9 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		msg.CurFrame = scene.(*gamecore.Scene).CurFrame
 		msg.ServerName = a.ServerName
 		msg.SceneID = scene.(*gamecore.Scene).TypeID
+		msg.TimeHour = int32(time.Now().Hour())
+		msg.TimeMinute = int32(time.Now().Minute())
+		msg.TimeSecond = int32(time.Now().Second())
 		player.(*gamecore.Player).SendMsgToClient("SC_NewScene", msg)
 
 		log.Info("SendMsgToClient SC_NewScene")
@@ -690,6 +701,7 @@ func (a *GameScene1Agent) DoGetCharacterSimpleInfo(data *protomsg.MsgBase) {
 	msg.EquipItems[4] = chadata.Item5
 	msg.EquipItems[5] = chadata.Item6
 	msg.Skills = chadata.Skill
+	msg.LastLoginDate = chadata.GetExperienceDay
 	player.(*gamecore.Player).SendMsgToClient("SC_GetCharacterSimpleInfo", msg)
 
 }

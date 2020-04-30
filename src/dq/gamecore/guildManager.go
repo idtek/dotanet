@@ -358,6 +358,8 @@ func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOp
 			player.MyGuild = nil
 			//把数据存入公会中
 			guild.CharactersMap.Delete(player.Characterid)
+			//存档
+			this.SaveDBGuildInfo(guild)
 		}
 	} else if data.Code == 2 { //解散公会
 		if postdata == nil || postdata.DismissWriteAble != 1 {
@@ -448,6 +450,9 @@ func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_De
 
 	//把数据存入公会中
 	guild.CharactersMap.Delete(data.Characterid)
+
+	//存档
+	this.SaveDBGuildInfo(guild)
 }
 
 //回复加入公会的申请
@@ -546,6 +551,9 @@ func (this *GuildManager) ResponseJoinGuild(player *Player, data *protomsg.CS_Re
 		}
 	}
 
+	//存档
+	this.SaveDBGuildInfo(guild)
+
 	//message CS_ResponseJoinGuildPlayer{
 	//    int32 Characterid = 1;
 	//    int32 Result = 2; //1表示同意 其他表示不同意
@@ -612,6 +620,9 @@ func (this *GuildManager) AddGuildExp(addexp int32, guildid int32) {
 		if leveldata != nil {
 			guild.GuildLevelFileData = *leveldata
 		}
+
+		//存档
+		this.SaveDBGuildInfo(guild)
 	}
 
 }
@@ -662,6 +673,9 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter)
 
 	guild.AuctionMap.Set(auctioninfo.Id, auctioninfo.Id)
+
+	//存档
+	this.SaveDBGuildInfo(guild)
 
 	return true
 }

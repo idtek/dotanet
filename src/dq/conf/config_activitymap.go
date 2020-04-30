@@ -43,7 +43,7 @@ func LoadActivityFileData() {
 }
 
 //检测场景开启和关闭 提前5秒
-func CheckSceneStart_End(id int32) bool {
+func CheckActivitySceneStart_End(id int32) bool {
 	mapfiledata := GetActivityMapFileData(id)
 	if mapfiledata == nil {
 		return false

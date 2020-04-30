@@ -246,7 +246,15 @@ func (this *Unit) IsInSkillRange(data *protomsg.CS_PlayerSkill) bool {
 
 //检查阵营是否满足条件
 func (this *Unit) CheckUnitTargetCamp(camp int32) bool {
+	//目标单位阵营 (1:英雄 2:普通单位 3:远古 4:boss) 5:都行 6:除了boss都行
 	if camp != 5 {
+		if camp == 6 {
+			if this.UnitType == 4 {
+				return false
+			}
+			return true
+		}
+
 		if this.UnitType != camp {
 			return false
 		}
@@ -276,6 +284,10 @@ func (this *Unit) CheckUnitTargetTeam(target *Unit, team int32) bool {
 		}
 	} else if team == 5 {
 		if this != target {
+			return false
+		}
+	} else if team == 6 {
+		if this != target && isEnemy == false {
 			return false
 		}
 	} else if team == 20 {

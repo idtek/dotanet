@@ -111,6 +111,7 @@ message SC_GetCharacterSimpleInfo{
     string  ModeType = 4;//模型类型(客户端使用的模型名字)
     repeated string  EquipItems = 5;//装备1
     string  Skills = 6;//技能
+    string LastLoginDate = 7;//最近登录日期
 }
 
 //获取自己背包详细信息 
@@ -398,6 +399,9 @@ message SC_NewScene{
     int32  CurFrame = 3;//当前帧 (客户端通过当前帧和本地时间匹配计算延时逻辑)
     string ServerName = 4;//服务器名字
     int32  SceneID = 5;//场景ID
+    int32  TimeHour = 6;//
+    int32  TimeMinute = 7;//
+    int32  TimeSecond = 8;//
 }
 
 
