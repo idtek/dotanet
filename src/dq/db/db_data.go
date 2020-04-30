@@ -84,6 +84,7 @@ type DB_GuildInfo struct {
 	Characters            string `json:"characters"`
 	RequestJoinCharacters string `json:"requestjoincharacters"`
 	Auction               string `json:"auction"`
+	Rank                  int32  `json:"rank"` //公会排名
 }
 
 //公会拍卖物品

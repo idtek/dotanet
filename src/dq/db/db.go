@@ -626,6 +626,7 @@ func (a *DB) SaveGuild(guild DB_GuildInfo) error {
 	datastring["characters"] = guild.Characters
 	datastring["requestjoincharacters"] = guild.RequestJoinCharacters
 	datastring["auction"] = guild.Auction
+	datastring["rank"] = guild.Rank
 
 	sqlstr := "UPDATE guild SET "
 	count := 0

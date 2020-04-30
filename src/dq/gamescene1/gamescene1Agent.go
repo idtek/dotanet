@@ -401,7 +401,7 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 
 		scene := a.Scenes.Get(h2.SceneID)
 		log.Info("enter scene :%d", h2.SceneID)
-		if scene == nil {
+		if scene == nil || scene.(*gamecore.Scene).Quit == true {
 			log.Info("no scene :%d", h2.SceneID)
 			//自动回城
 			h2.SceneID = 1000 //回到安全区

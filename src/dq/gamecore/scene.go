@@ -11,6 +11,7 @@ import (
 	"dq/utils"
 	"dq/vec2d"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 )
@@ -44,6 +45,10 @@ type SceneStatistics struct {
 
 //击杀动作(不需要加锁 场景逻辑循坏里执行)
 func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
+	if this.KillData == nil {
+		return
+	}
+
 	if killer == nil || bekiller == nil {
 		return
 	}
@@ -156,8 +161,6 @@ func (this *Scene) Init() {
 
 	this.DropItems = utils.NewBeeMap()
 
-	this.KillClean()
-
 	//
 	this.ReCreateUnitInfo = make(map[*ReCreateUnit]*ReCreateUnit)
 
@@ -175,6 +178,8 @@ func (this *Scene) Init() {
 	this.Halos = utils.NewBeeMap()
 	this.ZoneHalos = make(map[utils.SceneZone][]*Halo)
 	this.CanRemoveHalos = make(map[int32]*Halo)
+
+	this.DoStartException()
 
 	scenedata := conf.GetSceneData(this.ScenePath)
 
@@ -252,6 +257,103 @@ func (this *Scene) Init() {
 	//	this.Units[hero2.ID] = hero2
 
 }
+
+//场景开始 处理异常情况
+func (this *Scene) DoStartException() {
+	if this.Exception == 0 {
+		return
+	}
+	switch this.Exception {
+	case 1: //工会战
+		{
+			this.KillClean() //记录击杀数据
+		}
+	default:
+	}
+}
+
+type GuildRankInfo struct {
+	GuildId    int32
+	KillCount  int32
+	DeathCount int32
+	Score      int32
+}
+
+// A slice of Pairs that implements sort.Interface to sort by Value.
+type GuildRankInfoList []*GuildRankInfo
+
+func (p GuildRankInfoList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p GuildRankInfoList) Len() int      { return len(p) }
+func (p GuildRankInfoList) Less(i, j int) bool {
+	if p[i].Score == p[j].Score {
+		if p[i].KillCount == p[j].KillCount {
+			return p[i].GuildId > p[j].GuildId
+		}
+		return p[i].KillCount > p[j].KillCount
+	}
+
+	return p[i].Score > p[j].Score
+}
+
+//场景结束 处理异常情况
+func (this *Scene) DoEndException() {
+	if this.Exception == 0 {
+		return
+	}
+	switch this.Exception {
+	case 1: //工会战
+		{
+			//处理公会排名 一次击杀得1分 一次死亡-1分 按分数排名
+			if this.KillData == nil {
+				return
+			}
+			killdataitems := this.KillData.Items()
+			guildmapdata := make(map[int32]*GuildRankInfo)
+			for _, v := range killdataitems { //计算所有参与的公会的得分
+				if v == nil {
+					continue
+				}
+				sdata := v.(*SceneStatisticsCharacterInfo)
+				guildid := sdata.GuildId
+				if guildid <= 0 {
+					continue
+				}
+				if gri, ok := guildmapdata[guildid]; ok {
+					gri.Score += sdata.KillCount - sdata.DeathCount
+					gri.KillCount += sdata.KillCount
+					gri.DeathCount += sdata.DeathCount
+				} else {
+					gri := &GuildRankInfo{}
+					gri.GuildId = guildid
+					gri.Score = sdata.KillCount - sdata.DeathCount
+					gri.KillCount = sdata.KillCount
+					gri.DeathCount = sdata.DeathCount
+					guildmapdata[guildid] = gri
+				}
+
+			}
+			//--处理排序--
+			p := make(GuildRankInfoList, len(guildmapdata))
+			i := 0
+			for _, v := range guildmapdata {
+				p[i] = v
+				i++
+			}
+			sort.Sort(p)
+
+			//清除之前的排序
+			GuildManagerObj.ReSetGuildRank()
+
+			//设置排序
+			for k, v := range p {
+				log.Info("-----------rank:%d  %d", v.GuildId, k)
+				GuildManagerObj.SetGuildRank(v.GuildId, int32(k)+1)
+			}
+		}
+	default:
+	}
+}
+
 func (this *Scene) CreateUnitByConf(v conf.Unit) *Unit {
 	unit := CreateUnit(this, v.TypeID)
 	unit.SetAI(NewNormalAI(unit))
@@ -465,14 +567,16 @@ func (this *Scene) Update() {
 		//清除玩家到和平世界
 		this.DoCleanPlayer()
 
-		this.DoSleep()
-
 		//处理分区
 
 		if this.Quit {
 			this.DoAddAndRemoveUnit()
+
+			this.DoEndException()
 			break
 		}
+
+		this.DoSleep()
 
 	}
 	log.Info("Scene Quit:%d", this.TypeID)

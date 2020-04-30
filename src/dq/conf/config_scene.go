@@ -61,4 +61,8 @@ type SceneFileData struct {
 	DeathHuicheng   int32  //死亡后是否回到和平世界 1表示是 其他表示否
 	//StartX	StartY	EndX	EndY
 
+	//特殊情况处理
+	Exception      int32  //0表示没有特殊情况 1:工会战
+	ExceptionParam string //特殊情况处理参数 特殊情况为1的时候:()
+
 }

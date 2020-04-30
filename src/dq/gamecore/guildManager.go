@@ -132,6 +132,7 @@ func (this *GuildManager) GuildInfo2ProtoGuildShortInfo(guild *GuildInfo) *proto
 	guildBaseInfo.MaxCount = guild.MaxCount
 	guildBaseInfo.PresidentName = ""
 	guildBaseInfo.Notice = guild.Notice
+	guildBaseInfo.Rank = guild.Rank
 	president := guild.CharactersMap.Get(guild.PresidentCharacterid)
 	if president != nil {
 		guildBaseInfo.PresidentName = president.(*GuildCharacterInfo).Name
@@ -190,6 +191,25 @@ func (this *GuildManager) GetGuildInfo(id int32) *protomsg.SC_GetGuildInfo {
 	return guildinfo
 }
 
+//设置公会排名
+func (this *GuildManager) SetGuildRank(guildid int32, rank int32) {
+	guild1 := this.Guilds.Get(guildid)
+	if guild1 == nil {
+		return
+	}
+	guild1.(*GuildInfo).Rank = rank
+}
+
+//清除所有公会排名
+func (this *GuildManager) ReSetGuildRank() {
+	this.OperateLock.Lock()
+	defer this.OperateLock.Unlock()
+	guilditems := this.Guilds.Items()
+	for _, guild := range guilditems {
+		guild.(*GuildInfo).Rank = 10000
+	}
+}
+
 //创建公会
 func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 	this.OperateLock.Lock()
@@ -218,7 +238,8 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 	if id < 0 {
 		return nil
 	}
-	guild.Id = id
+	guild.Id = id                              //设置公会ID
+	guild.Rank = int32(this.Guilds.Size()) + 1 //设置公会排名
 	//把公会加入列表
 	this.Guilds.Set(guild.Id, guild)
 
@@ -795,7 +816,7 @@ func (this *GuildManager) GotoGuildMap(player *Player, mapid int32) *protomsg.SC
 
 }
 
-//获取公会地图信息
+//获取公会地图信息 只获取类型为1的 普通地图
 func (this *GuildManager) GetGuildMapsInfo() *protomsg.SC_GetGuildMapsInfo {
 	if this.MapInfo != nil {
 		return this.MapInfo
@@ -806,7 +827,7 @@ func (this *GuildManager) GetGuildMapsInfo() *protomsg.SC_GetGuildMapsInfo {
 
 	for _, v := range conf.GuildMapFileDatas {
 		mapdata := v.(*conf.GuildMapFileData)
-		if mapdata.IsOpen != 1 {
+		if mapdata.IsOpen != 1 || mapdata.MapType != 1 {
 			continue
 		}
 		one := &protomsg.GuildMapInfo{}

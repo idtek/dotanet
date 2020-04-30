@@ -648,6 +648,7 @@ message GuildShortInfo{
     int32 Joinaudit = 9; //加入是否需要审批
     int32 Joinlevellimit = 10;//加入等级限制
     string Notice = 11;//公告
+    int32 Rank = 12;//排名
 }
 //返回所有公会信息
 message SC_GetAllGuildsInfo{

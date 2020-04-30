@@ -196,6 +196,9 @@ type GuildMapFileData struct {
 	Y                    float32
 	CleanPlayerDelayTime int32 //清除玩家延时 结束时间之后这么久就清除场景的玩家
 
+	//
+	MapType int32 //地图类型 1:普通 2:公会排名战地图
+
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 
 	StartTime        time.Time //开始时间日期格式
