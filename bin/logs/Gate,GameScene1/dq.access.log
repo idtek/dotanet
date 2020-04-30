@@ -1,0 +1,46 @@
+2019-01-12T17:11:14+08:00 [dq] [I] [app.go:139] dq starting up
+2019-01-12T17:11:14+08:00 [dq] [I] [app.go:141] runtime.GOOS:windows
+2019-01-12T17:11:14+08:00 [dq] [I] [app.go:143] ---models:2
+2019-01-12T17:11:14+08:00 [dq] [I] [app.go:152] new model :Gate
+2019-01-12T17:11:14+08:00 [dq] [I] [app.go:152] new model :GameScene1
+2019-01-12T17:11:14+08:00 [dq] [I] [gate.go:110] KCPAddr::1118
+2019-01-12T17:11:14+08:00 [dq] [I] [tcp_server.go:80] ------Listen:127.0.0.1:12345
+2019-01-12T17:11:14+08:00 [dq] [D] [tcp_client.go:42] invalid ConnNum, reset to 1
+2019-01-12T17:11:14+08:00 [dq] [D] [tcp_client.go:46] invalid ConnectInterval, reset to 3s
+2019-01-12T17:11:14+08:00 [dq] [D] [tcp_client.go:50] invalid PendingWriteNum, reset to 200
+2019-01-12T17:11:14+08:00 [dq] [I] [kcp_server.go:77] ------Listen::1118
+2019-01-12T17:11:14+08:00 [dq] [I] [gamescene1Agent.go:45] Collide {false -26.77 -51.56 0 0 [{-1.47764015197754 3.79197692871094} {-0.00357627868652344 4.0697021484375} {1.47764015197754 -3.79197692871094} {0.00357627868652344 -4.0697021484375}]}
+2019-01-12T17:11:14+08:00 [dq] [I] [gamescene1Agent.go:45] Collide {true -5.84 -54.35 6.689 1 []}
+2019-01-12T17:11:14+08:00 [dq] [I] [serverAgent.go:56] --register modetype:GameScene1
+2019-01-12T17:12:42+08:00 [dq] [D] [app.go:204] dq closing down (signal: interrupt) 2
+2019-01-12T17:12:42+08:00 [dq] [D] [gamescene1Agent.go:84] read message: read tcp 127.0.0.1:59493->127.0.0.1:12345: use of closed network connection
+2019-01-12T17:12:42+08:00 [dq] [D] [serverAgent.go:212] read message: EOF
+2019-01-14T10:49:57+08:00 [dq] [I] [app.go:139] dq starting up
+2019-01-14T10:49:57+08:00 [dq] [I] [app.go:141] runtime.GOOS:windows
+2019-01-14T10:49:57+08:00 [dq] [I] [app.go:143] ---models:2
+2019-01-14T10:49:57+08:00 [dq] [I] [app.go:152] new model :Gate
+2019-01-14T10:49:57+08:00 [dq] [I] [app.go:152] new model :GameScene1
+2019-01-14T10:49:57+08:00 [dq] [I] [gate.go:110] KCPAddr::1118
+2019-01-14T10:49:57+08:00 [dq] [I] [tcp_server.go:80] ------Listen:127.0.0.1:12345
+2019-01-14T10:49:57+08:00 [dq] [D] [tcp_client.go:42] invalid ConnNum, reset to 1
+2019-01-14T10:49:57+08:00 [dq] [D] [tcp_client.go:46] invalid ConnectInterval, reset to 3s
+2019-01-14T10:49:57+08:00 [dq] [D] [tcp_client.go:50] invalid PendingWriteNum, reset to 200
+2019-01-14T10:49:57+08:00 [dq] [I] [kcp_server.go:77] ------Listen::1118
+2019-01-14T10:49:57+08:00 [dq] [I] [gamescene1Agent.go:54] Collide {false -26.7700004577637 -51.560001373291 0 0 [{-1.47764015197754 3.79197692871094} {-0.00357627868652344 4.0697021484375} {1.47764015197754 -3.79197692871094} {0.00357627868652344 -4.0697021484375}]}
+2019-01-14T10:49:57+08:00 [dq] [I] [gamescene1Agent.go:54] Collide {true -5.84000015258789 -54.3499984741211 6.68900012969971 1.00000001490116 []}
+2019-01-14T10:49:57+08:00 [dq] [I] [serverAgent.go:56] --register modetype:GameScene1
+2019-01-14T10:50:15+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:17+08:00 [dq] [I] [agent.go:82] not find ModeType:Login
+2019-01-14T10:50:18+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:21+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:24+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:27+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:30+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:33+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:36+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:39+08:00 [dq] [I] [agent.go:56] --heart
+2019-01-14T10:50:40+08:00 [dq] [D] [app.go:204] dq closing down (signal: interrupt) 2
+2019-01-14T10:50:40+08:00 [dq] [D] [gamescene1Agent.go:143] read message: read tcp 127.0.0.1:64272->127.0.0.1:12345: use of closed network connection
+2019-01-14T10:50:40+08:00 [dq] [D] [serverAgent.go:212] read message: EOF
+2019-01-14T10:50:40+08:00 [dq] [I] [serverAgent.go:234] --delete modetype:GameScene1
+2019-01-14T10:50:40+08:00 [dq] [I] [tcp_server.go:154] tcp Close :127.0.0.1:12345

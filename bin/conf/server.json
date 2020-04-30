@@ -65,7 +65,9 @@
         //拍卖行价格类型
         "AuctionPriceType":10001,
         //拍卖行初始价格
-        "AuctionFirstPrice":1
+        "AuctionFirstPrice":1,
+        //聊天时间间隔
+        "ChatMinTime":5
     }
 
 	

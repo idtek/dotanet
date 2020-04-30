@@ -27,6 +27,11 @@ import (
 	"strings"
 )
 
+//一些游戏中使用的变量
+var (
+	CharacterMaxLevel = int32(1) //角色最大等级
+)
+
 var (
 	Conf         = Config{}
 	SceneRawData = SceneAllData{}
@@ -212,6 +217,7 @@ type normalInfo struct {
 	AuctionTime                 int     //拍卖行的物品持续时间
 	AuctionPriceType            int     ////拍卖行价格类型
 	AuctionFirstPrice           int     //拍卖行初始价格
+	ChatMinTime                 int     //聊天时间间隔
 }
 
 type Config struct {

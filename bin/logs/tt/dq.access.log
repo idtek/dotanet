@@ -1,0 +1,5 @@
+2019-05-31T15:37:22+08:00 [dq] [I] [app.go:154] dq starting up
+2019-05-31T15:41:51+08:00 [dq] [I] [app.go:154] dq starting up
+2019-05-31T15:41:51+08:00 [dq] [I] [app.go:156] runtime.GOOS:windows
+2019-05-31T15:41:51+08:00 [dq] [I] [app.go:158] ---models:1
+2019-05-31T15:41:51+08:00 [dq] [I] [app.go:167] new model :tt

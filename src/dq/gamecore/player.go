@@ -8,6 +8,7 @@ import (
 	"dq/protobuf"
 	"dq/utils"
 	"dq/wordsfilter"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -62,6 +63,8 @@ type Player struct {
 
 	AutoSaveRemainTime float32 //自动保存 剩余时间
 
+	LastSendChatTime float64 //上一次发送聊天的时间
+
 	//OtherUnit  *Unit //其他单位
 
 	//组合数据包相关
@@ -85,10 +88,22 @@ func CreatePlayer(uid int32, connectid int32, characterid int32) *Player {
 	re.ConnectId = connectid
 	re.Characterid = characterid
 	re.AutoSaveRemainTime = AutoSaveTime
+	re.LastSendChatTime = float64(0)
 
 	re.BagInfo = make([]*BagItem, MaxBagCount)
 	re.ReInit()
 	return re
+}
+
+//发送聊天判断
+func (this *Player) SendChatCheck() bool {
+	curtime := utils.GetCurTimeOfSecond()
+	//log.Info("curtime:%f %f %f", curtime, this.LastSendChatTime, float64(conf.Conf.NormalInfo.ChatMinTime))
+	if curtime-this.LastSendChatTime > float64(conf.Conf.NormalInfo.ChatMinTime) {
+		this.LastSendChatTime = curtime
+		return true
+	}
+	return false
 }
 
 //获取道具技能CD信息
@@ -384,6 +399,39 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 	}
 
 	this.lock.Unlock()
+}
+
+//系统回收道具位置 背包位置
+func (this *Player) SystemHuiShouItem(data *protomsg.CS_SystemHuiShouItem) {
+
+	if data.SrcPos < 0 || data.SrcPos >= MaxBagCount {
+		return
+	}
+	if this.MainUnit == nil {
+		return
+	}
+
+	bagitem := this.BagInfo[data.SrcPos]
+	if bagitem == nil {
+		return
+	}
+
+	//equip.TypdID = v.TypeID
+	//equip.Level = v.Level
+	item := conf.GetItemData(bagitem.TypeID)
+	if item != nil {
+		pricetype := item.PriceType
+		price := item.Price
+		//加钱
+		this.BuyItemSubMoneyLock(pricetype, -price*int32(math.Pow(float64(2), float64(bagitem.Level-1))))
+	}
+
+	log.Info("-------SystemHuiShouItem:%d ", data.SrcPos)
+
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	this.BagInfo[data.SrcPos] = nil
+
 }
 
 //交换道具位置 背包位置

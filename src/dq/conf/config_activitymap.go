@@ -35,11 +35,40 @@ func LoadActivityFileData() {
 	for k, v := range ActivityMapFileDatas {
 		ActivityMapFileDatas[k].(*ActivityMapFileData).StartTime, _ = time.Parse(format, v.(*ActivityMapFileData).OpenStartTime)
 		ActivityMapFileDatas[k].(*ActivityMapFileData).EndTime, _ = time.Parse(format, v.(*ActivityMapFileData).OpenEndTime)
-
+		ActivityMapFileDatas[k].(*ActivityMapFileData).CleanTime = ActivityMapFileDatas[k].(*ActivityMapFileData).EndTime.Add(time.Duration(v.(*ActivityMapFileData).CleanPlayerDelayTime) * time.Second)
 		ActivityMapFileDatas[k].(*ActivityMapFileData).OpenWeekDayInt32 = utils.GetInt32FromString3(v.(*ActivityMapFileData).OpenWeekDay, ",")
 
 	}
 	SC_GetActivityMapsInfoMsg = GetActivityMapsInfo2SC_GetActivityMapsInfo()
+}
+
+//检测场景开启和关闭 提前5秒
+func CheckActivitySceneStart_End(id int32) bool {
+	mapfiledata := GetActivityMapFileData(id)
+	if mapfiledata == nil {
+		return false
+	}
+	if mapfiledata.IsOpen != 1 {
+		return false
+	}
+
+	nowtime := time.Now()
+	nowtime_today, _ := time.Parse("15:04:05", nowtime.Format("15:04:05"))
+
+	if mapfiledata.StartTime.After(nowtime_today.Add(time.Duration(5)*time.Second)) || nowtime_today.After(mapfiledata.CleanTime) {
+		//log.Info("nowtime_today:")
+		return false
+	}
+
+	for _, v := range mapfiledata.OpenWeekDayInt32 {
+		//log.Info("Weekday:%d   %d   %d", nowtime.Weekday(), time.Weekday(v%7), id)
+		if nowtime.Weekday() == time.Weekday(v%7) {
+
+			return true
+		}
+	}
+
+	return false
 }
 
 //检查进入地图条件 如果不能进入则返回空nil
@@ -113,21 +142,23 @@ func GetActivityMapsInfo2SC_GetActivityMapsInfo() *protomsg.SC_GetActivityMapsIn
 //单位配置文件数据
 type ActivityMapFileData struct {
 	//配置文件数据
-	ID            int32  //
-	OpenWeekDay   string //在一周中的星期几开启 -1表示所有 5表示星期五
-	OpenStartTime string //开始时间 字符串
-	OpenEndTime   string //结束时间 字符串
-	NeedLevel     int32  //需要的等级
-	NextSceneID   int32  //场景ID
-	X             float32
-	Y             float32
-	PriceType     int32 //价格类型 10000金币 10001砖石
-	Price         int32 //价格
+	ID                   int32  //
+	OpenWeekDay          string //在一周中的星期几开启 -1表示所有 5表示星期五
+	OpenStartTime        string //开始时间 字符串
+	OpenEndTime          string //结束时间 字符串
+	NeedLevel            int32  //需要的等级
+	NextSceneID          int32  //场景ID
+	X                    float32
+	Y                    float32
+	PriceType            int32 //价格类型 10000金币 10001砖石
+	Price                int32 //价格
+	CleanPlayerDelayTime int32 //清除玩家延时 结束时间之后这么久就清除场景的玩家
 
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 
 	StartTime        time.Time //开始时间日期格式
 	EndTime          time.Time //结束时间日期格式
+	CleanTime        time.Time //清除玩家的时间
 	OpenWeekDayInt32 []int32   //开放周期
 
 }

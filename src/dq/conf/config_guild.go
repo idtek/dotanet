@@ -39,7 +39,7 @@ func LoadGuildFileData() {
 	for k, v := range GuildMapFileDatas {
 		GuildMapFileDatas[k].(*GuildMapFileData).StartTime, _ = time.Parse(format, v.(*GuildMapFileData).OpenStartTime)
 		GuildMapFileDatas[k].(*GuildMapFileData).EndTime, _ = time.Parse(format, v.(*GuildMapFileData).OpenEndTime)
-
+		GuildMapFileDatas[k].(*GuildMapFileData).CleanTime = GuildMapFileDatas[k].(*GuildMapFileData).EndTime.Add(time.Duration(v.(*GuildMapFileData).CleanPlayerDelayTime) * time.Second)
 		GuildMapFileDatas[k].(*GuildMapFileData).OpenWeekDayInt32 = utils.GetInt32FromString3(v.(*GuildMapFileData).OpenWeekDay, ",")
 		//		_, tt := time.Parse(format, v.(*GuildMapFileData).OpenStartTime)
 		//		GuildMapFileDatas[k].(*GuildMapFileData).StartTime = tt
@@ -67,6 +67,7 @@ type GuildPostFileData struct {
 	ResponseJoinPlayerWriteAble int32  ////回复玩家申请加入公会的权利 0表示无 1表示有
 	DismissWriteAble            int32  //解散公会的权利 0表示无 1表示有
 	ExitWriteAble               int32  //退出公会的权限 0表示没有 1表示有
+	PostWriteAble               int32  //更改职位的权利 0表示没有 1表示有
 }
 
 func GetGuildPinLevelFileData(pinlevel int32) *GuildPinLevelFileData {
@@ -107,6 +108,35 @@ type GuildLevelFileData struct {
 	GuildLevel int32 //职位
 	UpgradeEx  int32 //升级所需要的经验
 	MaxCount   int32 //最大成员数量
+}
+
+//检测场景开启和关闭 提前5秒
+func CheckGuildSceneStart_End(id int32) bool {
+	mapfiledata := GetGuildMapFileData(id)
+	if mapfiledata == nil {
+		return false
+	}
+	if mapfiledata.IsOpen != 1 {
+		return false
+	}
+
+	nowtime := time.Now()
+	nowtime_today, _ := time.Parse("15:04:05", nowtime.Format("15:04:05"))
+
+	if mapfiledata.StartTime.After(nowtime_today.Add(time.Duration(5)*time.Second)) || nowtime_today.After(mapfiledata.CleanTime) {
+		//log.Info("nowtime_today:")
+		return false
+	}
+
+	for _, v := range mapfiledata.OpenWeekDayInt32 {
+		//log.Info("Weekday:%d   %d   %d", nowtime.Weekday(), time.Weekday(v%7), id)
+		if nowtime.Weekday() == time.Weekday(v%7) {
+
+			return true
+		}
+	}
+
+	return false
 }
 
 //检查进入地图条件 如果不能进入则返回空nil
@@ -155,20 +185,22 @@ func GetGuildMapFileData(id int32) *GuildMapFileData {
 //单位配置文件数据
 type GuildMapFileData struct {
 	//配置文件数据
-	ID             int32  //
-	OpenMonthDay   int32  //在月份的几号开启	-1表示所有 10表示10号
-	OpenWeekDay    string //在一周中的星期几开启 -1表示所有 5表示星期五
-	OpenStartTime  string //开始时间 字符串
-	OpenEndTime    string //结束时间 字符串
-	NeedGuildLevel int32  //需要的公会等级
-	NextSceneID    int32  //场景ID
-	X              float32
-	Y              float32
+	ID                   int32  //
+	OpenMonthDay         int32  //在月份的几号开启	-1表示所有 10表示10号
+	OpenWeekDay          string //在一周中的星期几开启 -1表示所有 5表示星期五
+	OpenStartTime        string //开始时间 字符串
+	OpenEndTime          string //结束时间 字符串
+	NeedGuildLevel       int32  //需要的公会等级
+	NextSceneID          int32  //场景ID
+	X                    float32
+	Y                    float32
+	CleanPlayerDelayTime int32 //清除玩家延时 结束时间之后这么久就清除场景的玩家
 
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 
 	StartTime        time.Time //开始时间日期格式
 	EndTime          time.Time //结束时间日期格式
+	CleanTime        time.Time //清除玩家的时间
 	OpenWeekDayInt32 []int32   //开放周期
 
 }

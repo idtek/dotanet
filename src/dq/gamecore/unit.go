@@ -246,7 +246,15 @@ func (this *Unit) IsInSkillRange(data *protomsg.CS_PlayerSkill) bool {
 
 //检查阵营是否满足条件
 func (this *Unit) CheckUnitTargetCamp(camp int32) bool {
+	//目标单位阵营 (1:英雄 2:普通单位 3:远古 4:boss) 5:都行 6:除了boss都行
 	if camp != 5 {
+		if camp == 6 {
+			if this.UnitType == 4 {
+				return false
+			}
+			return true
+		}
+
 		if this.UnitType != camp {
 			return false
 		}
@@ -276,6 +284,10 @@ func (this *Unit) CheckUnitTargetTeam(target *Unit, team int32) bool {
 		}
 	} else if team == 5 {
 		if this != target {
+			return false
+		}
+	} else if team == 6 {
+		if this != target && isEnemy == false {
 			return false
 		}
 	} else if team == 20 {
@@ -3893,17 +3905,24 @@ func (this *Unit) AddExperience(add int32) {
 		return
 	}
 
-	//检查今天是否还能获取超过add的经验值
-	if this.RemainExperience < add {
+	//检查今天是否还能获取超过add的经验值 //如果当前等级小于全服最高等级2级 则可以一直加经验
+	if this.RemainExperience < add && this.Level > conf.CharacterMaxLevel-2 {
 		add = this.RemainExperience
-
 	}
+	//今日可以获取经验不能小于0
 	this.RemainExperience -= add
+	if this.RemainExperience < 0 {
+		this.RemainExperience = 0
+	}
 
 	this.Experience += add
 	if this.Experience >= this.MaxExperience {
 		//升级
 		this.Level += 1
+		//设置全服最高等级
+		if this.Level > conf.CharacterMaxLevel {
+			conf.CharacterMaxLevel = this.Level
+		}
 		this.Experience -= this.MaxExperience
 		//满血满蓝
 		this.InitHPandMP(1, 1)

@@ -1,0 +1,10 @@
+2019-01-12T17:10:54+08:00 [dq] [I] [app.go:139] dq starting up
+2019-01-12T17:10:54+08:00 [dq] [I] [app.go:141] runtime.GOOS:windows
+2019-01-12T17:10:54+08:00 [dq] [I] [app.go:143] ---models:1
+2019-01-12T17:10:54+08:00 [dq] [I] [app.go:152] new model :GameScene1
+2019-01-12T17:10:54+08:00 [dq] [D] [tcp_client.go:42] invalid ConnNum, reset to 1
+2019-01-12T17:10:54+08:00 [dq] [D] [tcp_client.go:46] invalid ConnectInterval, reset to 3s
+2019-01-12T17:10:54+08:00 [dq] [D] [tcp_client.go:50] invalid PendingWriteNum, reset to 200
+2019-01-12T17:10:55+08:00 [dq] [D] [tcp_client.go:75] connect to 127.0.0.1:12345 error: dial tcp 127.0.0.1:12345: connectex: No connection could be made because the target machine actively refused it.
+2019-01-12T17:10:59+08:00 [dq] [D] [tcp_client.go:75] connect to 127.0.0.1:12345 error: dial tcp 127.0.0.1:12345: connectex: No connection could be made because the target machine actively refused it.
+2019-01-12T17:11:01+08:00 [dq] [D] [app.go:204] dq closing down (signal: interrupt) 1

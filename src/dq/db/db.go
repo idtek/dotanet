@@ -297,6 +297,22 @@ func (a *DB) GetAuction(commoditys *[]DB_AuctionInfo) error {
 	return a.QueryAnything(sqlstr, commoditys)
 }
 
+//获取角色最大等级
+func (a *DB) GetCharacterMaxLevel() int32 {
+	rows, err := a.Mydb.Query("select MAX(level) from characterinfo")
+	if err != nil {
+		return 0
+	}
+	defer rows.Close()
+	if rows.Next() {
+		var level int32
+
+		err = rows.Scan(&level)
+		return (level)
+	}
+	return 0
+}
+
 //获取公会信息
 func (a *DB) GetGuilds(commoditys *[]DB_GuildInfo) error {
 

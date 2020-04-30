@@ -226,15 +226,120 @@ func (this *GuildManager) CreateGuild(name string) *GuildInfo {
 
 }
 
-//Operate
-//
-func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOperate) bool {
-	if player == nil || data == nil || player.MyGuild == nil {
+//改变职位
+func (this *GuildManager) ChangePost(player *Player, data *protomsg.CS_ChangePost, targetplayer *Player) bool {
+	if player == nil || data == nil {
+		return false
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
 		return false
 	}
 
 	//找到当前公会
-	guild1 := this.Guilds.Get(player.MyGuild.GuildId)
+	guild1 := this.Guilds.Get(myguild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		player.SendNoticeWordToClient(29)
+		return false
+	}
+	guild := guild1.(*GuildInfo)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
+	if postdata == nil || postdata.PostWriteAble != 1 {
+		//没有权限 31
+		player.SendNoticeWordToClient(31)
+		return false
+	}
+	ischangepost := false
+	//申请的玩家角色
+	character := targetplayer
+	if character == nil { //离线
+		guildtargetcharacter := guild.CharactersMap.Get(data.Characterid)
+		if guildtargetcharacter == nil {
+			//公会里找不到
+			return false
+		}
+
+		players := make([]db.DB_CharacterInfo, 0)
+		db.DbOne.GetCharactersInfoByCharacterid(data.Characterid, &players)
+		if len(players) <= 0 {
+			//数据库中找不到该用户
+			return false
+		}
+		//存档数据库
+		if players[0].GuildPost != data.Post {
+			players[0].GuildPost = data.Post
+			ischangepost = true
+			db.DbOne.SaveCharacter(players[0])
+			//--
+			guildtargetcharacter.(*GuildCharacterInfo).Post = data.Post
+			postdata := conf.GetGuildPostFileData(data.Post)
+			if postdata != nil {
+				guildtargetcharacter.(*GuildCharacterInfo).PostName = postdata.Name
+			}
+		}
+
+	} else { //在线
+		targetguild := character.MyGuild
+		if targetguild != nil {
+			if targetguild.GuildChaInfo.Post != data.Post {
+				targetguild.GuildChaInfo.Post = data.Post
+				postdata := conf.GetGuildPostFileData(data.Post)
+				if postdata != nil {
+					targetguild.PostName = postdata.Name
+				}
+				ischangepost = true
+			}
+
+		}
+	}
+
+	return ischangepost
+}
+
+//编辑公告
+func (this *GuildManager) EditorGuildNotice(player *Player, data *protomsg.CS_EditorGuildNotice) bool {
+	if player == nil || data == nil {
+		return false
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
+		return false
+	}
+
+	//找到当前公会
+	guild1 := this.Guilds.Get(myguild.GuildId)
+	if guild1 == nil {
+		//不存在该公会
+		player.SendNoticeWordToClient(29)
+		return false
+	}
+	guild := guild1.(*GuildInfo)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
+	if postdata == nil || postdata.NoticeWriteAble != 1 {
+		//没有权限 31
+		player.SendNoticeWordToClient(31)
+		return false
+	} else {
+		guild.Notice = data.Notice
+	}
+
+	return true
+}
+
+//Operate
+//
+func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOperate) bool {
+	if player == nil || data == nil {
+		return false
+	}
+	myguild := player.MyGuild
+	if myguild == nil {
+		return false
+	}
+
+	//找到当前公会
+	guild1 := this.Guilds.Get(myguild.GuildId)
 	if guild1 == nil {
 		//不存在该公会
 		player.SendNoticeWordToClient(29)
@@ -242,7 +347,7 @@ func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOp
 	}
 	guild := guild1.(*GuildInfo)
 
-	postdata := conf.GetGuildPostFileData(player.MyGuild.Post)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
 	if data.Code == 1 { //退出公会
 		if postdata == nil || postdata.ExitWriteAble != 1 {
 			//没有权限 31
@@ -253,6 +358,8 @@ func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOp
 			player.MyGuild = nil
 			//把数据存入公会中
 			guild.CharactersMap.Delete(player.Characterid)
+			//存档
+			this.SaveDBGuildInfo(guild)
 		}
 	} else if data.Code == 2 { //解散公会
 		if postdata == nil || postdata.DismissWriteAble != 1 {
@@ -284,18 +391,20 @@ func (this *GuildManager) GuildOperate(player *Player, data *protomsg.CS_GuildOp
 
 //踢人
 func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_DeleteGuildPlayer, targetplayer *Player) {
-	if player == nil || data == nil || player.MyGuild == nil || player == targetplayer {
+	myguild := player.MyGuild
+	if player == nil || data == nil || myguild == nil || player == targetplayer {
 		return
 	}
+
 	//回复玩家加入公会
-	postdata := conf.GetGuildPostFileData(player.MyGuild.Post)
+	postdata := conf.GetGuildPostFileData(myguild.Post)
 	if postdata == nil || postdata.DeletePlayerWriteAble != 1 {
 		//没有权限 31
 		player.SendNoticeWordToClient(31)
 		return
 	}
 	//找到当前公会
-	guild1 := this.Guilds.Get(player.MyGuild.GuildId)
+	guild1 := this.Guilds.Get(myguild.GuildId)
 	if guild1 == nil {
 		//不存在该公会
 		player.SendNoticeWordToClient(29)
@@ -312,6 +421,12 @@ func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_De
 			//找不到该用户
 			return
 		}
+		//职位没有高于被T的人。是不允许的
+		if myguild.Post <= players[0].GuildPost {
+			//没有权限 31
+			player.SendNoticeWordToClient(31)
+			return
+		}
 		//存档数据库
 		players[0].GuildId = 0
 		players[0].GuildPinLevel = int32(1)
@@ -320,7 +435,14 @@ func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_De
 		db.DbOne.SaveCharacter(players[0])
 
 	} else { //在线
-		if character.MyGuild != nil {
+		targetguild := character.MyGuild
+		if targetguild != nil {
+			if myguild.Post <= targetguild.Post {
+				//没有权限 31
+				player.SendNoticeWordToClient(31)
+				return
+			}
+
 			//对方已经有公会了 32
 			character.MyGuild = nil
 		}
@@ -328,6 +450,9 @@ func (this *GuildManager) DeleteGuildPlayer(player *Player, data *protomsg.CS_De
 
 	//把数据存入公会中
 	guild.CharactersMap.Delete(data.Characterid)
+
+	//存档
+	this.SaveDBGuildInfo(guild)
 }
 
 //回复加入公会的申请
@@ -426,6 +551,9 @@ func (this *GuildManager) ResponseJoinGuild(player *Player, data *protomsg.CS_Re
 		}
 	}
 
+	//存档
+	this.SaveDBGuildInfo(guild)
+
 	//message CS_ResponseJoinGuildPlayer{
 	//    int32 Characterid = 1;
 	//    int32 Result = 2; //1表示同意 其他表示不同意
@@ -492,6 +620,9 @@ func (this *GuildManager) AddGuildExp(addexp int32, guildid int32) {
 		if leveldata != nil {
 			guild.GuildLevelFileData = *leveldata
 		}
+
+		//存档
+		this.SaveDBGuildInfo(guild)
 	}
 
 }
@@ -542,6 +673,9 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter)
 
 	guild.AuctionMap.Set(auctioninfo.Id, auctioninfo.Id)
+
+	//存档
+	this.SaveDBGuildInfo(guild)
 
 	return true
 }
