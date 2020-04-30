@@ -403,7 +403,15 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		log.Info("enter scene :%d", h2.SceneID)
 		if scene == nil {
 			log.Info("no scene :%d", h2.SceneID)
-			return
+			//自动回城
+			h2.SceneID = 1000 //回到安全区
+			scene = a.Scenes.Get(h2.SceneID)
+			//改变坐标
+			characterinfo := db.DB_CharacterInfo{}
+			utils.Bytes2Struct(h2.Datas, &characterinfo)
+			characterinfo.X = float32(utils.RandInt64(70, 80))
+			characterinfo.Y = float32(utils.RandInt64(70, 80))
+			h2.Datas = utils.Struct2Bytes(characterinfo)
 		}
 
 		player := a.Players.Get(h2.Uid)
@@ -426,6 +434,8 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 
 		//进入新场景
 		player.(*gamecore.Player).GoInScene(scene.(*gamecore.Scene), h2.Datas)
+		//重新设置坐标 InitPosition
+
 		a.Characters.Set(player.(*gamecore.Player).Characterid, player)
 
 		//发送场景信息给玩家
