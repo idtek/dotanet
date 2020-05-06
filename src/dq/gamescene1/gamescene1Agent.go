@@ -157,6 +157,8 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
 	a.handles["CS_EditorGuildNotice"] = a.DoEditorGuildNotice
 	a.handles["CS_ChangePost"] = a.DoChangePost
+	a.handles["CS_GetGuildRankInfo"] = a.DoGetGuildRankInfo
+	a.handles["CS_GetGuildRankBattleInfo"] = a.DoGetGuildRankBattleInfo
 
 	//活动地图
 	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
@@ -167,7 +169,7 @@ func (a *GameScene1Agent) Init() {
 	allscene := conf.GetAllScene()
 	for _, v := range allscene {
 		log.Info("scene:%d  %s", v.(*conf.SceneFileData).TypeID, v.(*conf.SceneFileData).ScenePath)
-		if v.(*conf.SceneFileData).IsOpen != 1 {
+		if v.(*conf.SceneFileData).IsOpen != 1 || v.(*conf.SceneFileData).InitOpen != 1 {
 			continue
 		}
 		//log.Info("scene succ:%d ", v.(*conf.SceneFileData).TypeID)
@@ -1063,6 +1065,70 @@ func (a *GameScene1Agent) DoGetMapInfo(data *protomsg.MsgBase) {
 //	a.handles["CS_GotoGuildMap"] = a.DoGotoGuildMap
 //a.handles["CS_EditorGuildNotice"] = a.DoEditorGuildNotice
 //a.handles["CS_ChangePost"] = a.DoChangePost
+//a.handles["CS_GetGuildRankInfo"] = a.DoGetGuildRankInfo
+//	a.handles["CS_GetGuildRankBattleInfo"] = a.DoGetGuildRankBattleInfo
+func (a *GameScene1Agent) DoGetGuildRankInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetGuildRankInfo{} //获取公会排名界面信息
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	msg := gamecore.GuildManagerObj.GetGuildRankInfo()
+	player.(*gamecore.Player).SendMsgToClient("SC_GetGuildRankInfo", msg)
+
+}
+func (a *GameScene1Agent) DoGetGuildRankBattleInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetGuildRankBattleInfo{} //获取公会战 角色击杀信息
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	//场景信息 公会战场景
+	scene := a.Scenes.Get(int32(2010))
+
+	if scene == nil || scene.(*gamecore.Scene).Quit == true {
+		//已经结束或未开始
+		player.(*gamecore.Player).SendNoticeWordToClient(40)
+		return
+	}
+	killdata := scene.(*gamecore.Scene).KillData
+	if killdata == nil {
+		//无数据
+		return
+	}
+	msg := &protomsg.SC_GetGuildRankBattleInfo{}
+	msg.AllCha = make([]*protomsg.GuildRankBattleChaInfo, 0)
+	allguilds := killdata.Items()
+	for _, v := range allguilds {
+		//最多显示前20名
+		if v == nil {
+			continue
+		}
+		one := &protomsg.GuildRankBattleChaInfo{}
+		one.Characterid = v.(*gamecore.SceneStatisticsCharacterInfo).Characterid
+		one.Name = v.(*gamecore.SceneStatisticsCharacterInfo).Name
+		one.Level = v.(*gamecore.SceneStatisticsCharacterInfo).Level
+		one.KillCount = v.(*gamecore.SceneStatisticsCharacterInfo).KillCount
+		one.DeathCount = v.(*gamecore.SceneStatisticsCharacterInfo).DeathCount
+		one.GuildId = v.(*gamecore.SceneStatisticsCharacterInfo).GuildId
+		one.GuildName = v.(*gamecore.SceneStatisticsCharacterInfo).GuildName
+		one.Typeid = v.(*gamecore.SceneStatisticsCharacterInfo).Typeid
+		msg.AllCha = append(msg.AllCha, one)
+	}
+	player.(*gamecore.Player).SendMsgToClient("SC_GetGuildRankBattleInfo", msg)
+}
 func (a *GameScene1Agent) DoChangePost(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_ChangePost{}
 	err := proto.Unmarshal(data.Datas, h2)

@@ -106,6 +106,38 @@ func (this *GuildManager) CheckName(name string) bool {
 
 }
 
+//获取所有公会排名UI信息
+func (this GuildManager) GetGuildRankInfo() *protomsg.SC_GetGuildRankInfo {
+	protoallguilds := &protomsg.SC_GetGuildRankInfo{}
+	//公会排名信息
+	protoallguilds.Guilds = make([]*protomsg.GuildShortInfo, 0)
+	allguilds := this.Guilds.Items()
+	for _, v := range allguilds {
+		//最多显示前20名
+		if v == nil || v.(*GuildInfo).Rank >= 20 {
+			continue
+		}
+
+		one := this.GuildInfo2ProtoGuildShortInfo(v.(*GuildInfo))
+		protoallguilds.Guilds = append(protoallguilds.Guilds, one)
+	}
+
+	//地图信息
+	protoallguilds.MapInfo = &protomsg.GuildMapInfo{}
+	mapdata := conf.GetGuildMapFileData(10) //工会战地图ID为10
+	if mapdata != nil {
+		protoallguilds.MapInfo.ID = mapdata.ID
+		protoallguilds.MapInfo.OpenMonthDay = mapdata.OpenMonthDay
+		protoallguilds.MapInfo.OpenWeekDay = mapdata.OpenWeekDay
+		protoallguilds.MapInfo.OpenStartTime = mapdata.OpenStartTime
+		protoallguilds.MapInfo.OpenEndTime = mapdata.OpenEndTime
+		protoallguilds.MapInfo.NeedGuildLevel = mapdata.NeedGuildLevel
+		protoallguilds.MapInfo.NextSceneID = mapdata.NextSceneID
+	}
+
+	return protoallguilds
+}
+
 //获取所有公会简短信息
 func (this GuildManager) GetAllGuildsInfo() *protomsg.SC_GetAllGuildsInfo {
 	protoallguilds := &protomsg.SC_GetAllGuildsInfo{}

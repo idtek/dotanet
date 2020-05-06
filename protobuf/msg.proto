@@ -745,6 +745,35 @@ message CS_NewPriceAuctionItem{
     int32 Price = 2;                    //价格
 }
 
+//获取公会排名界面信息
+message CS_GetGuildRankInfo{
+    int32 ID = 1;
+}
+//返回公会排名界面信息
+message SC_GetGuildRankInfo{
+    repeated GuildShortInfo Guilds = 1;//所有公会信息
+    GuildMapInfo MapInfo = 2;//
+}
+//获取公会排名战击杀信息
+message CS_GetGuildRankBattleInfo{
+    int32 ID = 1;
+}
+//公会排名战击杀信息
+message GuildRankBattleChaInfo{
+    int32 Characterid = 1;
+    string Name = 2;
+    int32 Level = 3;
+    int32 KillCount = 4;
+    int32 DeathCount = 5;
+    int32 GuildId = 6;
+    string GuildName = 7;
+    int32 Typeid = 8;
+}
+//返回公会排名战击杀信息
+message SC_GetGuildRankBattleInfo{
+    repeated GuildRankBattleChaInfo AllCha = 1;//英雄信息
+}
+
 //获取公会地图信息
 message CS_GetGuildMapsInfo{
     int32 ID = 1;

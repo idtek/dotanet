@@ -56,6 +56,7 @@ type SceneFileData struct {
 	EndX            float32
 	EndY            float32
 	IsOpen          int32  //1表示开放 2表示关闭
+	InitOpen        int32  //游戏初始化的时候是否开启 1表示开放 2表示关闭
 	SceneBuff       string //场景BUFF 进入场景的单位都会添加此BUFF
 	ChangeEquipAble int32  //是否可以更换装备 1表示可以 其他表示否
 	DeathHuicheng   int32  //死亡后是否回到和平世界 1表示是 其他表示否

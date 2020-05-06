@@ -32,6 +32,7 @@ type SceneStatisticsCharacterInfo struct {
 	Typeid      int32  //英雄类型
 	GuildId     int32  //公会ID
 	GuildName   string //公会名字
+	Level       int32  //等级
 	//统计数据
 	KillCount  int32 //击杀次数
 	DeathCount int32 //死亡次数
@@ -55,22 +56,41 @@ func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
 	if killer.MyPlayer == nil || bekiller.MyPlayer == nil {
 		return
 	}
-
+	//击杀者信息
 	killdata1 := this.KillData.Get(killer.MyPlayer.Characterid)
 	if killdata1 == nil {
 		killdata1 = &SceneStatisticsCharacterInfo{}
 		killdata1.(*SceneStatisticsCharacterInfo).Characterid = killer.MyPlayer.Characterid
 		killdata1.(*SceneStatisticsCharacterInfo).Name = killer.Name
+		killdata1.(*SceneStatisticsCharacterInfo).Level = killer.Level
 		killdata1.(*SceneStatisticsCharacterInfo).Typeid = killer.TypeID
 		killguild := killer.MyPlayer.MyGuild
 		if killguild != nil {
 			killdata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
-			//killdata1.GuildName = killguild.GuildChaInfo.
+			killdata1.(*SceneStatisticsCharacterInfo).GuildName = killguild.GuildName
 		}
 
 		this.KillData.Set(killer.MyPlayer.Characterid, killdata1)
 	}
 	killdata1.(*SceneStatisticsCharacterInfo).KillCount += 1
+
+	//被击杀者信息
+	bekilldata1 := this.KillData.Get(bekiller.MyPlayer.Characterid)
+	if bekilldata1 == nil {
+		bekilldata1 = &SceneStatisticsCharacterInfo{}
+		bekilldata1.(*SceneStatisticsCharacterInfo).Characterid = bekiller.MyPlayer.Characterid
+		bekilldata1.(*SceneStatisticsCharacterInfo).Name = bekiller.Name
+		bekilldata1.(*SceneStatisticsCharacterInfo).Level = bekiller.Level
+		bekilldata1.(*SceneStatisticsCharacterInfo).Typeid = bekiller.TypeID
+		killguild := bekiller.MyPlayer.MyGuild
+		if killguild != nil {
+			bekilldata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
+			bekilldata1.(*SceneStatisticsCharacterInfo).GuildName = killguild.GuildName
+		}
+
+		this.KillData.Set(bekiller.MyPlayer.Characterid, bekilldata1)
+	}
+	bekilldata1.(*SceneStatisticsCharacterInfo).DeathCount += 1
 
 	log.Info("kill action:%d", killdata1.(*SceneStatisticsCharacterInfo).KillCount)
 
