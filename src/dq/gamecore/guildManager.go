@@ -124,7 +124,7 @@ func (this GuildManager) GetGuildRankInfo() *protomsg.SC_GetGuildRankInfo {
 
 	//地图信息
 	protoallguilds.MapInfo = &protomsg.GuildMapInfo{}
-	mapdata := conf.GetGuildMapFileData(10) //工会战地图ID为10
+	mapdata := conf.GetGuildMapFileData(conf.GuildBattleMapID) //工会战地图ID为10
 	if mapdata != nil {
 		protoallguilds.MapInfo.ID = mapdata.ID
 		protoallguilds.MapInfo.OpenMonthDay = mapdata.OpenMonthDay

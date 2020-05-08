@@ -115,25 +115,37 @@ func GetActivityMapFileData(id int32) *ActivityMapFileData {
 	return (ActivityMapFileDatas[int(id)]).(*ActivityMapFileData)
 }
 
+//活动地图文件信息转 proto ActivityMapsInfo
+func GetProtoMsgActivityMapsInfo(data *ActivityMapFileData) *protomsg.ActivityMapInfo {
+	if data == nil {
+		return nil
+	}
+	one := &protomsg.ActivityMapInfo{}
+	one.ID = data.ID
+	one.OpenWeekDay = data.OpenWeekDay
+	one.OpenStartTime = data.OpenStartTime
+	one.OpenEndTime = data.OpenEndTime
+	one.NeedLevel = data.NeedLevel
+	one.NextSceneID = data.NextSceneID
+	one.PriceType = data.PriceType
+	one.Price = data.Price
+	return one
+}
+
 //GetActivityMapsInfo
 func GetActivityMapsInfo2SC_GetActivityMapsInfo() *protomsg.SC_GetActivityMapsInfo {
 	re := &protomsg.SC_GetActivityMapsInfo{}
 	re.Maps = make([]*protomsg.ActivityMapInfo, 0)
 	for _, v := range ActivityMapFileDatas {
-		one := &protomsg.ActivityMapInfo{}
-		if v.(*ActivityMapFileData).IsOpen != 1 {
+
+		if v.(*ActivityMapFileData).IsOpen != 1 || v.(*ActivityMapFileData).MapType != 1 { //只返回普通活动地图
 			continue
 		}
+		one := GetProtoMsgActivityMapsInfo(v.(*ActivityMapFileData))
+		if one != nil {
+			re.Maps = append(re.Maps, one)
+		}
 
-		one.ID = v.(*ActivityMapFileData).ID
-		one.OpenWeekDay = v.(*ActivityMapFileData).OpenWeekDay
-		one.OpenStartTime = v.(*ActivityMapFileData).OpenStartTime
-		one.OpenEndTime = v.(*ActivityMapFileData).OpenEndTime
-		one.NeedLevel = v.(*ActivityMapFileData).NeedLevel
-		one.NextSceneID = v.(*ActivityMapFileData).NextSceneID
-		one.PriceType = v.(*ActivityMapFileData).PriceType
-		one.Price = v.(*ActivityMapFileData).Price
-		re.Maps = append(re.Maps, one)
 	}
 
 	return re
@@ -153,6 +165,8 @@ type ActivityMapFileData struct {
 	PriceType            int32 //价格类型 10000金币 10001砖石
 	Price                int32 //价格
 	CleanPlayerDelayTime int32 //清除玩家延时 结束时间之后这么久就清除场景的玩家
+
+	MapType int32 //地图类型 1:普通 2:夺宝奇兵
 
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 

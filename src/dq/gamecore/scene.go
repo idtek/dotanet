@@ -103,6 +103,7 @@ func (this *SceneStatistics) KillClean() {
 
 type Scene struct {
 	SceneStatistics
+	DuoBaoQiBing       *SceneDuoBaoInfo //夺宝奇兵相关
 	conf.SceneFileData                  //场景文件信息
 	FirstUpdateTime    int64            //上次更新时间
 	MoveCore           *cyward.WardCore //移动核心
@@ -138,8 +139,8 @@ type Scene struct {
 	NextRemovePlayer *utils.BeeMap //下一帧需要删除的玩家
 
 	//地图信息
-	DropItems     *utils.BeeMap //本地图会掉落的道具
-	BossFreshTime int32         //boss刷新时间 秒为单位
+	//DropItems     *utils.BeeMap //本地图会掉落的道具
+	//BossFreshTime int32         //boss刷新时间 秒为单位
 
 	ChangeScene ChangeSceneFunc
 	Sverver     ServerInterface
@@ -179,7 +180,7 @@ func (this *Scene) Init() {
 	this.NextAddPlayer = utils.NewBeeMap()
 	this.NextRemovePlayer = utils.NewBeeMap()
 
-	this.DropItems = utils.NewBeeMap()
+	//this.DropItems = utils.NewBeeMap()
 
 	//
 	this.ReCreateUnitInfo = make(map[*ReCreateUnit]*ReCreateUnit)
@@ -225,11 +226,13 @@ func (this *Scene) Init() {
 			//保存会掉落的道具
 			dropitems := oneunit.GetDropItems()
 			for _, v1 := range dropitems {
-				this.DropItems.Set(v1, v1)
+				//this.DropItems.Set(v1, v1)
+				GameCoreDataManagerObj.AddDrop(this.TypeID, v1)
 			}
 			//boss刷新时间
 			if oneunit.UnitType == 4 {
-				this.BossFreshTime = int32(v.ReCreateTime)
+				//this.BossFreshTime = int32(v.ReCreateTime)
+				GameCoreDataManagerObj.SetBossFreshTime(this.TypeID, int32(v.ReCreateTime))
 			}
 
 		}
@@ -288,6 +291,16 @@ func (this *Scene) DoStartException() {
 		{
 			this.KillClean() //记录击杀数据
 		}
+		break
+	case 2: //夺宝奇兵
+		params := utils.GetInt32FromString3(this.ExceptionParam, ",")
+		if len(params) < 2 {
+			return
+		}
+		time := params[0]   //时间
+		typeid := params[1] //道具ID
+		this.DuoBaoQiBing = CreateSceneDuoBaoInfo(float32(time), typeid, this)
+		break
 	default:
 	}
 }
@@ -363,13 +376,31 @@ func (this *Scene) DoEndException() {
 
 			//清除之前的排序
 			GuildManagerObj.ReSetGuildRank()
-
+			//获取公会经验值
+			guildexparr := utils.GetInt32FromString3(this.ExceptionParam, ",")
 			//设置排序
 			for k, v := range p {
 				log.Info("-----------rank:%d  %d", v.GuildId, k)
 				GuildManagerObj.SetGuildRank(v.GuildId, int32(k)+1)
+				//获取公会经验
+				if len(guildexparr) > 0 {
+					getexp := int32(0)
+					if len(guildexparr) <= k {
+						getexp = guildexparr[len(guildexparr)-1]
+					} else {
+						getexp = guildexparr[k]
+					}
+
+					GuildManagerObj.AddGuildExp(getexp, v.GuildId)
+				}
+
 			}
 		}
+	case 2: //夺宝奇兵
+		if this.DuoBaoQiBing != nil {
+
+		}
+		break
 	default:
 	}
 }
@@ -462,6 +493,15 @@ func (this *Scene) FindVisibleUnits(my *Unit) []*Unit {
 //	return units
 //}
 
+//
+
+//玩家将要主动离开
+func (this *Scene) PlayerWillLeave(player *Player) {
+	if this.DuoBaoQiBing != nil {
+		this.DuoBaoQiBing.DoPlayerLostBox(player)
+	}
+}
+
 //传送到和平城
 func (this *Scene) HuiCheng(player *Player) {
 	if this.ChangeScene == nil || player == nil {
@@ -481,6 +521,7 @@ func (this *Scene) DoHuiCheng() {
 	}
 	allhuicheng := this.HuiChengPlayer.Items()
 	for k, v := range allhuicheng {
+		this.PlayerWillLeave(k.(*Player))
 		this.ChangeScene.PlayerChangeScene(k.(*Player), *v.(*conf.DoorWay))
 		this.HuiChengPlayer.Delete(k)
 	}
@@ -505,6 +546,7 @@ func (this *Scene) DoDoorWay() {
 					//传送到其他场景
 					log.Info("chuan song :%v", v)
 					if player.MainUnit.Level >= v.NeedLevel {
+						this.PlayerWillLeave(player)
 						this.ChangeScene.PlayerChangeScene(player, v)
 					} else {
 						player.SendNoticeWordToClient(9, strconv.Itoa(int(v.NeedLevel)))
@@ -556,6 +598,11 @@ func (this *Scene) Update() {
 
 		time1 := utils.GetCurTimeOfSecond()
 		this.EveryTimeDo(1 / float32(this.SceneFrame))
+
+		//夺宝奇兵
+		if this.DuoBaoQiBing != nil {
+			this.DuoBaoQiBing.Update(1 / float32(this.SceneFrame))
+		}
 
 		this.DoHuiCheng()
 
@@ -935,6 +982,10 @@ func (this *Scene) UpdateSceneItem(dt float32) {
 						//拾取到背包
 						if player.SelectSceneItem(v) == true {
 							v.BeSelect()
+							if this.DuoBaoQiBing != nil {
+								this.DuoBaoQiBing.CheckPlayerGetBox(player, v.TypeID)
+							}
+
 							break
 						}
 					}
@@ -1057,6 +1108,9 @@ func (this *Scene) DoCleanPlayer() {
 	if this.CleanPlayer == false {
 		return
 	}
+	if this.DuoBaoQiBing != nil {
+		this.DuoBaoQiBing.DoOver()
+	}
 
 	for _, player := range this.Players {
 		this.HuiCheng(player)
@@ -1119,6 +1173,9 @@ func (this *Scene) RemoveUnit(unit *Unit) {
 func (this *Scene) PlayerGoout(player *Player) {
 	//删除主单位
 	//this.NextRemoveUnit.Set(player.MainUnit.ID, player.MainUnit)
+
+	//掉落夺宝奇兵的宝藏
+
 	this.RemoveUnit(player.MainUnit)
 	if player.MainUnit != nil {
 		this.NextAddUnit.Delete(player.MainUnit.ID)

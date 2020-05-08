@@ -63,7 +63,7 @@ type SceneFileData struct {
 	//StartX	StartY	EndX	EndY
 
 	//特殊情况处理
-	Exception      int32  //0表示没有特殊情况 1:工会战
+	Exception      int32  //0表示没有特殊情况 1:工会战 2夺宝奇兵
 	ExceptionParam string //特殊情况处理参数 特殊情况为1的时候:()1
 
 }

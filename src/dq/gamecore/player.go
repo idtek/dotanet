@@ -271,6 +271,8 @@ func (this *Player) GetLevel() int32 {
 
 //交换道具位置 背包位置
 func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
 	if this.MainUnit == nil || this.MainUnit.InScene == nil {
 		return
 	}
@@ -282,6 +284,7 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 			return
 		}
 	}
+	//
 
 	//1表示装备栏 2表示背包
 	if data.SrcType == 1 {
@@ -306,7 +309,6 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 
 	log.Info("-------ChangeItemPos:%d  %d  %d  %d", data.SrcPos, data.DestPos, data.SrcType, data.DestType)
 
-	this.lock.Lock()
 	//1表示装备栏 2表示背包
 	if data.SrcType == 1 {
 		src := this.MainUnit.Items[data.SrcPos]
@@ -325,6 +327,15 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 			this.MainUnit.Items[data.DestPos] = src
 		} else {
 			dest := this.BagInfo[data.DestPos]
+			if dest != nil { //检测是否能装备到身上
+				destitemdata := conf.GetItemData(dest.TypeID)
+				if destitemdata != nil {
+					if destitemdata.EquipAble != 1 { //检测是否能装备到身上
+						return
+					}
+				}
+			}
+
 			//删除角色身上的装备
 			this.MainUnit.RemoveItem(data.SrcPos)
 			if dest != nil {
@@ -347,6 +358,15 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 		src := this.BagInfo[data.SrcPos]
 		if data.DestType == 1 {
 			dest := this.MainUnit.Items[data.DestPos]
+
+			if src != nil { //检测是否能装备到身上
+				srcitemdata := conf.GetItemData(src.TypeID)
+				if srcitemdata != nil {
+					if srcitemdata.EquipAble != 1 { //检测是否能装备到身上
+						return
+					}
+				}
+			}
 
 			//删除角色身上的装备
 			this.MainUnit.RemoveItem(data.DestPos)
@@ -398,7 +418,6 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 		}
 	}
 
-	this.lock.Unlock()
 }
 
 //系统回收道具位置 背包位置
@@ -420,6 +439,11 @@ func (this *Player) SystemHuiShouItem(data *protomsg.CS_SystemHuiShouItem) {
 	//equip.Level = v.Level
 	item := conf.GetItemData(bagitem.TypeID)
 	if item != nil {
+		if item.SaleAble != 1 {
+			//此道具不能被卖出
+			return
+		}
+
 		pricetype := item.PriceType
 		price := item.Price
 		//加钱
@@ -459,29 +483,36 @@ func (this *Player) AddItem(typeid int32, level int32) bool {
 	if this.MainUnit == nil || this.MainUnit.Items == nil {
 		return false
 	}
+	//检测道具是否可以装备到身上
+	itemdata := conf.GetItemData(typeid)
+	if itemdata != nil {
+		if itemdata.EquipAble == 1 { //检测是否能装备到身上
+			for _, v := range this.MainUnit.Items {
+				if v == nil {
 
-	for _, v := range this.MainUnit.Items {
-		if v == nil {
+					item := NewItem(typeid, level)
+					this.MainUnit.AddItem(-1, item)
+					this.SendGetItemNotice(typeid, level)
+					//this.lock.Unlock()
+					return true
+				}
+			}
+		}
 
-			item := NewItem(typeid, level)
-			this.MainUnit.AddItem(-1, item)
-			this.SendGetItemNotice(typeid, level)
-			//this.lock.Unlock()
-			return true
+		for k, v := range this.BagInfo {
+			if v == nil {
+				item := &BagItem{}
+				item.Index = int32(k)
+				item.TypeID = typeid
+				item.Level = level
+				this.BagInfo[k] = item
+				this.SendGetItemNotice(typeid, level)
+				//this.lock.Unlock()
+				return true
+			}
 		}
 	}
-	for k, v := range this.BagInfo {
-		if v == nil {
-			item := &BagItem{}
-			item.Index = int32(k)
-			item.TypeID = typeid
-			item.Level = level
-			this.BagInfo[k] = item
-			this.SendGetItemNotice(typeid, level)
-			//this.lock.Unlock()
-			return true
-		}
-	}
+
 	//this.lock.Unlock()
 	return false
 }
@@ -511,6 +542,67 @@ func (this *Player) GetSellUIInfo() *protomsg.SC_GetSellUIInfo {
 	return data
 }
 
+//打开宝箱
+func (this *Player) UseBagItemFromTypeid(itemtypeid int32) int32 {
+	for i := int32(0); i < MaxBagCount; i++ {
+		item := this.BagInfo[i]
+		if item != nil && item.TypeID == itemtypeid {
+			return this.UseBagItemFromPos(i)
+		}
+	}
+	return -1
+}
+
+//使用道具
+func (this *Player) UseBagItemFromPos(pos int32) int32 {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	if pos < 0 || pos >= MaxBagCount {
+		return -1
+	}
+	item := this.BagInfo[pos]
+	if item == nil {
+		return -1
+	}
+	//检测道具是否可以使用
+	itemdata := conf.GetItemData(item.TypeID)
+	if itemdata != nil {
+		if itemdata.UseAble != 1 {
+			//此道具不能使用
+			return -1
+		}
+	}
+
+	//
+	if itemdata.Exception == 1 { //使用宝箱
+		typeid, level := conf.OpenItemBox(itemdata)
+		if typeid < 0 {
+			return -1
+		}
+		item = &BagItem{}
+		item.Index = int32(pos)
+		item.TypeID = typeid
+		item.Level = level
+		this.BagInfo[pos] = item
+		this.SendGetItemNotice(typeid, level)
+		return typeid
+
+	}
+	return -1
+}
+
+//删除背包中的道具
+func (this *Player) RemoveBagItem(itemtypeid int32) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	for i := int32(0); i < MaxBagCount; i++ {
+		item := this.BagInfo[i]
+		if item != nil && item.TypeID == itemtypeid {
+			this.BagInfo[i] = nil
+		}
+	}
+}
+
 //上架道具到交易所
 func (this *Player) ShelfBagItem2Exchange(pos int32) (bool, *BagItem) {
 	this.lock.Lock()
@@ -531,6 +623,16 @@ func (this *Player) ShelfBagItem2Exchange(pos int32) (bool, *BagItem) {
 	if item == nil {
 		return false, nil
 	}
+
+	//检测道具是否可以卖
+	itemdata := conf.GetItemData(item.TypeID)
+	if itemdata != nil {
+		if itemdata.SaleAble != 1 {
+			//此道具不能被卖出
+			return false, nil
+		}
+	}
+
 	//是否超过售卖上限
 	if ExchangeManagerObj.GetPlayerSellingCount(this.Characterid) >= maxcount {
 		//操作上限

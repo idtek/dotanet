@@ -72,6 +72,8 @@ func (a *GameScene1Agent) Init() {
 	gamecore.AuctionManagerObj.Init(a)
 	//初始化 公会信息
 	gamecore.GuildManagerObj.Init(a)
+	//初始化数据管理器
+	gamecore.GameCoreDataManagerObj.Init()
 
 	//-------测试--------
 	//a.ceshi()
@@ -96,6 +98,7 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetUnitInfo"] = a.DoGetUnitInfo
 	a.handles["CS_GetCharacterSimpleInfo"] = a.DoGetCharacterSimpleInfo
 
+	a.handles["CS_GetItemExtraInfo"] = a.DoGetItemExtraInfo
 	a.handles["CS_GetBagInfo"] = a.DoGetBagInfo
 	a.handles["CS_ChangeItemPos"] = a.DoChangeItemPos
 	a.handles["CS_DestroyItem"] = a.DoDestroyItem
@@ -164,6 +167,7 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
 	a.handles["CS_GetMapInfo"] = a.DoGetMapInfo
 	a.handles["CS_GotoActivityMap"] = a.DoGotoActivityMap
+	a.handles["CS_GetDuoBaoInfo"] = a.DoGetDuoBaoInfo
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -328,6 +332,10 @@ func (a *GameScene1Agent) DoDisconnect(data *protomsg.MsgBase) {
 			log.Info("---------DoDisconnect--delete")
 
 			gamecore.TeamManagerObj.LeaveTeam(player.(*gamecore.Player))
+			curscene := player.(*gamecore.Player).CurScene
+			if curscene != nil {
+				curscene.PlayerWillLeave(player.(*gamecore.Player)) //离开前的处理
+			}
 
 			player.(*gamecore.Player).SaveDB()
 
@@ -597,6 +605,33 @@ func (a *GameScene1Agent) SendBagInfo(player *gamecore.Player) {
 	}
 
 	player.SendMsgToClient("SC_BagInfo", msg)
+}
+
+//a.handles["CS_GetItemExtraInfo"] = a.DoGetItemExtraInfo
+func (a *GameScene1Agent) DoGetItemExtraInfo(data *protomsg.MsgBase) {
+
+	log.Info("---------DoGetItemExtraInfo")
+	h2 := &protomsg.CS_GetItemExtraInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	log.Info("---------%d", h2.TypeId)
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	itemdata := conf.GetItemData(h2.TypeId)
+	if itemdata == nil {
+		return
+	}
+	msg := &protomsg.SC_GetItemExtraInfo{}
+	msg.TypeId = h2.TypeId
+	msg.Exception = itemdata.Exception
+	msg.ExceptionParam = itemdata.ExceptionParam
+	player.(*gamecore.Player).SendMsgToClient("SC_GetItemExtraInfo", msg)
 }
 
 //DoGetBagInfo
@@ -955,6 +990,52 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 //	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
 //	a.handles["CS_GetMapInfo"] = a.DoGetMapInfo
 //a.handles["CS_GotoActivityMap"] = a.DoGotoActivityMap
+//a.handles["CS_GetDuoBaoInfo"] = a.DoGetDuoBaoInfo
+func (a *GameScene1Agent) DoGetDuoBaoInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetDuoBaoInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	//场景信息 夺宝奇兵
+	mapdata := conf.GetActivityMapFileData(conf.ActivityDuoBaoMapID) //
+	if mapdata == nil {
+		return
+	}
+	scenedata := gamecore.GameCoreDataManagerObj.SceneDropDatas.Get(mapdata.NextSceneID)
+	if scenedata == nil {
+		return
+	}
+	scenefile := conf.GetSceneFileData(mapdata.NextSceneID)
+	if scenefile == nil {
+		return
+	}
+
+	msg := &protomsg.SC_GetDuoBaoInfo{}
+	msg.MapGoInInfo = conf.GetProtoMsgActivityMapsInfo(mapdata)
+	//地图信息 掉落信息
+	msg.MapInfo = &protomsg.SC_GetMapInfo{}
+	msg.MapInfo.SceneID = mapdata.NextSceneID
+	msg.MapInfo.BossFreshTime = scenedata.(*gamecore.SceneDropData).BossFreshTime
+	msg.MapInfo.DropItems = make([]int32, 0)
+	items := scenedata.(*gamecore.SceneDropData).DropItems.Items()
+	for _, v := range items {
+		msg.MapInfo.DropItems = append(msg.MapInfo.DropItems, v.(int32))
+	}
+	msg.Minute = 5
+	params := utils.GetInt32FromString3(scenefile.ExceptionParam, ",")
+	if len(params) >= 1 {
+		msg.Minute = params[0] / 60
+	}
+	player.(*gamecore.Player).SendMsgToClient("SC_GetDuoBaoInfo", msg)
+
+}
 func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_GotoActivityMap{}
 	err := proto.Unmarshal(data.Datas, h2)
@@ -1034,16 +1115,20 @@ func (a *GameScene1Agent) DoGetMapInfo(data *protomsg.MsgBase) {
 	if player == nil {
 		return
 	}
-	scene := a.Scenes.Get(h2.SceneID)
-	if scene == nil {
+	//	scene := a.Scenes.Get(h2.SceneID)
+	//	if scene == nil {
+	//		return
+	//	}
+	scenedata := gamecore.GameCoreDataManagerObj.SceneDropDatas.Get(h2.SceneID)
+	if scenedata == nil {
 		return
 	}
 
 	msg := &protomsg.SC_GetMapInfo{}
 	msg.SceneID = h2.SceneID
-	msg.BossFreshTime = scene.(*gamecore.Scene).BossFreshTime
+	msg.BossFreshTime = scenedata.(*gamecore.SceneDropData).BossFreshTime
 	msg.DropItems = make([]int32, 0)
-	items := scene.(*gamecore.Scene).DropItems.Items()
+	items := scenedata.(*gamecore.SceneDropData).DropItems.Items()
 	for _, v := range items {
 		msg.DropItems = append(msg.DropItems, v.(int32))
 	}
@@ -1096,7 +1181,11 @@ func (a *GameScene1Agent) DoGetGuildRankBattleInfo(data *protomsg.MsgBase) {
 	}
 
 	//场景信息 公会战场景
-	scene := a.Scenes.Get(int32(2010))
+	mapdata := conf.GetGuildMapFileData(conf.GuildBattleMapID) //
+	if mapdata == nil {
+		return
+	}
+	scene := a.Scenes.Get(mapdata.NextSceneID)
 
 	if scene == nil || scene.(*gamecore.Scene).Quit == true {
 		//已经结束或未开始
@@ -1918,6 +2007,7 @@ func (a *GameScene1Agent) OnClose() {
 	gamecore.AuctionManagerObj.Close()
 
 	gamecore.ExchangeManagerObj.Close()
+	gamecore.GameCoreDataManagerObj.Close()
 
 	a.wgScene.Wait()
 

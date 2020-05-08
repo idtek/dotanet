@@ -88,6 +88,38 @@ func GetItemData(typeid int32) *ItemData {
 	return (re).(*ItemData)
 }
 
+//打开宝箱 typeid level
+func OpenItemBox(item *ItemData) (int32, int32) {
+	if item == nil {
+		return -1, -1
+	}
+	if item.Exception != 1 {
+		return -1, -1
+	}
+
+	params := utils.GetStringFromString3(item.ExceptionParam, ";")
+	if len(params) <= 0 {
+		return -1, -1
+	}
+	typeids := make([]int32, len(params))        //道具ID
+	gailvquanzhong := make([]int32, len(params)) //概率权重
+	//allquanzhong := 0
+	for k, v := range params {
+		one := utils.GetInt32FromString3(v, ":")
+		if len(one) < 2 {
+			continue
+		}
+		typeids[k] = one[0]
+		gailvquanzhong[k] = one[1]
+		//allquanzhong += one[1]
+	}
+	gettypeidindex := utils.CheckRandomInt32Arr(gailvquanzhong)
+	if gettypeidindex > 0 {
+		return typeids[gettypeidindex], 1
+	}
+	return -1, -1
+}
+
 //技能基本数据
 type ItemBaseData struct {
 	TypeID    int32  //类型ID
@@ -98,6 +130,13 @@ type ItemBaseData struct {
 	MaxLevel  int32  //最高等级
 	PriceType int32  //回收价格类型
 	Price     int32  //回收价格
+
+	SaleAble  int32 //是否可以回收 1:是 2:否
+	EquipAble int32 //是否可以装备到身上 1:是 2:否
+	UseAble   int32 //是否可以使用 1:是 2:否
+	//特殊情况处理
+	Exception      int32  //0表示没有特殊情况 1:宝箱
+	ExceptionParam string //特殊情况处理参数 特殊情况为1的时候:(宝箱能开出的装备和概率)
 }
 
 //技能数据 (会根据等级变化的数据)

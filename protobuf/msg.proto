@@ -113,6 +113,15 @@ message SC_GetCharacterSimpleInfo{
     string  Skills = 6;//技能
     string LastLoginDate = 7;//最近登录日期
 }
+//获取道具额外信息
+message CS_GetItemExtraInfo {
+    int32 TypeId = 1;//道具ID
+}
+message SC_GetItemExtraInfo {
+    int32 TypeId = 1;//道具ID
+    int32 Exception = 2;//
+    string ExceptionParam = 3;//
+}
 
 //获取自己背包详细信息 
 message CS_GetBagInfo {
@@ -815,7 +824,7 @@ message ActivityMapInfo{
     string OpenWeekDay = 3;    //在一周中的星期几开启 -1表示所有 5表示星期五
     string OpenStartTime = 4;  //开始时间 字符串
     string OpenEndTime = 5;    //结束时间 字符串
-    int32 NeedLevel = 6;  //需要的公会等级
+    int32 NeedLevel = 6;  //需要的玩家等级
     int32 NextSceneID = 7;     //场景ID
     int32 PriceType = 8; //价格类型
     int32 Price = 9;// 价格
@@ -836,4 +845,15 @@ message CS_GotoActivityMap{
 }
 message SC_GotoActivityMap{
     int32 Result = 1;//1表示成功 其他表示失败
+}
+
+//获取夺宝奇兵活动信息
+message CS_GetDuoBaoInfo{
+    int32 ID = 1;
+}
+//获取夺宝奇兵活动信息
+message SC_GetDuoBaoInfo{
+    ActivityMapInfo MapGoInInfo = 1;//
+    SC_GetMapInfo MapInfo = 2;//
+    int32 Minute = 3;//间隔分钟
 }

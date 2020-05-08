@@ -50,6 +50,26 @@ func SetValueGreaterE(value float32, minvalue float32) float32 {
 	return value
 }
 
+//根据权重随机 返回随机的索引
+func CheckRandomInt32Arr(data []int32) int32 {
+	if len(data) <= 0 {
+		return -1
+	}
+	allquanzhong := int32(0)
+	for _, v := range data {
+		allquanzhong += v
+	}
+	randvalue := int32(rand.Intn(int(allquanzhong)))
+	addvalue := int32(0)
+	for k, v := range data {
+		addvalue += v
+		if randvalue <= addvalue {
+			return int32(k)
+		}
+	}
+	return 0
+}
+
 //检查随机概率是否命中
 func CheckRandom(radio float32) bool {
 	if rand.Intn(10000) < int(10000.0*radio) {
