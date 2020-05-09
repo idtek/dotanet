@@ -1363,6 +1363,9 @@ func (this *Player) AttackCmd(data *protomsg.CS_PlayerAttack) {
 	if this.MainUnit == nil {
 		return
 	}
+
+	//this.CurScene.SendNoticeWordToQuanFuPlayer(42, "玩家1", "大炮", "lv.1")
+
 	this.CheckOtherUnit()
 	for _, v := range data.IDs {
 		if this.MainUnit.ID == v {

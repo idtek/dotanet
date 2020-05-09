@@ -1707,6 +1707,17 @@ func (a *GameScene1Agent) DoGetMailsList(data *protomsg.MsgBase) {
 	player.(*gamecore.Player).SendMsgToClient("SC_GetMailsList", mails)
 }
 
+//发送消息给全服玩家
+func (a *GameScene1Agent) SendMsg2QuanFu(msgtype string, msg proto.Message) {
+	allplayer := a.Players.Items()
+	for _, v := range allplayer {
+		if v == nil {
+			continue
+		}
+		v.(*gamecore.Player).SendMsgToClient(msgtype, msg)
+	}
+}
+
 //聊天信息
 func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_ChatInfo{}
@@ -1772,13 +1783,14 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 		msg.SrcPlayerUID = data.Uid
 		msg.SrcCharacterID = characterid
 		msg.Content = h2.Content //内容过滤
-		allplayer := a.Players.Items()
-		for _, v := range allplayer {
-			if v == nil {
-				continue
-			}
-			v.(*gamecore.Player).SendMsgToClient("SC_ChatInfo", msg)
-		}
+		a.SendMsg2QuanFu("SC_ChatInfo", msg)
+		//		allplayer := a.Players.Items()
+		//		for _, v := range allplayer {
+		//			if v == nil {
+		//				continue
+		//			}
+		//			v.(*gamecore.Player).SendMsgToClient("SC_ChatInfo", msg)
+		//		}
 	} else if h2.Channel == 3 {
 		destplayer := a.Players.Get(h2.DestPlayerUID)
 		if destplayer == nil {

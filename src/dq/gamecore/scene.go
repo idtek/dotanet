@@ -4,8 +4,8 @@ import (
 	"dq/conf"
 	"dq/cyward"
 	"dq/log"
+	"dq/protobuf"
 	"strconv"
-	//"dq/protobuf"
 	//"dq/timer"
 	"dq/db"
 	"dq/utils"
@@ -14,6 +14,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/golang/protobuf/proto"
 )
 
 type ReCreateUnit struct {
@@ -23,6 +25,7 @@ type ReCreateUnit struct {
 }
 type ChangeSceneFunc interface {
 	PlayerChangeScene(player *Player, doorway conf.DoorWay)
+	SendMsg2QuanFu(msgtype string, msg proto.Message)
 }
 
 //场景统计角色信息
@@ -575,6 +578,17 @@ func (this *Scene) EveryTimeDo(dt float32) {
 	}
 }
 
+//发送消息给全服
+func (this *Scene) SendNoticeWordToQuanFuPlayer(typeid int32, param ...string) {
+	msg := &protomsg.SC_NoticeWords{}
+	msg.TypeID = typeid
+	msg.P = param
+	if this.ChangeScene != nil {
+		this.ChangeScene.SendMsg2QuanFu("SC_NoticeWords", msg)
+	}
+}
+
+//发送消息给当前场景的所有玩家
 func (this *Scene) SendNoticeWordToAllPlayer(typeid int32, param ...string) {
 	//遍历所有玩家
 	for _, player := range this.Players {

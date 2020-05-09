@@ -82,7 +82,7 @@ func (this *SceneDuoBaoInfo) DoOver() {
 				return
 			}
 			//this.SendNoticeWordToClient(25, itemdata.ItemName, "lv."+strconv.Itoa(int(level)))
-			this.Parent.SendNoticeWordToAllPlayer(42, unit1.Name, itemdata.ItemName, "lv.1")
+			this.Parent.SendNoticeWordToQuanFuPlayer(42, unit1.Name, itemdata.ItemName, "lv.1")
 		}
 	}
 	this.PlayerLostBox()
