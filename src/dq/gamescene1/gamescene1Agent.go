@@ -201,7 +201,7 @@ func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
 	var newid = testi
 	testi++
 
-	fubenscenetypeid := int32(302)
+	fubenscenetypeid := int32(5000)
 	scenefile := conf.GetSceneFileData(fubenscenetypeid)
 	if scenefile == nil {
 		//如果场景文件不存在
@@ -228,7 +228,7 @@ func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
 	}
 }
 
-//创建场景
+//创建场景 typeid为设置给场景的唯一ID
 func (a *GameScene1Agent) CreateScene(scenefile *conf.SceneFileData, typeid int32) *gamecore.Scene {
 	if scenefile == nil {
 		return nil

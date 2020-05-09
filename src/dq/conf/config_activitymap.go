@@ -23,14 +23,15 @@ import (
 
 var (
 	ActivityMapFileDatas = make(map[interface{}]interface{})
+	CopyMapFileDatas     = make(map[interface{}]interface{})
 	//发送给客户端的数据
 	SC_GetActivityMapsInfoMsg = &protomsg.SC_GetActivityMapsInfo{}
 )
 
 //场景配置文件
 func LoadActivityFileData() {
-
-	_, ActivityMapFileDatas = utils.ReadXlsxData("bin/conf/activitymap.xlsx", (*ActivityMapFileData)(nil))
+	//活动地图
+	_, ActivityMapFileDatas = utils.ReadXlsxOneSheetData("bin/conf/activitymap.xlsx", "ActivityMap", (*ActivityMapFileData)(nil))
 	format := "15:04:05"
 	for k, v := range ActivityMapFileDatas {
 		ActivityMapFileDatas[k].(*ActivityMapFileData).StartTime, _ = time.Parse(format, v.(*ActivityMapFileData).OpenStartTime)
@@ -40,6 +41,9 @@ func LoadActivityFileData() {
 
 	}
 	SC_GetActivityMapsInfoMsg = GetActivityMapsInfo2SC_GetActivityMapsInfo()
+
+	//副本地图
+	_, CopyMapFileDatas = utils.ReadXlsxOneSheetData("bin/conf/activitymap.xlsx", "CopyMap", (*CopyMapFileData)(nil))
 }
 
 //检测场景开启和关闭 提前5秒
@@ -151,7 +155,7 @@ func GetActivityMapsInfo2SC_GetActivityMapsInfo() *protomsg.SC_GetActivityMapsIn
 	return re
 }
 
-//单位配置文件数据
+//活动地图配置文件数据
 type ActivityMapFileData struct {
 	//配置文件数据
 	ID                   int32  //
@@ -174,5 +178,18 @@ type ActivityMapFileData struct {
 	EndTime          time.Time //结束时间日期格式
 	CleanTime        time.Time //清除玩家的时间
 	OpenWeekDayInt32 []int32   //开放周期
+
+}
+
+//副本配置文件数据
+type CopyMapFileData struct {
+	//配置文件数据
+	ID          int32 //
+	NeedLevel   int32 //需要的等级
+	NextSceneID int32 //场景ID
+	X           float32
+	Y           float32
+
+	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 
 }

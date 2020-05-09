@@ -17653,3 +17653,707 @@
 2020-05-09T16:38:45+08:00 [dq] [I] [gamescene1Agent.go:374] ---------DoDisconnect--delete
 2020-05-09T16:38:45+08:00 [dq] [I] [loginAgent.go:72] -------loginout :526
 2020-05-09T16:39:19+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.038027 0.000000 0.038027  
+2020-05-09T16:43:10+08:00 [dq] [I] [scene.go:751] DoSendData:t1:0.000000   t2:0.000000  t3:0.018513 
+2020-05-09T16:53:10+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.030021 0.000000 0.030522  
+2020-05-09T16:53:10+08:00 [dq] [I] [scene.go:645] time:0.000000 0.030021 0.001000 0.000000 0.031522  
+2020-05-09T16:54:15+08:00 [dq] [D] [app.go:242] dq closing down (signal: interrupt) 3
+2020-05-09T16:54:15+08:00 [dq] [D] [loginAgent.go:321] read message: read tcp 127.0.0.1:50134->127.0.0.1:12345: use of closed network connection
+2020-05-09T16:54:15+08:00 [dq] [D] [serverAgent.go:232] read message: EOF
+2020-05-09T16:54:15+08:00 [dq] [D] [gamescene1Agent.go:2012] read message: read tcp 127.0.0.1:50136->127.0.0.1:12345: use of closed network connection
+2020-05-09T16:54:15+08:00 [dq] [I] [guildManager.go:980] GuildManager save
+2020-05-09T16:54:15+08:00 [dq] [D] [serverAgent.go:232] read message: EOF
+2020-05-09T16:54:15+08:00 [dq] [I] [serverAgent.go:254] --delete modetype:Login
+2020-05-09T16:54:15+08:00 [dq] [I] [serverAgent.go:254] --delete modetype:GameScene1
+2020-05-09T16:54:15+08:00 [dq] [I] [tcp_server.go:154] tcp Close :127.0.0.1:12345
+2020-05-09T16:54:15+08:00 [dq] [I] [tcp_server.go:154] tcp Close ::1119
+2020-05-09T16:54:15+08:00 [dq] [I] [kcp_server.go:153] tcp Close ::1118
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:3002  3002
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:100  100
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:501  501
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:300  300
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:2006  2006
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:400  400
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:10001  302
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:502  502
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:10000  302
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:600  600
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:602  602
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:3006  3006
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:3004  3004
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:500  500
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:1  1
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:601  601
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:1000  1000
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:2004  2004
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:200  200
+2020-05-09T16:54:15+08:00 [dq] [I] [scene.go:665] Scene Quit:2002  2002
+2020-05-09T16:54:15+08:00 [dq] [I] [AuctionManager.go:213] ----------AuctionManager Close---------
+2020-05-09T16:54:15+08:00 [dq] [I] [ExchangeManager.go:64] ----------ExchangeManager Close---------
+2020-05-09T16:54:15+08:00 [dq] [I] [GameCoreDataManager.go:67] ----------GameCoreDataManager Close---------
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:172] dq starting up
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:174] runtime.GOOS:windows
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:176] ---models:3
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:185] new model :Gate
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:185] new model :Login
+2020-05-09T17:21:42+08:00 [dq] [I] [app.go:185] new model :GameScene1
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:42] invalid ConnNum, reset to 1
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:46] invalid ConnectInterval, reset to 3s
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:50] invalid PendingWriteNum, reset to 20000
+2020-05-09T17:21:42+08:00 [dq] [I] [gate.go:113] TCPAddr::1119
+2020-05-09T17:21:42+08:00 [dq] [I] [gate.go:129] KCPAddr::1118
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:42] invalid ConnNum, reset to 1
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:46] invalid ConnectInterval, reset to 3s
+2020-05-09T17:21:42+08:00 [dq] [D] [tcp_client.go:50] invalid PendingWriteNum, reset to 20000
+2020-05-09T17:21:42+08:00 [dq] [I] [tcp_server.go:80] ------Listen:127.0.0.1:12345
+2020-05-09T17:21:42+08:00 [dq] [I] [tcp_server.go:80] ------Listen::1119
+2020-05-09T17:21:42+08:00 [dq] [I] [kcp_server.go:77] ------Listen::1118
+2020-05-09T17:21:42+08:00 [dq] [I] [TeamManager.go:350] ----------TeamManager Init---------
+2020-05-09T17:21:42+08:00 [dq] [I] [ExchangeManager.go:53] ----------ExchangeManager Init---------
+2020-05-09T17:21:42+08:00 [dq] [I] [serverAgent.go:59] --register modetype:GameScene1
+2020-05-09T17:21:42+08:00 [dq] [I] [AuctionManager.go:53] ----------AuctionManager Init---------
+2020-05-09T17:21:42+08:00 [dq] [I] [guildManager.go:87] ----------GuildManager Init---------
+2020-05-09T17:21:42+08:00 [dq] [I] [db.go:280] sql:%s
+2020-05-09T17:21:42+08:00 [dq] [I] [db.go:280] sql:%s
+2020-05-09T17:21:42+08:00 [dq] [I] [db.go:280] sql:%s
+2020-05-09T17:21:42+08:00 [dq] [I] [GameCoreDataManager.go:29] ----------GameCoreDataManager Init---------
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:5000  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsCopyMap1
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:601  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 5000  5000
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.788376
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits601
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2005  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 601  601
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.788877
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild5
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2009  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2005  2005
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.789377
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild9
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3002  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2009  2009
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.790400
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:4000  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3002  3002
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.790879
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits100
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3003  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity3
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3007  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity7
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:1  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 4000  4000
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.795381
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3003  3003
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.795381
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3007  3007
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.796382
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 1  1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:302  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:400  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.796882
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits400
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2001  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 400  400
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.797883
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild1
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2007  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2001  2001
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.799384
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild7
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2002  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2007  2007
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.799884
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3006  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2002  2002
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.800886
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity6
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:401  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:501  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits501
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:502  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits502
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3006  3006
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.802386
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 501  501
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.802386
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:602  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 502  502
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.802886
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits602
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3010  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 602  602
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.803386
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuildDuoBao
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:201  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:600  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3010  3010
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.803386
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits600
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:1000  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 600  600
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.803887
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2010  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3004  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 1000  1000
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.803887
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity4
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:200  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3004  3004
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.804387
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits200
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2003  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 200  200
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.805388
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild3
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2006  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild6
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2008  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild8
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3005  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity5
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2004  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsGuild4
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3001  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity1
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2006  2006
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.812893
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2003  2003
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2004  2004
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.812893
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.812893
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3008  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3001  3001
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3005  3005
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.814394
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.814394
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 2008  2008
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.814394
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity8
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:2  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:100  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3008  3008
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.815395
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits100
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:102  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 100  100
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:202  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:300  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.816396
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits300
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:3009  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 300  300
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.817396
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsActivity9
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 169 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 168 
+2020-05-09T17:21:42+08:00 [dq] [I] [item.go:90] NewItembuf 184 
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:4001  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 3009  3009
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.817896
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits100
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:101  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 4001  4001
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:301  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:402  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [gamescene1Agent.go:175] scene:500  Map/Scene1
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.818898
+2020-05-09T17:21:42+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnits500
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:21:42+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:607] Update start 500  500
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:609] t1:1589016102.819899
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2005  2005
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2009  2009
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:4000  4000
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3003  3003
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3007  3007
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2001  2001
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2007  2007
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3010  3010
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2003  2003
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:2008  2008
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3005  3005
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3001  3001
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3008  3008
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:3009  3009
+2020-05-09T17:21:42+08:00 [dq] [I] [scene.go:665] Scene Quit:4001  4001
+2020-05-09T17:21:43+08:00 [dq] [I] [serverAgent.go:59] --register modetype:Login
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:76] ---------DoQuickLoginData
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:88] ---------user login:526--name:
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:119] 获取角色信息
+2020-05-09T17:21:53+08:00 [dq] [I] [serverAgent.go:96] --login--:526
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:0 {556 526 fff 3 1 3990 5880 3001 1 0.9391 1000  69.7522 69.8391 6,4,60.0000,1;8,2,14.0000,1;7,4,0.1000,1;5,3,26.0000,1; 35,1      8,6,1; 121,0.0000;84,0.0000; 2020-04-21 40000 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:1 {557 526 烦烦烦 17 1 40 60 0 1 1 1000  77.5901 70.9541 59,1,0.0000,1;60,0,0.0000,1;61,1,0.4500,1;62,0,0.0000,1; 7,1       121,0.0000; 2020-04-30 20000 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:2 {558 526 范德萨发 13 1 0 0 0 0.987 1 1  37.2411 108.2573 44,0,0.0000,1;45,0,0.0000,1;41,1,0.0000,1;42,1,0.0000,1;43,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:3 {559 526 aaa 14 1 40 10 0 1 1 1  103.5663 66.1129 46,0,0.0000,1;47,0,0.0000,1;48,0,0.0000,1;49,0,0.0000,1;        121,0.0000; 2020-04-20 19960 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:4 {560 526 1111 18 1 180 170 0 1 1 1  47.4482 79.4335 63,0,0.0000,1;64,2,0.0000,1;65,1,0.0000,1;66,0,0.0000,1;     80,1  0,76,1;5,85,1;10,45,1; 120,0.0000;121,0.0000;81,0.0000;115,0.0000;116,0.0000;113,0.0000; 2020-04-23 19320 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:5 {561 526 22222 18 1 0 0 0 1 1 1  1 1           0 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:6 {562 526 xukong 5 1 0 0 0 1 1 1  16.102 85.5758 9,0,0.0000,1;10,0,0.0000,1;11,0,0.0000,1;12,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:7 {563 526 fdsf11 6 1 480 70 0 1 0.9 1000  75.8764 75.7157 13,4,0.0000,1;14,4,22.0000,1;15,4,0.1000,1;16,3,120.0000,1; 65,1 66,1 41,1 2,1  74,1  106,33.9538;107,0.0000;85,0.0000;121,0.0000; 2020-04-29 20000 0 0 0 0 0   0  13 1 0 9 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:8 {564 526 11tr 11 1 0 0 0 1 1 1  100.7746 71.9072 33,0,0.0000,1;34,0,0.0000,1;35,0,0.0000,1;36,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:9 {565 526 bbn 15 1 40 10 0 1 1 1  48.9233 91.9444 54,1,0.0000,1;50,0,0.0000,1;51,0,0.0000,1;52,0,0.0000,1;53,0,0.0000,1;        121,0.0000; 2020-04-20 19960 0 0 0 0 0   0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:10 {566 526 dfff1 7 1 0 0 0 1 1 1  56.1834 69.96 20,0,0.0000,1;17,0,0.0000,1;18,0,0.0000,1;19,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0 ;570  0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:11 {567 526 laile1 10 1 0 0 0 1 1 1  94.9934 88.3592 30,0,0.0000,1;31,0,0.0000,1;32,0,0.0000,1;29,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0 ;570  0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:12 {568 526 fdsf111 9 1 0 0 0 1 1 1  105.64 19.4819 25,0,0.0000,1;26,0,0.0000,1;27,0,0.0000,1;28,0,0.0000,1;        121,0.0000; 2020-04-20 20000 0 0 0 0 0 ;570  0  0 1 0 0 1}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:13 {569 526 aaaa11 20 20 0 102139 944 0 0.234 10001  85.9961 75.5265 71,4,3.5000,1;72,4,16.0000,1;73,4,0.0000,1;74,3,0.0000,1; 1,1      1,95,1; 121,0.0000; 2020-05-09 40000 19 0 0 2 0 ;570  0  13 2 0 1 3}
+2020-05-09T17:21:53+08:00 [dq] [I] [loginAgent.go:124] data:14 {570 526 fffff 8 20 840 19105370 1526 1 1 1000  77.4524 75.3583 23,4,0.1000,1;24,3,30.0000,1;21,4,5.0000,1;22,4,10.0000,1; 52,1 65,1 66,1 46,1 58,1 71,1 0,30,1;1,31,1;2,19,1;3,47,1;4,48,1;5,49,1;6,20,1;7,50,1;8,18,1;9,53,1;10,54,1;11,56,1;12,55,1;13,6,1;14,57,1;15,59,1;16,61,1;17,60,1;18,62,1;19,63,1;20,64,1;21,9,1;22,51,1;23,67,1;24,68,1; 110,0.0000;80,0.0000;97,0.0000;89,0.0000;100,0.0000;121,0.0000;95,0.0000;107,0.0000;106,0.0000;94,0.0000; 2020-04-30 40000 0 0 0 0 0 ;568;569;566;567  0  13 1 18 10 3}
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.028020 0.021515 0.000500 0.000500 0.050535  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.107577 0.000500 0.000000 0.000000 0.108077  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.000000 0.002002 0.109577 0.000000 0.111579  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.111079 0.000000 0.000000 0.000000 0.111579  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.112080 0.000499 0.000000 0.000000 0.112580  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.000000 0.001001 0.000501 0.000500 0.116083  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.093066 0.000000 0.093066  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.129592 0.000500 0.000000 0.000000 0.130092  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.133094 0.000501 0.000000 0.000500 0.134595  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.136597 0.000000 0.000000 0.000000 0.136597  
+2020-05-09T17:22:23+08:00 [dq] [I] [scene.go:645] time:0.136097 0.000500 0.000000 0.000000 0.136597  
+2020-05-09T17:22:36+08:00 [dq] [I] [scene.go:645] time:0.000000 0.031022 0.000500 0.000000 0.032023  
+2020-05-09T17:22:36+08:00 [dq] [I] [scene.go:751] DoSendData:t1:0.000000   t2:0.000000  t3:0.033023 
+2020-05-09T17:22:36+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.024517 0.129592 0.154109  
+2020-05-09T17:22:36+08:00 [dq] [I] [scene.go:645] time:0.000500 0.001001 0.145603 0.000501 0.147605  
+2020-05-09T17:22:36+08:00 [dq] [I] [scene.go:645] time:0.000501 0.000500 0.157612 0.000000 0.158613  
+2020-05-09T17:22:37+08:00 [dq] [I] [scene.go:645] time:0.000000 0.045533 0.000500 0.000000 0.046033  
+2020-05-09T17:22:44+08:00 [dq] [I] [scene.go:645] time:0.000000 0.106075 0.000500 0.000000 0.106575  
+2020-05-09T17:22:44+08:00 [dq] [I] [scene.go:751] DoSendData:t1:0.000000   t2:0.000000  t3:0.108577 
+2020-05-09T17:22:44+08:00 [dq] [I] [scene.go:645] time:0.000000 0.053538 0.000000 0.108577 0.162115  
+2020-05-09T17:22:44+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.000000 0.000501 0.056541  
+2020-05-09T17:22:45+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.046532 0.000000 0.046532  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000000 0.043031 0.000501 0.000000 0.043531  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000500 0.000000 0.000000 0.000000 0.039527  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.039028 0.000501 0.000000 0.000000 0.040029  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000501 0.000000 0.002001 0.000000 0.056541  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000000 0.001000 0.043031 0.000000 0.044031  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.043031 0.000500 0.000000 0.000000 0.043531  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.044032 0.000000 0.000000 0.000000 0.044032  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.044032 0.000000 0.000500 0.000000 0.044532  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.044532 0.000500 0.001000 0.000000 0.046032  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.046032 0.000000 0.000000 0.000000 0.046533  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000500 0.084060 0.000000 0.085061  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.047534 0.000000 0.000000 0.000000 0.047534  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.048034 0.000000 0.000000 0.000000 0.048034  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.048034 0.000500 0.000000 0.000000 0.048535  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.062043 0.000000 0.062043  
+2020-05-09T17:22:47+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000499 0.068550 0.000000 0.069049  
+2020-05-09T17:22:48+08:00 [dq] [I] [scene.go:751] DoSendData:t1:0.000000   t2:0.000000  t3:0.016011 
+2020-05-09T17:22:49+08:00 [dq] [I] [scene.go:645] time:0.000000 0.040529 0.000000 0.000000 0.040529  
+2020-05-09T17:27:10+08:00 [dq] [I] [scene.go:645] time:0.000000 0.000000 0.034524 0.000000 0.035025  
+2020-05-09T17:27:10+08:00 [dq] [I] [scene.go:645] time:0.000000 0.051036 0.000500 0.000000 0.051536  
+2020-05-09T17:28:36+08:00 [dq] [I] [loginAgent.go:184] ---------DoSelectCharacter
+2020-05-09T17:28:36+08:00 [dq] [I] [loginAgent.go:195] ---------DoSelectCharacter:Characterid:569 Name:"aaaa11" Typeid:20 Level:20 
+2020-05-09T17:28:36+08:00 [dq] [I] [loginAgent.go:231] 获取角色信息
+2020-05-09T17:28:36+08:00 [dq] [I] [gamescene1Agent.go:514] ---------DoMsgUserEnterScene:playercount:0
+2020-05-09T17:28:36+08:00 [dq] [I] [gamescene1Agent.go:455] enter scene :10001
+2020-05-09T17:28:36+08:00 [dq] [I] [gamescene1Agent.go:457] no scene :10001
+2020-05-09T17:28:36+08:00 [dq] [I] [friends.go:146] NewFriends:;570   
+2020-05-09T17:28:36+08:00 [dq] [I] [db.go:280] sql:%s
+2020-05-09T17:28:36+08:00 [dq] [I] [mails.go:296] NewMails: 
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2222] ---DB_CharacterInfo---&{569 526 aaaa11 20 20 0 102139 944 0 0.234 10001  74 77 71,4,3.5000,1;72,4,16.0000,1;73,4,0.0000,1;74,3,0.0000,1; 1,1      1,95,1; 121,0.0000; 2020-05-09 40000 19 0 0 2 0 ;570  0  13 2 0 1 3}
+2020-05-09T17:28:36+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:28:36+08:00 [dq] [I] [skill.go:373] skill index:1
+2020-05-09T17:28:36+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:28:36+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{71 1 1 -1 2 5 2 82 2 0 2 2 0.9 0.1  2 10 1 2 4 0 0 1 -1 2 0  2 85  1020    10 0 0 2 0 {0 0   0 0} 2 2 1 0 0 0 0  0 0 2 2 3 1 0 0} 2.6 3.5 0 2.6 0 100 0 0 1 1 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 } 4 3.5 1 0 1 0 0xc043478480 0}
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{72 1 2 -1 2 5 2 83 2 0 1 2 0.9 0.1  2 10 1 2 4 0 1 1 -1 2 0  2 85      10 0 0 2 0 {0 0   0 0} 2 2 1 0 0 0 4 84 0 0 2 2 3 1 0 0} 3.5 16 0 -1 0 90 0 0 1 1 0 0 1 0 1 0 0 0 2.6 0.5 2 0 0 0 0 1 0 } 4 16 1 0 1 0 0xc043478480 0}
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{73 2 1 -1 2 5 1 20 2 0 2 2 0.9 0  2 10 1 2 4 0 2 1 -1 2 0  2   1021    10 0 0 2 0 {0 0   0 0} 2 2 2 1 3 0 0  0 0 2 2 3 1 0 0} 0 0 0 0 0 0 0 0 1 1 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 1 0 85} 4 0 1 0 1 0 0xc043478480 0}
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{74 1 3 -1 2 5 2 19 2 0 2 2 0.9 0.2  2 10 6 6 3 0 3 1 -1 2 0  2 85      10 0 0 1 0 {0 0   0 0} 2 2 1 0 0 0 2 87 0 0 2 2 3 1 0 0} 10 0 100 2 0 30 0.1 1 1 1 0 0 1 0 1 0 0 12 0.5 8 2 0 0 0 0 1 0 } 3 0 1 0 1 0 0xc043478480 0}
+2020-05-09T17:28:36+08:00 [dq] [I] [item.go:90] NewItembuf 94 
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:1958] ---AddItemSkill-121  0.000000
+2020-05-09T17:28:36+08:00 [dq] [I] [unit.go:2288] ---DB_CharacterInfo---over
+2020-05-09T17:28:36+08:00 [dq] [I] [gamescene1Agent.go:506] SendMsgToClient SC_NewScene
+2020-05-09T17:28:38+08:00 [dq] [I] [scene.go:1028] ----add player!!!!
+2020-05-09T17:28:56+08:00 [dq] [I] [config.go:142] GetCreateUnitData:Map/CreateUnits/CreateUnitsCopyMap1
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:28:56+08:00 [dq] [I] [scene.go:607] Update start 10000  5000
+2020-05-09T17:28:56+08:00 [dq] [I] [scene.go:609] t1:1589016536.119434
+2020-05-09T17:28:56+08:00 [dq] [I] [gamescene1Agent.go:455] enter scene :10000
+2020-05-09T17:28:56+08:00 [dq] [I] [friends.go:146] NewFriends:;570   
+2020-05-09T17:28:56+08:00 [dq] [I] [db.go:280] sql:%s
+2020-05-09T17:28:56+08:00 [dq] [I] [mails.go:296] NewMails: 
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2222] ---DB_CharacterInfo---&{569 526 aaaa11 20 20 0 102139 924 1 1 1000  15 15 71,4,3.5000,1;72,4,16.0000,1;73,4,0.0000,1;74,3,0.0000,1; 1,1      1,95,1; 121,0.0000; 2020-05-09 40000 15 0 0 2 0 ;570  0  13 2 0 1 3}
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:0
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:1
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:2
+2020-05-09T17:28:56+08:00 [dq] [I] [skill.go:373] skill index:3
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{71 1 1 -1 2 5 2 82 2 0 2 2 0.9 0.1  2 10 1 2 4 0 0 1 -1 2 0  2 85  1020    10 0 0 2 0 {0 0   0 0} 2 2 1 0 0 0 0  0 0 2 2 3 1 0 0} 2.6 3.5 0 2.6 0 100 0 0 1 1 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 } 4 3.5 1 0 1 0 0xc042e64480 0}
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{72 1 2 -1 2 5 2 83 2 0 1 2 0.9 0.1  2 10 1 2 4 0 1 1 -1 2 0  2 85      10 0 0 2 0 {0 0   0 0} 2 2 1 0 0 0 4 84 0 0 2 2 3 1 0 0} 3.5 16 0 -1 0 90 0 0 1 1 0 0 1 0 1 0 0 0 2.6 0.5 2 0 0 0 0 1 0 } 4 16 1 0 1 0 0xc042e64480 0}
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{73 2 1 -1 2 5 1 20 2 0 2 2 0.9 0  2 10 1 2 4 0 2 1 -1 2 0  2   1021    10 0 0 2 0 {0 0   0 0} 2 2 2 1 3 0 0  0 0 2 2 3 1 0 0} 0 0 0 0 0 0 0 0 1 1 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 1 0 85} 4 0 1 0 1 0 0xc042e64480 0}
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2260] -------new skill:&{{{74 1 3 -1 2 5 2 19 2 0 2 2 0.9 0.2  2 10 6 6 3 0 3 1 -1 2 0  2 85      10 0 0 1 0 {0 0   0 0} 2 2 1 0 0 0 2 87 0 0 2 2 3 1 0 0} 10 0 100 2 0 30 0.1 1 1 1 0 0 1 0 1 0 0 12 0.5 8 2 0 0 0 0 1 0 } 3 0 1 0 1 0 0xc042e64480 0}
+2020-05-09T17:28:56+08:00 [dq] [I] [item.go:90] NewItembuf 94 
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:1958] ---AddItemSkill-121  0.000000
+2020-05-09T17:28:56+08:00 [dq] [I] [unit.go:2288] ---DB_CharacterInfo---over
+2020-05-09T17:28:56+08:00 [dq] [I] [gamescene1Agent.go:506] SendMsgToClient SC_NewScene
+2020-05-09T17:28:56+08:00 [dq] [I] [scene.go:1028] ----add player!!!!
+2020-05-09T17:29:10+08:00 [dq] [I] [unit.go:1279] ---------SkillCmd
+2020-05-09T17:29:10+08:00 [dq] [I] [unit_state.go:688]  ChantState start1589016550.983499
+2020-05-09T17:29:11+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1020   4
+2020-05-09T17:29:13+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1021   4
+2020-05-09T17:29:16+08:00 [dq] [I] [unit.go:1279] ---------SkillCmd
+2020-05-09T17:29:16+08:00 [dq] [I] [unit_state.go:688]  ChantState start1589016556.165181
+2020-05-09T17:29:16+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1020   4
+2020-05-09T17:29:17+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1021   4
+2020-05-09T17:29:57+08:00 [dq] [I] [unit.go:1279] ---------SkillCmd
+2020-05-09T17:29:57+08:00 [dq] [I] [unit_state.go:688]  ChantState start1589016597.483785
+2020-05-09T17:29:57+08:00 [dq] [I] [unit.go:2320] SetForceMove--0.708925  {3.0588221926997576 7.392131410726371}  2 0.000000  0  0.000000
+2020-05-09T17:29:58+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1021   4
+2020-05-09T17:29:59+08:00 [dq] [I] [unit.go:1279] ---------SkillCmd
+2020-05-09T17:29:59+08:00 [dq] [I] [unit_state.go:688]  ChantState start1589016599.073912
+2020-05-09T17:29:59+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1020   4
+2020-05-09T17:29:59+08:00 [dq] [I] [bullet.go:469] ---AddTargetHalo:1021   4
+2020-05-09T17:30:16+08:00 [dq] [D] [agent.go:37] read message: i/o timeout
+2020-05-09T17:30:16+08:00 [dq] [D] [kcp_server.go:136] conn close :10000 ---conn size:0
+2020-05-09T17:30:16+08:00 [dq] [I] [gamescene1Agent.go:367] GameScene1Agent---------DoDisconnect
+2020-05-09T17:30:16+08:00 [dq] [I] [gamescene1Agent.go:374] ---------DoDisconnect--delete
+2020-05-09T17:30:16+08:00 [dq] [I] [loginAgent.go:66] LoginAgent-------DoDisconnect :526
+2020-05-09T17:30:16+08:00 [dq] [I] [loginAgent.go:72] -------loginout :526
