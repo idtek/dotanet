@@ -456,7 +456,7 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		if scene == nil || scene.(*gamecore.Scene).Quit == true {
 			log.Info("no scene :%d", h2.SceneID)
 			//自动回城
-			h2.SceneID = 1000 //回到安全区
+			h2.SceneID = conf.HePingShiJieID //回到安全区
 			scene = a.Scenes.Get(h2.SceneID)
 			//改变坐标
 			characterinfo := db.DB_CharacterInfo{}

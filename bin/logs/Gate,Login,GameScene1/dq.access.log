@@ -18357,3 +18357,37 @@
 2020-05-09T17:30:16+08:00 [dq] [I] [gamescene1Agent.go:374] ---------DoDisconnect--delete
 2020-05-09T17:30:16+08:00 [dq] [I] [loginAgent.go:66] LoginAgent-------DoDisconnect :526
 2020-05-09T17:30:16+08:00 [dq] [I] [loginAgent.go:72] -------loginout :526
+2020-05-09T17:36:22+08:00 [dq] [I] [scene.go:645] time:0.000000 0.041529 0.000000 0.000000 0.042029  
+2020-05-09T17:37:23+08:00 [dq] [D] [app.go:242] dq closing down (signal: interrupt) 3
+2020-05-09T17:37:23+08:00 [dq] [D] [gamescene1Agent.go:2012] read message: read tcp 127.0.0.1:60824->127.0.0.1:12345: use of closed network connection
+2020-05-09T17:37:23+08:00 [dq] [I] [guildManager.go:980] GuildManager save
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:200  200
+2020-05-09T17:37:23+08:00 [dq] [D] [serverAgent.go:232] read message: EOF
+2020-05-09T17:37:23+08:00 [dq] [D] [serverAgent.go:232] read message: EOF
+2020-05-09T17:37:23+08:00 [dq] [I] [serverAgent.go:254] --delete modetype:Login
+2020-05-09T17:37:23+08:00 [dq] [I] [serverAgent.go:254] --delete modetype:GameScene1
+2020-05-09T17:37:23+08:00 [dq] [I] [tcp_server.go:154] tcp Close :127.0.0.1:12345
+2020-05-09T17:37:23+08:00 [dq] [D] [loginAgent.go:321] read message: read tcp 127.0.0.1:60822->127.0.0.1:12345: use of closed network connection
+2020-05-09T17:37:23+08:00 [dq] [I] [tcp_server.go:154] tcp Close ::1119
+2020-05-09T17:37:23+08:00 [dq] [I] [kcp_server.go:153] tcp Close ::1118
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:2006  2006
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:2004  2004
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:300  300
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:100  100
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:500  500
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:5000  5000
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:601  601
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:3002  3002
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:1  1
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:400  400
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:2002  2002
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:1000  1000
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:3006  3006
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:600  600
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:3004  3004
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:502  502
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:602  602
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:10000  5000
+2020-05-09T17:37:23+08:00 [dq] [I] [scene.go:665] Scene Quit:501  501
+2020-05-09T17:37:23+08:00 [dq] [I] [AuctionManager.go:213] ----------AuctionManager Close---------
+2020-05-09T17:37:23+08:00 [dq] [I] [ExchangeManager.go:64] ----------ExchangeManager Close---------

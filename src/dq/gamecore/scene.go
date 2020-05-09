@@ -515,7 +515,7 @@ func (this *Scene) HuiCheng(player *Player) {
 	doorway := conf.DoorWay{}
 	doorway.NextX = float32(utils.RandInt64(70, 80))
 	doorway.NextY = float32(utils.RandInt64(70, 80))
-	doorway.NextSceneID = 1000
+	doorway.NextSceneID = conf.HePingShiJieID
 
 	this.HuiChengPlayer.Set(player, &doorway)
 }

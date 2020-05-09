@@ -31,8 +31,9 @@ import (
 var (
 	CharacterMaxLevel = int32(1) //角色最大等级
 
-	GuildBattleMapID    = int32(10)  //公会战活动地图ID
-	ActivityDuoBaoMapID = int32(200) //夺宝奇兵活动地图ID
+	HePingShiJieID      = int32(1000) //和平世界ID
+	GuildBattleMapID    = int32(10)   //公会战活动地图ID
+	ActivityDuoBaoMapID = int32(200)  //夺宝奇兵活动地图ID
 )
 
 var (
