@@ -177,7 +177,7 @@ func (a *GameScene1Agent) Init() {
 			continue
 		}
 		//log.Info("scene succ:%d ", v.(*conf.SceneFileData).TypeID)
-		a.CreateScene(v.(*conf.SceneFileData))
+		a.CreateScene(v.(*conf.SceneFileData), -1)
 		time.Sleep(time.Duration(33/len(allscene)) * time.Millisecond)
 	}
 
@@ -191,18 +191,60 @@ func (a *GameScene1Agent) Init() {
 	a.ShowData2Http()
 }
 
+//匹配进副本
+var (
+	testi = int32(10000)
+)
+
+func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
+
+	var newid = testi
+	testi++
+
+	fubenscenetypeid := int32(302)
+	scenefile := conf.GetSceneFileData(fubenscenetypeid)
+	if scenefile == nil {
+		//如果场景文件不存在
+		return
+	}
+	a.CreateScene(scenefile, newid)
+
+	if player == nil {
+		return
+	}
+	//玩家进入地图
+	//进入新地图
+	doorway := conf.DoorWay{}
+	doorway.NextX = 15
+	doorway.NextY = 15
+	doorway.NextSceneID = newid
+	mainunit := player.MainUnit
+	if mainunit != nil {
+		oldscene := mainunit.InScene
+		if oldscene != nil {
+			oldscene.HuiChengPlayer.Set(player, &doorway)
+		}
+
+	}
+}
+
 //创建场景
-func (a *GameScene1Agent) CreateScene(scenefile *conf.SceneFileData) *gamecore.Scene {
+func (a *GameScene1Agent) CreateScene(scenefile *conf.SceneFileData, typeid int32) *gamecore.Scene {
 	if scenefile == nil {
 		return nil
 	}
-	scene := gamecore.CreateScene(scenefile, a, a)
 
-	a.Scenes.Set(scenefile.TypeID, scene)
+	if typeid <= 0 {
+		typeid = scenefile.TypeID
+	}
+
+	scene := gamecore.CreateScene(scenefile, a, a)
+	scene.TypeID = typeid
+	a.Scenes.Set(typeid, scene)
 	a.wgScene.Add(1)
 	go func() {
 		scene.Update()
-		a.Scenes.Delete(scenefile.TypeID)
+		a.Scenes.Delete(typeid)
 		a.wgScene.Done()
 	}()
 
@@ -258,7 +300,7 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
 			onescnee := a.Scenes.Get(v.(*conf.ActivityMapFileData).NextSceneID)
 			if onescnee == nil { //
-				onescnee = a.CreateScene(scenefile)
+				onescnee = a.CreateScene(scenefile, -1)
 
 			}
 			if onescnee != nil {
@@ -294,7 +336,7 @@ func (a *GameScene1Agent) CheckSceneCloseAndOpen() {
 			//onescnee.(*gamecore.Scene).SetCleanPlayer(false)
 			onescnee := a.Scenes.Get(v.(*conf.GuildMapFileData).NextSceneID)
 			if onescnee == nil { //
-				onescnee = a.CreateScene(scenefile)
+				onescnee = a.CreateScene(scenefile, -1)
 
 			}
 			if onescnee != nil {
@@ -454,7 +496,8 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		msg.LogicFps = int32(scene.(*gamecore.Scene).SceneFrame)
 		msg.CurFrame = scene.(*gamecore.Scene).CurFrame
 		msg.ServerName = a.ServerName
-		msg.SceneID = scene.(*gamecore.Scene).TypeID
+		//msg.SceneID = scene.(*gamecore.Scene).TypeID
+		msg.SceneID = scene.(*gamecore.Scene).DataFileID
 		msg.TimeHour = int32(time.Now().Hour())
 		msg.TimeMinute = int32(time.Now().Minute())
 		msg.TimeSecond = int32(time.Now().Second())
@@ -1035,6 +1078,9 @@ func (a *GameScene1Agent) DoGetDuoBaoInfo(data *protomsg.MsgBase) {
 	}
 	player.(*gamecore.Player).SendMsgToClient("SC_GetDuoBaoInfo", msg)
 
+	//测试场景
+	a.PiPeiFuBen(player.(*gamecore.Player))
+
 }
 func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_GotoActivityMap{}
@@ -1060,21 +1106,6 @@ func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
 	}
 	//进入新地图
 	doorway := conf.DoorWay{}
-	//随机位置
-	//	nextscene := a.Scenes.Get(mapdata.NextSceneID)
-	//	if nextscene == nil {
-	//		log.Info("找不到该地图 %d", mapdata.NextSceneID)
-	//		return
-	//	}
-	//	if mapdata.X == -1 || mapdata.Y == -1 {
-	//		x := utils.GetRandomFloatTwoNum(nextscene.(*gamecore.Scene).StartX, nextscene.(*gamecore.Scene).EndX)
-	//		y := utils.GetRandomFloatTwoNum(nextscene.(*gamecore.Scene).StartY, nextscene.(*gamecore.Scene).EndY)
-	//		doorway.NextX = x
-	//		doorway.NextY = y
-	//	} else {
-	//		doorway.NextX = mapdata.X
-	//		doorway.NextY = mapdata.Y
-	//	}
 	doorway.NextX = mapdata.X
 	doorway.NextY = mapdata.Y
 	doorway.NextSceneID = mapdata.NextSceneID

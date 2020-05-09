@@ -45,7 +45,7 @@ func GetAllScene() map[interface{}]interface{} {
 //单位配置文件数据
 type SceneFileData struct {
 	//配置文件数据
-	TypeID          int32  //类型ID
+	TypeID          int32  //类型ID 唯一ID
 	ScenePath       string //场景路径
 	CreateUnit      string //创建单位
 	UnitExperience  int32  //击杀单位获得经验

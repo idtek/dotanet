@@ -108,6 +108,7 @@ type Scene struct {
 	SceneStatistics
 	DuoBaoQiBing       *SceneDuoBaoInfo //夺宝奇兵相关
 	conf.SceneFileData                  //场景文件信息
+	DataFileID         int32            //数据文件ID 不唯一 对应excel表里的typeid
 	FirstUpdateTime    int64            //上次更新时间
 	MoveCore           *cyward.WardCore //移动核心
 	SceneName          string           //场景名字
@@ -159,6 +160,7 @@ func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc, server Server
 	scene.ChangeScene = parent
 	scene.Sverver = server
 	scene.SceneFileData = *data
+	scene.DataFileID = data.TypeID
 	scene.SceneName = data.ScenePath
 	scene.Quit = false
 	scene.CleanPlayer = false
@@ -602,7 +604,7 @@ func (this *Scene) SendNoticeWordToAllPlayer(typeid int32, param ...string) {
 
 func (this *Scene) Update() {
 
-	log.Info("Update start")
+	log.Info("Update start %d  %d", this.TypeID, this.DataFileID)
 	t1 := utils.GetCurTimeOfSecond()
 	log.Info("t1:%f", (t1))
 	for {
@@ -660,7 +662,7 @@ func (this *Scene) Update() {
 		this.DoSleep()
 
 	}
-	log.Info("Scene Quit:%d", this.TypeID)
+	log.Info("Scene Quit:%d  %d", this.TypeID, this.DataFileID)
 	//t2 := time.Now().UnixNano()
 	//log.Info("t2:%d   delta:%d    frame:%d", (t2)/1e6, (t2-t1)/1e6, this.CurFrame)
 
