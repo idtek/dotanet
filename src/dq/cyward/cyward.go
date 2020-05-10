@@ -5,6 +5,8 @@ import (
 	"dq/utils"
 	"dq/vec2d"
 	"math"
+
+	//"strings"
 	"time"
 )
 
@@ -106,7 +108,8 @@ type Body struct {
 	Direction     vec2d.Vec2 //速度方向
 	TurnDirection bool       //是否改变朝向
 
-	Tag int //标记
+	Tag  int    //标记
+	Name string //名字(文字标识)
 
 	TargetPosMinDistanse float64 //离目标点的最近距离
 
@@ -162,7 +165,7 @@ func (this *Body) Update(dt float64) {
 	oldDirection := this.Direction
 	if this.CalcNextPosition(dt) {
 
-		//log.Info("nextposition x:%f y:%f", this.NextPosition.X, this.NextPosition.Y)
+		//log.Info("nextposition %v", this.NextPosition)
 
 		//检查碰撞
 		collisionOne := this.CheckPositionCollisoin(dt)
@@ -371,7 +374,10 @@ func (this *Body) SetTarget(pos vec2d.Vec2, mindistanse float64) {
 		//		for i := 0; i < len(this.DetourPath); i++ {
 		//			log.Info("x: %f  y:%f", this.DetourPath[i].X, this.DetourPath[i].Y)
 		//		}
-		//log.Info("SetTarget suc :%d", len(bodys))
+		// for _, v := range bodys {
+		// 	log.Info("bodysname %s", v.Name)
+		// }
+		// log.Info("SetTarget suc :%d %v %v", len(bodys), this.DetourPath, this.Position)
 	} else {
 		//log.Info("SetTarget faild :%d", len(bodys))
 	}
@@ -1280,6 +1286,9 @@ func (this *WardCore) GetStaticBodysNoTarget(bodys *[]*Body, mypos vec2d.Vec2, t
 			}
 		}
 	}
+	// for _, v := range allbody {
+	// 	log.Info("GetStaticBodysNoTarget a :%s", v.Name)
+	// }
 	//大障碍物
 	r1 := utils.CreateRectFrom2(mypos, target)
 	r2 := utils.Rect{}
@@ -1289,6 +1298,7 @@ func (this *WardCore) GetStaticBodysNoTarget(bodys *[]*Body, mypos vec2d.Vec2, t
 		} else {
 			r2 = utils.CreateRectFromCYWardP(v.Position, v.OffsetPoints)
 		}
+
 		if utils.CheckRectCollision(r1, r2) {
 			if _, ok := allbody[v]; !ok {
 
@@ -1299,6 +1309,9 @@ func (this *WardCore) GetStaticBodysNoTarget(bodys *[]*Body, mypos vec2d.Vec2, t
 		}
 
 	}
+	// for _, v := range allbody {
+	// 	log.Info("GetStaticBodysNoTarget b :%s", v.Name)
+	// }
 	allbody = make(map[*Body]*Body)
 
 }

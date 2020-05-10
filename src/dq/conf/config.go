@@ -20,6 +20,7 @@ import (
 	"dq/log"
 	"encoding/json"
 	"fmt"
+
 	//"fmt"
 	"dq/vec2d"
 	"io/ioutil"
@@ -95,6 +96,7 @@ type Scene struct {
 }
 type Collide struct {
 	IsRect  bool
+	Name    string
 	CenterX float64
 	CenterY float64
 	Width   float64

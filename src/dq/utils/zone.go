@@ -17,7 +17,7 @@ type Rect struct {
 
 //检查两个矩形是否相交
 func CheckRectCollision(r1 Rect, r2 Rect) bool {
-	if r1.MaxX < r2.MinX || r2.MaxX < r1.MinX || r1.MaxY < r2.MinY || r2.MaxY < r1.MinX {
+	if r1.MaxX < r2.MinX || r2.MaxX < r1.MinX || r1.MaxY < r2.MinY || r2.MaxY < r1.MinY {
 		return false
 	}
 	return true

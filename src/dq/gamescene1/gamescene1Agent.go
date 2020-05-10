@@ -3,6 +3,7 @@ package gamescene1
 import (
 	"dq/conf"
 	"dq/datamsg"
+
 	//"dq/db"
 	"dq/log"
 	"dq/network"
@@ -11,13 +12,16 @@ import (
 
 	"dq/db"
 	"dq/utils"
+
 	//"dq/cyward"
 	"dq/gamecore"
 	"dq/protobuf"
+
 	//"dq/timer"
 	//"dq/vec2d"
 	"dq/wordsfilter"
 	"io"
+
 	//"io/ioutil"
 	"net/http"
 	"strconv"
@@ -1079,7 +1083,7 @@ func (a *GameScene1Agent) DoGetDuoBaoInfo(data *protomsg.MsgBase) {
 	player.(*gamecore.Player).SendMsgToClient("SC_GetDuoBaoInfo", msg)
 
 	//测试场景
-	a.PiPeiFuBen(player.(*gamecore.Player))
+	//a.PiPeiFuBen(player.(*gamecore.Player))
 
 }
 func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {

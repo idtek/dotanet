@@ -6,6 +6,7 @@ import (
 	"dq/log"
 	"dq/protobuf"
 	"strconv"
+
 	//"dq/timer"
 	"dq/db"
 	"dq/utils"
@@ -216,10 +217,12 @@ func (this *Scene) Init() {
 		if v.IsRect == true {
 			pos := vec2d.Vec2{v.CenterX, v.CenterY}
 			r := vec2d.Vec2{v.Width, v.Height}
-			this.MoveCore.CreateBody(pos, r, 1, 3)
+			b1 := this.MoveCore.CreateBody(pos, r, 1, 3)
+			b1.Name = v.Name
 		} else {
 			pos := vec2d.Vec2{v.CenterX, v.CenterY}
-			this.MoveCore.CreateBodyPolygon(pos, v.Points, 1, 3)
+			b1 := this.MoveCore.CreateBodyPolygon(pos, v.Points, 1, 3)
+			b1.Name = v.Name
 		}
 	}
 	//场景分区数据 创建100个单位
