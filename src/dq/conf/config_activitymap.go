@@ -189,6 +189,7 @@ type CopyMapFileData struct {
 	NextSceneID int32 //场景ID
 	X           float32
 	Y           float32
+	PlayerCount int32 //玩家数量
 
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 

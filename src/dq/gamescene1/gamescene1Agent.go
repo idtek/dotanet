@@ -78,6 +78,8 @@ func (a *GameScene1Agent) Init() {
 	gamecore.GuildManagerObj.Init(a)
 	//初始化数据管理器
 	gamecore.GameCoreDataManagerObj.Init()
+	//初始化副本系统
+	gamecore.CopyMapMgrObj.Init(a)
 
 	//-------测试--------
 	//a.ceshi()
@@ -173,6 +175,11 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GotoActivityMap"] = a.DoGotoActivityMap
 	a.handles["CS_GetDuoBaoInfo"] = a.DoGetDuoBaoInfo
 
+	//副本
+	a.handles["CS_GetCopyMapsInfo"] = a.DoGetCopyMapsInfo
+	a.handles["CS_CopyMapPiPei"] = a.DoCopyMapPiPei
+	a.handles["CS_CopyMapCancel"] = a.DoCopyMapCancel
+
 	//创建场景
 	allscene := conf.GetAllScene()
 	for _, v := range allscene {
@@ -195,24 +202,7 @@ func (a *GameScene1Agent) Init() {
 	a.ShowData2Http()
 }
 
-//匹配进副本
-var (
-	testi = int32(10000)
-)
-
-func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
-
-	var newid = testi
-	testi++
-
-	fubenscenetypeid := int32(5000)
-	scenefile := conf.GetSceneFileData(fubenscenetypeid)
-	if scenefile == nil {
-		//如果场景文件不存在
-		return
-	}
-	a.CreateScene(scenefile, newid)
-
+func (a *GameScene1Agent) TestGoScene(sceneid int32, player *gamecore.Player) {
 	if player == nil {
 		return
 	}
@@ -221,7 +211,7 @@ func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
 	doorway := conf.DoorWay{}
 	doorway.NextX = 15
 	doorway.NextY = 15
-	doorway.NextSceneID = newid
+	doorway.NextSceneID = sceneid
 	mainunit := player.MainUnit
 	if mainunit != nil {
 		oldscene := mainunit.InScene
@@ -230,6 +220,39 @@ func (a *GameScene1Agent) PiPeiFuBen(player *gamecore.Player) {
 		}
 
 	}
+}
+
+func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid int32) {
+
+	var newid = gamecore.GetCopyMapSceneID() //获取唯一ID
+
+	fubenscenetypeid := cmfid
+	scenefile := conf.GetSceneFileData(fubenscenetypeid)
+	if scenefile == nil {
+		//如果场景文件不存在
+		return
+	}
+	a.CreateScene(scenefile, newid)
+
+	//玩家进入地图
+	//进入新地图
+	doorway := conf.DoorWay{}
+	doorway.NextX = 15
+	doorway.NextY = 15
+	doorway.NextSceneID = newid
+
+	for _, v := range players {
+		player := v.PlayerInfo
+		mainunit := player.MainUnit
+		if mainunit != nil {
+			oldscene := mainunit.InScene
+			if oldscene != nil {
+				oldscene.HuiChengPlayer.Set(player, &doorway)
+			}
+
+		}
+	}
+
 }
 
 //创建场景 typeid为设置给场景的唯一ID
@@ -443,6 +466,15 @@ func (a *GameScene1Agent) GetPlayerByChaID(uid int32) *gamecore.Player {
 	return player.(*gamecore.Player)
 }
 
+func (a *GameScene1Agent) DoHuiChengData(old []byte) []byte {
+	//改变坐标
+	characterinfo := db.DB_CharacterInfo{}
+	utils.Bytes2Struct(old, &characterinfo)
+	characterinfo.X = float32(utils.RandInt64(70, 80))
+	characterinfo.Y = float32(utils.RandInt64(70, 80))
+	return utils.Struct2Bytes(characterinfo)
+}
+
 func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 	if h2 == nil {
 		return
@@ -463,11 +495,7 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 			h2.SceneID = conf.HePingShiJieID //回到安全区
 			scene = a.Scenes.Get(h2.SceneID)
 			//改变坐标
-			characterinfo := db.DB_CharacterInfo{}
-			utils.Bytes2Struct(h2.Datas, &characterinfo)
-			characterinfo.X = float32(utils.RandInt64(70, 80))
-			characterinfo.Y = float32(utils.RandInt64(70, 80))
-			h2.Datas = utils.Struct2Bytes(characterinfo)
+			h2.Datas = a.DoHuiChengData(h2.Datas)
 		}
 
 		player := a.Players.Get(h2.Uid)
@@ -489,7 +517,15 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		player.(*gamecore.Player).OutScene()
 
 		//进入新场景
-		player.(*gamecore.Player).GoInScene(scene.(*gamecore.Scene), h2.Datas)
+		//hepingshijie := a.Scenes.Get(conf.HePingShiJieID)
+		if player.(*gamecore.Player).GoInScene(scene.(*gamecore.Scene), h2.Datas) == false {
+			h2.SceneID = conf.HePingShiJieID //回到安全区
+			scene = a.Scenes.Get(h2.SceneID)
+			//改变坐标
+			h2.Datas = a.DoHuiChengData(h2.Datas)
+			player.(*gamecore.Player).GoInScene(scene.(*gamecore.Scene), h2.Datas)
+			log.Info("enter scene faild :%d", h2.SceneID)
+		}
 		//重新设置坐标 InitPosition
 
 		a.Characters.Set(player.(*gamecore.Player).Characterid, player)
@@ -1033,6 +1069,62 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 	player.(*gamecore.Player).SendMsgToClient("SC_GetFriendsList", d1)
 }
 
+//副本
+//a.handles["CS_GetCopyMapsInfo"] = a.DoGetCopyMapsInfo
+//a.handles["CS_CopyMapPiPei"] = a.DoCopyMapPiPei
+//	a.handles["CS_CopyMapCancel"] = a.DoCopyMapCancel
+func (a *GameScene1Agent) DoCopyMapPiPei(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_CopyMapPiPei{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	gamecore.CopyMapMgrObj.JionPiPei(player.(*gamecore.Player), h2.CopyMapID)
+
+	msg := gamecore.CopyMapMgrObj.GetCopyMapsInfo(player.(*gamecore.Player))
+	player.(*gamecore.Player).SendMsgToClient("SC_GetCopyMapsInfo", msg)
+
+}
+func (a *GameScene1Agent) DoCopyMapCancel(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_CopyMapCancel{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	gamecore.CopyMapMgrObj.CancelPiPei(player.(*gamecore.Player))
+
+	msg := gamecore.CopyMapMgrObj.GetCopyMapsInfo(player.(*gamecore.Player))
+	player.(*gamecore.Player).SendMsgToClient("SC_GetCopyMapsInfo", msg)
+
+}
+func (a *GameScene1Agent) DoGetCopyMapsInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetCopyMapsInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	msg := gamecore.CopyMapMgrObj.GetCopyMapsInfo(player.(*gamecore.Player))
+	player.(*gamecore.Player).SendMsgToClient("SC_GetCopyMapsInfo", msg)
+
+}
+
 //活动地图
 //	a.handles["CS_GetActivityMapsInfo"] = a.DoGetActivityMapsInfo
 //	a.handles["CS_GetMapInfo"] = a.DoGetMapInfo
@@ -1084,6 +1176,7 @@ func (a *GameScene1Agent) DoGetDuoBaoInfo(data *protomsg.MsgBase) {
 
 	//测试场景
 	//a.PiPeiFuBen(player.(*gamecore.Player))
+	//a.TestGoScene(3008, player.(*gamecore.Player))
 
 }
 func (a *GameScene1Agent) DoGotoActivityMap(data *protomsg.MsgBase) {
@@ -2047,6 +2140,7 @@ func (a *GameScene1Agent) OnClose() {
 	for _, v := range scenes {
 		v.(*gamecore.Scene).Close()
 	}
+	gamecore.CopyMapMgrObj.Close()
 	gamecore.TeamManagerObj.Close()
 
 	gamecore.GuildManagerObj.Close()

@@ -857,3 +857,29 @@ message SC_GetDuoBaoInfo{
     SC_GetMapInfo MapInfo = 2;//
     int32 Minute = 3;//间隔分钟
 }
+
+//获取所有副本地图信息
+message CS_GetCopyMapsInfo{
+    int32 ID = 1;
+}
+//返回副本地图信息
+message SC_GetCopyMapsInfo{
+    repeated CopyMapInfo Maps = 1;//
+    int32 RemainPlayTimes = 2;//剩余进入副本次数
+}
+//副本地图信息
+message CopyMapInfo{
+    int32 ID = 1;              //ID   
+    int32 NeedLevel = 2;  //需要的玩家等级
+    int32 NextSceneID = 3;     //场景ID
+    int32 PlayerCount = 4; //玩家数量
+    int32 State = 5;//状态 1可以匹配 2匹配中
+}
+//匹配副本
+message CS_CopyMapPiPei{
+    int32 CopyMapID = 1;
+}
+//取消匹配
+message CS_CopyMapCancel{
+    int32 CopyMapID = 1;
+}

@@ -1299,8 +1299,8 @@ func (this *Player) OutScene() {
 
 }
 
-//进入场景
-func (this *Player) GoInScene(scene *Scene, datas []byte) {
+//进入场景 如果进入不了场景
+func (this *Player) GoInScene(scene *Scene, datas []byte) bool {
 	if this.CurScene != nil {
 		this.CurScene.PlayerGoout(this)
 		this.CurScene = nil
@@ -1310,6 +1310,11 @@ func (this *Player) GoInScene(scene *Scene, datas []byte) {
 	characterinfo := db.DB_CharacterInfo{}
 	utils.Bytes2Struct(datas, &characterinfo)
 	this.Characterid = characterinfo.Characterid
+
+	if this.CurScene.PlayerGoin(this, &characterinfo) == false {
+		return false
+	}
+
 	this.LoadBagInfoFromDB(characterinfo.BagInfo)
 	this.LoadItemSkillCDFromDB(characterinfo.ItemSkillCDInfo)
 	//好友信息
@@ -1322,8 +1327,7 @@ func (this *Player) GoInScene(scene *Scene, datas []byte) {
 	} else {
 		this.MyGuild = nil
 	}
-
-	this.CurScene.PlayerGoin(this, &characterinfo)
+	return true
 	//this.ReInit()
 }
 

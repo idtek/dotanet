@@ -605,6 +605,18 @@ func (this *Scene) SendNoticeWordToAllPlayer(typeid int32, param ...string) {
 	}
 }
 
+//检查关闭
+func (this *Scene) CheckCloseTime() {
+	if this.NoPlayerCloseTime == -1 {
+		return
+	}
+	if float32(this.NoPlayerCloseTime) <= float32(this.CurFrame)*(1.0/float32(this.SceneFrame)) {
+		if len(this.Players) <= 0 && this.NextAddPlayer.Size() <= 0 {
+			this.Close()
+		}
+	}
+}
+
 func (this *Scene) Update() {
 
 	log.Info("Update start %d  %d", this.TypeID, this.DataFileID)
@@ -653,6 +665,8 @@ func (this *Scene) Update() {
 		//清除玩家到和平世界
 		this.DoCleanPlayer()
 
+		//检查关闭场景
+		this.CheckCloseTime()
 		//处理分区
 
 		if this.Quit {
@@ -1127,17 +1141,18 @@ func (this *Scene) DoCleanPlayer() {
 	if this.CleanPlayer == false {
 		return
 	}
+	this.Close()
 	if this.DuoBaoQiBing != nil {
 		this.DuoBaoQiBing.DoOver()
 	}
-
+	//当前玩家回城
 	for _, player := range this.Players {
 		this.HuiCheng(player)
 	}
 
 	this.DoHuiCheng()
 
-	this.Close()
+	//
 
 }
 
@@ -1146,8 +1161,11 @@ func (this *Scene) Close() {
 }
 
 //玩家进入
-func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo) {
+func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo) bool {
 	//if player.MainUnit == nil {
+	if this.CleanPlayer == true || this.Quit == true {
+		return false
+	}
 
 	player.MainUnit = CreateUnitByPlayer(this, player, characterinfo)
 	//player.Characterid =
@@ -1156,6 +1174,7 @@ func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo
 	this.NextAddUnit.Set(player.MainUnit.ID, player.MainUnit)
 
 	this.NextAddPlayer.Set(player.Uid, player)
+	return true
 
 }
 

@@ -62,6 +62,8 @@ type SceneFileData struct {
 	DeathHuicheng   int32  //死亡后是否回到和平世界 1表示是 其他表示否
 	//StartX	StartY	EndX	EndY
 
+	NoPlayerCloseTime int32 //当场景运行超过此时间 且 没有玩家在场景中了就关闭此场景 -1表示永久不关闭
+
 	//特殊情况处理
 	Exception      int32  //0表示没有特殊情况 1:工会战 2夺宝奇兵
 	ExceptionParam string //特殊情况处理参数 特殊情况为1的时候:()1
