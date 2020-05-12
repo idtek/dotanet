@@ -4,6 +4,7 @@ import (
 	"dq/conf"
 	"dq/db"
 	"dq/log"
+	"dq/protobuf"
 	"dq/timer"
 	"dq/utils"
 	"math"
@@ -60,8 +61,45 @@ func (this *AuctionManager) Init(server ServerInterface) {
 	this.UpdateTimer = timer.AddRepeatCallback(time.Second*1, this.Update)
 }
 
+//上架商品到世界拍卖行
+func (this *AuctionManager) NewAuctionItem2World(player *Player, guildid int32, itemid int32, itemlevel int32, receivecharacters *utils.BeeMap) {
+	if player == nil {
+		return
+	}
+
+	auctioninfo := &db.DB_AuctionInfo{}
+	auctioninfo.Guildid = guildid
+	auctioninfo.ItemID = itemid
+	auctioninfo.Level = itemlevel
+	auctioninfo.PriceType = int32(conf.Conf.NormalInfo.AuctionPriceType)
+	auctioninfo.Price = int32(conf.Conf.NormalInfo.AuctionFirstPrice)
+	auctioninfo.BidderCharacterid = -1
+	auctioninfo.Remaintime = int32(conf.Conf.NormalInfo.AuctionTime)
+	auctioninfo.BidderType = 1 ////出价者类型 1表示所有人 2表示参与分红的人
+
+	receivecharacter := make([]int32, 0)
+	receivecharactername := make([]string, 0)
+	chaitems := receivecharacters.Items()
+	for k, _ := range chaitems {
+
+		player1 := this.Server.GetPlayerByChaID(k.(int32))
+		if player1 == nil {
+			continue
+		}
+		mainunit := player1.MainUnit
+		if mainunit == nil {
+			continue
+		}
+		receivecharacter = append(receivecharacter, k.(int32))
+		receivecharactername = append(receivecharactername, mainunit.Name)
+	}
+
+	//加入拍卖行
+	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter, receivecharactername)
+}
+
 //上架商品(本函数未删除玩家背包里的道具)
-func (this *AuctionManager) NewAuctionItem(data *db.DB_AuctionInfo, receivecha []int32) {
+func (this *AuctionManager) NewAuctionItem(data *db.DB_AuctionInfo, receivecha []int32, chanames []string) {
 	this.OperateLock.Lock()
 	defer this.OperateLock.Unlock()
 
@@ -70,6 +108,10 @@ func (this *AuctionManager) NewAuctionItem(data *db.DB_AuctionInfo, receivecha [
 	for _, v := range receivecha {
 		data.Receivecharacters += strconv.Itoa(int(v)) + ";"
 	}
+	data.ReceiveCharactersName = ""
+	for _, v := range chanames {
+		data.ReceiveCharactersName += v + ";"
+	}
 
 	db.DbOne.CreateAndSaveAuction(data)
 
@@ -77,9 +119,13 @@ func (this *AuctionManager) NewAuctionItem(data *db.DB_AuctionInfo, receivecha [
 }
 
 //存档
-func (this *AuctionManager) SaveDbOne(data *AuctionInfo) {
+func (this *AuctionManager) SaveDbOneLock(data *AuctionInfo) {
 	this.OperateLock.Lock()
 	defer this.OperateLock.Unlock()
+
+	this.SaveDbOneNoLock(data)
+}
+func (this *AuctionManager) SaveDbOneNoLock(data *AuctionInfo) {
 
 	if data == nil {
 		return
@@ -183,6 +229,19 @@ func (this *AuctionManager) NewPrice(price int32, id int32, player *Player) bool
 		player.SendNoticeWordToClient(34)
 		return false
 	}
+	if commodity.BidderType == 2 { //只有分红的人可以参与拍卖
+		isreceivecha := false
+		for _, v := range commodity.ReceiveCharactersMap {
+			if v == player.Characterid {
+				isreceivecha = true
+				break
+			}
+		}
+		if isreceivecha == false {
+			player.SendNoticeWordToClient(46)
+			return false
+		}
+	}
 	//
 	if player.BuyItemSubMoney(commodity.PriceType, price) == false {
 		//当前没有这么多钱
@@ -201,11 +260,17 @@ func (this *AuctionManager) NewPrice(price int32, id int32, player *Player) bool
 	//重新改写竞拍价格
 	commodity.Price = price
 	commodity.BidderCharacterid = player.Characterid
+	mainunit := player.MainUnit
+	if mainunit != nil {
+		commodity.BidderCharacterName = mainunit.Name
+	}
+
 	//如果倒计时小于30秒 则重新刷新为30秒
 	if commodity.Remaintime <= 30 {
 		commodity.Remaintime = 30
 	}
-
+	//存档
+	this.SaveDbOneNoLock(commodity)
 	return true
 }
 
@@ -217,8 +282,49 @@ func (this *AuctionManager) Close() {
 	}
 	teams := this.Commoditys.Items()
 	for _, v := range teams {
-		this.SaveDbOne(v.(*AuctionInfo))
+		this.SaveDbOneLock(v.(*AuctionInfo))
 	}
+}
+
+//获取世界拍卖行
+func (this *AuctionManager) GetWorldAuctionItems(player *Player) *protomsg.SC_GetWorldAuctionItems {
+	if player == nil {
+		return nil
+	}
+
+	data := &protomsg.SC_GetWorldAuctionItems{}
+	data.Items = make([]*protomsg.AuctionItem, 0)
+	items := this.Commoditys.Items()
+	for _, v := range items {
+		if v == nil {
+			continue
+		}
+		itemone := v.(*AuctionInfo)
+		if itemone.Guildid != -1 {
+			continue
+		}
+
+		d1 := &protomsg.AuctionItem{}
+		d1.ID = itemone.Id
+		d1.ItemID = itemone.ItemID
+		d1.PriceType = itemone.PriceType
+		d1.Price = itemone.Price
+		d1.Level = itemone.Level
+		d1.BidderCharacterName = itemone.BidderCharacterName
+		//		bidderplayer := guild.CharactersMap.Get(itemone.BidderCharacterid)
+		//		if bidderplayer != nil {
+		//			d1.BidderCharacterName = bidderplayer.(*GuildCharacterInfo).Name
+		//		}
+
+		d1.RemainTime = itemone.Remaintime
+		d1.BidderType = itemone.BidderType
+
+		d1.ReceivecharactersName = utils.GetStringFromString3(itemone.ReceiveCharactersName, ";")
+
+		data.Items = append(data.Items, d1)
+	}
+
+	return data
 }
 
 //更新

@@ -112,10 +112,10 @@ type UnitFileData struct {
 	CollisoinLevel   int32   //碰撞等级
 	Death2RemoveTime float64 //死亡到删除的时间
 
-	NPCItemDropInfo string //NPC道具掉落信息 逗号分隔概率 分号分隔种类 1,0.02;2,0.03
-	IsGuildItemDrop int32  //掉落的装备是否是公会拍卖行装备 1是 2否
-	GuildPinExp     int32  //品经验
-	GuildExp        int32  //公会经验(只有击杀者的公会会有公会经验)
+	NPCItemDropInfo   string //NPC道具掉落信息 逗号分隔概率 分号分隔种类 1,0.02;2,0.03
+	IsAuctionItemDrop int32  //掉落的装备是否是拍卖行装备 0否 1是公会拍卖 2是世界拍卖
+	GuildPinExp       int32  //品经验
+	GuildExp          int32  //公会经验(只有击杀者的公会会有公会经验)
 
 	DefaultEquipItems string //默认装备(只有普通单位可以设置)
 	DefaultSkills     string //默认技能(只有普通单位可以设置)

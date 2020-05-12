@@ -60,7 +60,9 @@ type SceneFileData struct {
 	SceneBuff       string //场景BUFF 进入场景的单位都会添加此BUFF
 	ChangeEquipAble int32  //是否可以更换装备 1表示可以 其他表示否
 	DeathHuicheng   int32  //死亡后是否回到和平世界 1表示是 其他表示否
+	ForceAttackMode int32  //是否强制设置玩家的攻击模式 0表是否  其他表示设置为的攻击模式 (1:和平模式 2:组队模式 3:全体模式 4:阵营模式(玩家,NPC) 5:行会模式)
 	//StartX	StartY	EndX	EndY
+	CreateBossRule int32 //刷新boss额外条件 0表示无 1表示场景中的全部普通单位死亡后再刷新
 
 	NoPlayerCloseTime int32 //当场景运行超过此时间 且 没有玩家在场景中了就关闭此场景 -1表示永久不关闭
 

@@ -67,7 +67,9 @@
         //拍卖行初始价格
         "AuctionFirstPrice":1,
         //聊天时间间隔
-        "ChatMinTime":5
+        "ChatMinTime":5,
+        ////没日可以进入副本次数
+        "CopyMapTimesEveryDay":5
     }
 
 	

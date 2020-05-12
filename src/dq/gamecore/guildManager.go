@@ -713,17 +713,25 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	auctioninfo.Price = int32(conf.Conf.NormalInfo.AuctionFirstPrice)
 	auctioninfo.BidderCharacterid = -1
 	auctioninfo.Remaintime = int32(conf.Conf.NormalInfo.AuctionTime)
+	auctioninfo.BidderType = 1 //
 
 	receivecharacter := make([]int32, 0)
+	receivecharactername := make([]string, 0)
 	chaitems := receivecharacters.Items()
 	for k, _ := range chaitems {
-		if guild.CharactersMap.Check(k.(int32)) == true {
+		cha := guild.CharactersMap.Get(k.(int32))
+		if cha != nil {
 			receivecharacter = append(receivecharacter, k.(int32))
+			receivecharactername = append(receivecharactername, cha.(*GuildCharacterInfo).Name)
+			//guildBaseInfo.PresidentName = president.(*GuildCharacterInfo).Name
 		}
+		//		if guild.CharactersMap.Check(k.(int32)) == true {
+
+		//		}
 	}
 
 	//加入拍卖行
-	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter)
+	AuctionManagerObj.NewAuctionItem(auctioninfo, receivecharacter, receivecharactername)
 
 	guild.AuctionMap.Set(auctioninfo.Id, auctioninfo.Id)
 
@@ -910,23 +918,24 @@ func (this *GuildManager) GetAuctionItems(player *Player) *protomsg.SC_GetAuctio
 		d1.PriceType = itemone.PriceType
 		d1.Price = itemone.Price
 		d1.Level = itemone.Level
-		d1.BidderCharacterName = ""
-		bidderplayer := guild.CharactersMap.Get(itemone.BidderCharacterid)
-		if bidderplayer != nil {
-			d1.BidderCharacterName = bidderplayer.(*GuildCharacterInfo).Name
-		}
+		d1.BidderCharacterName = itemone.BidderCharacterName
+		//		bidderplayer := guild.CharactersMap.Get(itemone.BidderCharacterid)
+		//		if bidderplayer != nil {
+		//			d1.BidderCharacterName = bidderplayer.(*GuildCharacterInfo).Name
+		//		}
 
 		d1.RemainTime = itemone.Remaintime
+		d1.BidderType = itemone.BidderType
 
-		d1.ReceivecharactersName = make([]string, 0)
-		for _, v1 := range itemone.ReceiveCharactersMap {
+		d1.ReceivecharactersName = utils.GetStringFromString3(itemone.ReceiveCharactersName, ";")
+		//		for _, v1 := range itemone.ReceiveCharactersMap {
 
-			playerone := guild.CharactersMap.Get(v1)
-			if playerone == nil {
-				continue
-			}
-			d1.ReceivecharactersName = append(d1.ReceivecharactersName, playerone.(*GuildCharacterInfo).Name)
-		}
+		//			playerone := guild.CharactersMap.Get(v1)
+		//			if playerone == nil {
+		//				continue
+		//			}
+		//			d1.ReceivecharactersName = append(d1.ReceivecharactersName, playerone.(*GuildCharacterInfo).Name)
+		//		}
 
 		data.Items = append(data.Items, d1)
 	}

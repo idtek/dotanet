@@ -76,6 +76,9 @@ func (this *CopyMapMgr) CancelPiPei(player *Player) {
 		return
 	}
 	this.CopyMapPlayerPool.Delete(player.Characterid)
+	msg := &protomsg.SC_ShowPiPeiInfo{}
+	msg.PiPeiState = 1
+	player.SendMsgToClient("SC_ShowPiPeiInfo", msg)
 }
 
 //玩家匹配副本
@@ -83,11 +86,31 @@ func (this *CopyMapMgr) JionPiPei(player *Player, copymapid int32) {
 	if player == nil {
 		return
 	}
+
+	unit := player.MainUnit
+	if unit == nil {
+		return
+	}
+	//
+	if unit.RemainCopyMapTimes <= 0 {
+		//次数不够
+		player.SendNoticeWordToClient(44)
+		return
+	}
+	//等级不够
+	if conf.CheckGotoCopyMap(copymapid, unit.Level) == nil {
+		player.SendNoticeWordToClient(45)
+		return
+	}
+
 	cmp := &CopyMapPlayer{}
 	cmp.PlayerInfo = player
 	cmp.PiPeiCopyMapId = copymapid
 
 	this.CopyMapPlayerPool.Set(player.Characterid, cmp)
+	msg := &protomsg.SC_ShowPiPeiInfo{}
+	msg.PiPeiState = 2
+	player.SendMsgToClient("SC_ShowPiPeiInfo", msg)
 }
 
 //获取所有副本信息
@@ -115,6 +138,10 @@ func (this *CopyMapMgr) GetCopyMapsInfo(player *Player) *protomsg.SC_GetCopyMaps
 		msg.Maps = append(msg.Maps, one)
 	}
 	msg.RemainPlayTimes = 5
+	unit := player.MainUnit
+	if unit != nil {
+		msg.RemainPlayTimes = unit.RemainCopyMapTimes
+	}
 
 	return msg
 }
@@ -137,6 +164,15 @@ func (this *CopyMapMgr) Update() {
 
 					//匹配成功后把角色从匹配池里删除
 					for _, v2 := range allcmplayer {
+
+						mainunit := v2.PlayerInfo.MainUnit
+						if mainunit != nil {
+							mainunit.SubRemainCopyMapTimes(1)
+						}
+
+						msg := &protomsg.SC_ShowPiPeiInfo{}
+						msg.PiPeiState = 1
+						v2.PlayerInfo.SendMsgToClient("SC_ShowPiPeiInfo", msg)
 						this.CopyMapPlayerPool.Delete(v2.PlayerInfo.Characterid)
 					}
 					allcmplayer = make([]*CopyMapPlayer, 0)

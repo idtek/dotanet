@@ -224,6 +224,7 @@ type normalInfo struct {
 	AuctionPriceType            int     ////拍卖行价格类型
 	AuctionFirstPrice           int     //拍卖行初始价格
 	ChatMinTime                 int     //聊天时间间隔
+	CopyMapTimesEveryDay        int32   //没日可以进入副本次数
 }
 
 type Config struct {

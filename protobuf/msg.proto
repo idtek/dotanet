@@ -639,6 +639,19 @@ message SC_GetSellUIInfo{
     repeated UnitEquip Equips = 7;//装备 背包里可以卖的装备
 }
 
+//获取世界拍卖行信息
+message CS_GetWorldAuctionItems{
+    int32 ID = 1;////
+}
+message SC_GetWorldAuctionItems{
+    repeated AuctionItem Items = 1;//
+}
+//出价公会拍卖物品
+message CS_NewPriceWorldAuctionItem{
+    int32 ID = 1;                       //商品ID
+    int32 Price = 2;                    //价格
+}
+
 //-------------公会相关------------
 //查看所有公会简短信息
 message CS_GetAllGuildsInfo{
@@ -746,6 +759,7 @@ message AuctionItem{
     string BidderCharacterName = 6;     //竞拍者名字
     repeated string ReceivecharactersName = 7;   //分红的所有人名字
     int32 RemainTime = 8;//剩余时间
+    int32 BidderType = 9;////出价者类型 1表示所有人 2表示参与分红的人
 }
 
 //出价公会拍卖物品
@@ -882,4 +896,8 @@ message CS_CopyMapPiPei{
 //取消匹配
 message CS_CopyMapCancel{
     int32 CopyMapID = 1;
+}
+//匹配信息(gameui上的显示)
+message SC_ShowPiPeiInfo{
+    int32 PiPeiState = 1;//状态 1可以匹配 2匹配中(显示正在匹配中的提示)
 }

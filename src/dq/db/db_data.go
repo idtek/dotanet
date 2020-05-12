@@ -43,6 +43,7 @@ type DB_CharacterInfo struct {
 	GuildPinExperience    int32   `json:"guildpinexperience"`
 	GuildPost             int32   `json:"guildpost"`
 	AttackMode            int32   `json:"attackmode"`
+	RemainCopyMapTimes    int32   `json:"remaincopymaptimes"`
 }
 
 //角色邮件信息
@@ -89,13 +90,17 @@ type DB_GuildInfo struct {
 
 //公会拍卖物品
 type DB_AuctionInfo struct {
-	Id                int32  `json:"id"`
-	Guildid           int32  `json:"guildid"` //公会ID
-	ItemID            int32  `json:"itemid"`
-	Level             int32  `json:"level"`
-	PriceType         int32  `json:"pricetype"`         //价格类型 1金币 2砖石
-	Price             int32  `json:"price"`             //价格
-	BidderCharacterid int32  `json:"bidderCharacterid"` //竞拍者角色ID
-	Receivecharacters string `json:"receivecharacters"` //参与分红者的ID
-	Remaintime        int32  `json:"remaintime"`        //剩余时间(秒)
+	Id                    int32  `json:"id"`
+	Guildid               int32  `json:"guildid"` //公会ID  -1表示世界拍卖
+	ItemID                int32  `json:"itemid"`
+	Level                 int32  `json:"level"`
+	PriceType             int32  `json:"pricetype"`             //价格类型 1金币 2砖石
+	Price                 int32  `json:"price"`                 //价格
+	BidderCharacterid     int32  `json:"bidderCharacterid"`     //竞拍者角色ID
+	Receivecharacters     string `json:"receivecharacters"`     //参与分红者的ID
+	Remaintime            int32  `json:"remaintime"`            //剩余时间(秒)
+	BidderType            int32  `json:"biddertype"`            //出价者类型 1表示所有人 2表示参与分红的人
+	ReceiveCharactersName string `json:"receivecharactersname"` //参与分红者的名字
+	BidderCharacterName   string `json:"biddercharactername"`   //竞拍者角色名字
+
 }

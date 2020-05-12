@@ -504,6 +504,7 @@ func (a *DB) SaveCharacter(playerInfo DB_CharacterInfo) error {
 	datastring["guildpinexperience"] = playerInfo.GuildPinExperience
 	datastring["guildpost"] = playerInfo.GuildPost
 	datastring["attackmode"] = playerInfo.AttackMode
+	datastring["remaincopymaptimes"] = playerInfo.RemainCopyMapTimes
 
 	sqlstr := "UPDATE characterinfo SET "
 	count := 0
@@ -759,6 +760,9 @@ func (a *DB) SaveAuction(mailInfo DB_AuctionInfo) error {
 	datastring["bidderCharacterid"] = mailInfo.BidderCharacterid
 	datastring["receivecharacters"] = mailInfo.Receivecharacters
 	datastring["remaintime"] = mailInfo.Remaintime
+	datastring["biddertype"] = mailInfo.BidderType
+	datastring["receivecharactersname"] = mailInfo.ReceiveCharactersName
+	datastring["biddercharactername"] = mailInfo.BidderCharacterName
 
 	sqlstr := "UPDATE auction SET "
 	count := 0

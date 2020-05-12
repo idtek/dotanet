@@ -252,6 +252,14 @@ func (this *Player) ChangeAttackMode(data *protomsg.CS_ChangeAttackMode) {
 	if this.MainUnit == nil {
 		return
 	}
+	curscene := this.CurScene
+	if curscene != nil {
+		if curscene.ForceAttackMode != 0 { //不能设置攻击模式 43
+			this.SendNoticeWordToClient(43)
+			return
+		}
+	}
+
 	this.MainUnit.ChangeAttackMode(data)
 
 	this.CheckOtherUnit()
@@ -956,6 +964,8 @@ func (this *Player) GetDBData() *db.DB_CharacterInfo {
 	dbdata.GetExperienceDay = this.MainUnit.GetExperienceDay
 	dbdata.RemainReviveTime = this.MainUnit.RemainReviveTime
 	dbdata.AttackMode = this.MainUnit.AttackMode
+	dbdata.RemainCopyMapTimes = this.MainUnit.RemainCopyMapTimes
+
 	//击杀相关
 	dbdata.KillCount = this.MainUnit.KillCount
 	dbdata.ContinuityKillCount = this.MainUnit.ContinuityKillCount

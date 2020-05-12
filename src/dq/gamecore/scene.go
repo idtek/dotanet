@@ -118,7 +118,9 @@ type Scene struct {
 	EveryTimeDoRemainTime float32        //每秒钟干得事的剩余时间
 	DoorWays              []conf.DoorWay //传送门
 
-	ReCreateUnitInfo map[*ReCreateUnit]*ReCreateUnit //重新创建NPC信息
+	ReCreateUnitInfo   map[*ReCreateUnit]*ReCreateUnit //重新创建NPC信息
+	NeedCreateBossInfo *utils.BeeMap                   //需要创建的boss信息
+	NoramlUnitCount    int32                           //当前场景中的普通单位数量
 
 	Players   map[int32]*Player           //游戏中所有的玩家
 	Units     map[int32]*Unit             //游戏中所有的单位
@@ -176,6 +178,7 @@ func (this *Scene) Init() {
 	this.SceneFrame = 22
 	this.CurFrame = 0
 	this.EveryTimeDoRemainTime = 1
+	this.NoramlUnitCount = 0
 
 	this.FirstUpdateTime = time.Now().UnixNano()
 
@@ -185,6 +188,8 @@ func (this *Scene) Init() {
 
 	this.NextAddPlayer = utils.NewBeeMap()
 	this.NextRemovePlayer = utils.NewBeeMap()
+
+	this.NeedCreateBossInfo = utils.NewBeeMap()
 
 	//this.DropItems = utils.NewBeeMap()
 
@@ -234,13 +239,16 @@ func (this *Scene) Init() {
 			//保存会掉落的道具
 			dropitems := oneunit.GetDropItems()
 			for _, v1 := range dropitems {
-				//this.DropItems.Set(v1, v1)
 				GameCoreDataManagerObj.AddDrop(this.TypeID, v1)
 			}
 			//boss刷新时间
 			if oneunit.UnitType == 4 {
-				//this.BossFreshTime = int32(v.ReCreateTime)
 				GameCoreDataManagerObj.SetBossFreshTime(this.TypeID, int32(v.ReCreateTime))
+				//如果是副本则需要等普通怪全部死亡后才刷新BOSS
+				if this.CreateBossRule == 1 {
+					this.NextRemoveUnit.Set(oneunit.ID, oneunit)
+					this.NeedCreateBossInfo.Set(&v, &v)
+				}
 			}
 
 		}
@@ -287,6 +295,19 @@ func (this *Scene) Init() {
 	//	hero2.Body = this.MoveCore.CreateBody(pos2, r2, 0, 2)
 	//	this.Units[hero2.ID] = hero2
 
+}
+
+//检查是否要创建boss
+func (this *Scene) CheckCreateBoss() {
+	//如果是副本则需要等普通怪全部死亡后才刷新BOSS
+	if this.CreateBossRule == 0 || this.NoramlUnitCount > 0 || this.NeedCreateBossInfo.Size() <= 0 {
+		return
+	}
+	items := this.NeedCreateBossInfo.Items()
+	for _, v := range items {
+		this.CreateUnitByConf(*(v.(*conf.Unit)))
+	}
+	this.NeedCreateBossInfo.DeleteAll()
 }
 
 //场景开始 处理异常情况
@@ -576,6 +597,8 @@ func (this *Scene) EveryTimeDo(dt float32) {
 		this.DoReCreateUnit()
 		this.DoDoorWay()
 
+		this.CheckCreateBoss()
+
 		//道具
 		this.UpdateSceneItem(dt)
 		this.DoRemoveSceneItem()
@@ -811,9 +834,13 @@ func (this *Scene) DoZone() {
 
 //处理单位逻辑
 func (this *Scene) DoLogic() {
+	this.NoramlUnitCount = 0
 	//处理单位逻辑
 	for _, v := range this.Units {
 		v.PreUpdate(1 / float64(this.SceneFrame))
+		if v.UnitType == 2 { //普通单位
+			this.NoramlUnitCount++
+		}
 	}
 	for _, v := range this.Units {
 		v.Update(1 / float64(this.SceneFrame))
@@ -1006,9 +1033,13 @@ func (this *Scene) UpdateSceneItem(dt float32) {
 				//LengthSquared
 				dir := vec2d.Sub(unit.Body.Position, v.Position)
 				if dir.LengthSquared() <= 1 {
-					if v.IsGuildItemDrop == 1 && player.MyGuild != nil {
+					if v.IsAuctionItemDrop == 1 && player.MyGuild != nil {
 						//拾取到公会拍卖行
 						GuildManagerObj.AddAuctionItem(player.MyGuild.GuildId, v.TypeID, 1, v.AttackUnits)
+						v.BeSelect()
+						break
+					} else if v.IsAuctionItemDrop == 2 { //世界拍卖行
+						AuctionManagerObj.NewAuctionItem2World(player, -1, v.TypeID, 1, v.AttackUnits)
 						v.BeSelect()
 						break
 					} else {
@@ -1165,6 +1196,9 @@ func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo
 	//if player.MainUnit == nil {
 	if this.CleanPlayer == true || this.Quit == true {
 		return false
+	}
+	if this.ForceAttackMode != 0 {
+		characterinfo.AttackMode = this.ForceAttackMode
 	}
 
 	player.MainUnit = CreateUnitByPlayer(this, player, characterinfo)

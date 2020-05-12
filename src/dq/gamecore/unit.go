@@ -1708,20 +1708,21 @@ type UnitProperty struct {
 	NextAttackRemainTime float32 //下次攻击剩余时间
 
 	//复合数据 会随时变动的数据 比如受buff影响攻击力降低  (每帧动态计算)
-	HP               int32
-	MAX_HP           int32
-	MP               float32
-	MAX_MP           int32
-	Level            int32 //等级 会影响属性
-	Experience       int32
-	MaxExperience    int32
-	Gold             int32   //金币
-	Diamond          int32   //钻石
-	GetExperienceDay string  //获取经验的日期 最近登录日期
-	RemainExperience int32   //今天还能获取的经验值
-	RemainReviveTime float32 //剩余复活时间
-	ReviveGold       int32   //立即复活需要的金币
-	ReviveDiamond    int32   //立即复活需要的砖石
+	HP                 int32
+	MAX_HP             int32
+	MP                 float32
+	MAX_MP             int32
+	Level              int32 //等级 会影响属性
+	Experience         int32
+	MaxExperience      int32
+	Gold               int32   //金币
+	Diamond            int32   //钻石
+	GetExperienceDay   string  //获取经验的日期 最近登录日期
+	RemainExperience   int32   //今天还能获取的经验值
+	RemainReviveTime   float32 //剩余复活时间
+	RemainCopyMapTimes int32   //今日剩余的副本次数
+	ReviveGold         int32   //立即复活需要的金币
+	ReviveDiamond      int32   //立即复活需要的砖石
 
 	//击杀相关
 	KillCount             int32
@@ -2038,7 +2039,7 @@ func (this *Unit) DropItem() {
 	//IsGuildItemDrop
 	//allhurtunit := utils.NewBeeMap()
 	if len(drop) > 0 {
-		this.InScene.CreateSceneItems(drop, this.Body.Position, this.IsGuildItemDrop, this.AttackUnitCharacter)
+		this.InScene.CreateSceneItems(drop, this.Body.Position, this.IsAuctionItemDrop, this.AttackUnitCharacter)
 
 	}
 	//增加PIN经验
@@ -2230,8 +2231,10 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 	unitre.Experience = characterinfo.Experience
 	unitre.Gold = characterinfo.Gold
 	unitre.Diamond = characterinfo.Diamond
-	unitre.GetExperienceDay = characterinfo.GetExperienceDay //获取经验的日期
-	unitre.RemainExperience = characterinfo.RemainExperience //今天还能获取的经验值
+	unitre.GetExperienceDay = characterinfo.GetExperienceDay     //获取经验的日期
+	unitre.RemainExperience = characterinfo.RemainExperience     //今天还能获取的经验值
+	unitre.RemainCopyMapTimes = characterinfo.RemainCopyMapTimes //今天还能
+
 	unitre.RemainReviveTime = characterinfo.RemainReviveTime
 
 	//击杀相关
@@ -2418,6 +2421,7 @@ func (this *Unit) CheckGetExperienceDay() {
 		} else {
 			this.RemainExperience = 1000
 		}
+		this.RemainCopyMapTimes = conf.Conf.NormalInfo.CopyMapTimesEveryDay
 		//击杀数量 连杀数量 死亡数量 击杀获取金币数量
 		this.KillCount = 0
 		this.ContinuityKillCount = 0
@@ -3896,6 +3900,17 @@ func (this *Unit) CheckTriggerBeAttackAfter(attacker *Unit, hurttype int32, hurt
 		}
 
 	}
+}
+
+//进入副本
+func (this *Unit) SubRemainCopyMapTimes(d int32) bool {
+
+	this.RemainCopyMapTimes -= d
+	if this.RemainCopyMapTimes >= 0 {
+		return true
+	}
+	this.RemainCopyMapTimes = 0
+	return false
 }
 
 //获得经验

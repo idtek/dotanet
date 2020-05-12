@@ -150,6 +150,8 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_ShelfExchangeCommodity"] = a.DoShelfExchangeCommodity
 	a.handles["CS_GetSellUIInfo"] = a.DoGetSellUIInfo
 	a.handles["CS_UnShelfExchangeCommodity"] = a.DoUnShelfExchangeCommodity
+	a.handles["CS_GetWorldAuctionItems"] = a.DoGetWorldAuctionItems
+	a.handles["CS_NewPriceWorldAuctionItem"] = a.DoNewPriceWorldAuctionItem
 
 	//公会相关
 	a.handles["CS_GetAllGuildsInfo"] = a.DoGetAllGuildsInfo
@@ -1646,6 +1648,40 @@ func (a *GameScene1Agent) DoGetGuildInfo(data *protomsg.MsgBase) {
 //	a.handles["CS_ShelfExchangeCommodity"] = a.DoShelfExchangeCommodity
 //a.handles["CS_GetSellUIInfo"] = a.DoGetSellUIInfo
 //a.handles["CS_UnShelfExchangeCommodity"] = a.DoUnShelfExchangeCommodity
+//a.handles["CS_GetWorldAuctionItems"] = a.DoGetWorldAuctionItems
+//a.handles["CS_NewPriceWorldAuctionItem"] = a.DoNewPriceWorldAuctionItem
+//出价
+func (a *GameScene1Agent) DoNewPriceWorldAuctionItem(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_NewPriceWorldAuctionItem{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	gamecore.AuctionManagerObj.NewPrice(h2.Price, h2.ID, player.(*gamecore.Player))
+
+	//重新返回数据
+	msg := gamecore.AuctionManagerObj.GetWorldAuctionItems(player.(*gamecore.Player))
+	player.(*gamecore.Player).SendMsgToClient("SC_GetWorldAuctionItems", msg)
+}
+func (a *GameScene1Agent) DoGetWorldAuctionItems(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetWorldAuctionItems{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	msg := gamecore.AuctionManagerObj.GetWorldAuctionItems(player.(*gamecore.Player))
+	player.(*gamecore.Player).SendMsgToClient("SC_GetWorldAuctionItems", msg)
+}
 func (a *GameScene1Agent) DoUnShelfExchangeCommodity(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_UnShelfExchangeCommodity{}
 	err := proto.Unmarshal(data.Datas, h2)

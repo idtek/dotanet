@@ -181,6 +181,36 @@ type ActivityMapFileData struct {
 
 }
 
+//副本地图
+func GetCopyMapFileData(id int32) *CopyMapFileData {
+	//log.Info("find unitfile:%d", typeid)
+
+	re := (CopyMapFileDatas[int(id)])
+	if re == nil {
+		log.Info("not find CopyMapFileDatas:%d", id)
+		return nil
+	}
+	return (CopyMapFileDatas[int(id)]).(*CopyMapFileData)
+}
+
+//
+//检查进入地图条件 如果不能进入则返回空nil
+func CheckGotoCopyMap(id int32, level int32) *CopyMapFileData {
+	mapfiledata := GetCopyMapFileData(id)
+	if mapfiledata == nil {
+		return nil
+	}
+	if mapfiledata.IsOpen != 1 {
+		return nil
+	}
+	if mapfiledata.NeedLevel > level {
+		return nil
+	}
+
+	return mapfiledata
+
+}
+
 //副本配置文件数据
 type CopyMapFileData struct {
 	//配置文件数据
