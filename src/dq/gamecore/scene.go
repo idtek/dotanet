@@ -122,6 +122,8 @@ type Scene struct {
 	NeedCreateBossInfo *utils.BeeMap                   //需要创建的boss信息
 	NoramlUnitCount    int32                           //当前场景中的普通单位数量
 
+	CharacterGroups *utils.BeeMap //角色小组信息
+
 	Players   map[int32]*Player           //游戏中所有的玩家
 	Units     map[int32]*Unit             //游戏中所有的单位
 	ZoneUnits map[utils.SceneZone][]*Unit //区域中的单位
@@ -190,6 +192,8 @@ func (this *Scene) Init() {
 	this.NextRemovePlayer = utils.NewBeeMap()
 
 	this.NeedCreateBossInfo = utils.NewBeeMap()
+
+	this.CharacterGroups = utils.NewBeeMap()
 
 	//this.DropItems = utils.NewBeeMap()
 
@@ -295,6 +299,11 @@ func (this *Scene) Init() {
 	//	hero2.Body = this.MoveCore.CreateBody(pos2, r2, 0, 2)
 	//	this.Units[hero2.ID] = hero2
 
+}
+
+//设置角色小组ID
+func (this *Scene) SetSceneCharacterGroups(characterid int32, groupid int32) {
+	this.CharacterGroups.Set(characterid, groupid)
 }
 
 //检查是否要创建boss
@@ -407,10 +416,18 @@ func (this *Scene) DoEndException() {
 			GuildManagerObj.ReSetGuildRank()
 			//获取公会经验值
 			guildexparr := utils.GetInt32FromString3(this.ExceptionParam, ",")
+
 			//设置排序
 			for k, v := range p {
 				log.Info("-----------rank:%d  %d", v.GuildId, k)
 				GuildManagerObj.SetGuildRank(v.GuildId, int32(k)+1)
+				if int32(k) == 0 {
+					//获得第一名时通知全服玩家的 跑马灯
+					oneguild := GuildManagerObj.GetGuild(p[0].GuildId)
+					if oneguild != nil {
+						this.SendNoticeWordToQuanFuPlayer(48, oneguild.Name)
+					}
+				}
 				//获取公会经验
 				if len(guildexparr) > 0 {
 					getexp := int32(0)
@@ -740,9 +757,37 @@ func (this *Scene) DoSendData() {
 		if v == nil {
 			continue
 		}
+		myguild := player.MyGuild
+		//场景中的同工会玩家
+		if myguild != nil {
+			for _, player1 := range this.Players {
+				otherguild := player1.MyGuild
+				otherunit := player1.MainUnit
+				if otherguild == nil || otherunit == nil {
+					continue
+				}
+				if myguild.GuildId == otherguild.GuildId {
+					player.AddUnitData(otherunit)
+				}
+			}
+		}
+		//场景中的同小组玩家
+		if player.GroupID > 0 {
+			for _, player1 := range this.Players {
+				otherunit := player1.MainUnit
+				if otherunit == nil {
+					continue
+				}
+				if player.GroupID == player1.GroupID {
+					player.AddUnitData(otherunit)
+				}
+			}
+		}
+
 		zones := utils.GetVisibleZones((v.Body.Position.X), (v.Body.Position.Y))
 		//遍历可视区域
 		for _, vzone := range zones {
+			//可视区域的单位
 			if _, ok := this.ZoneUnits[vzone]; ok {
 				//遍历区域中的单位
 				for _, unit := range this.ZoneUnits[vzone] {
@@ -1191,6 +1236,8 @@ func (this *Scene) Close() {
 	this.Quit = true
 }
 
+//设置小组ID
+
 //玩家进入
 func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo) bool {
 	//if player.MainUnit == nil {
@@ -1199,6 +1246,14 @@ func (this *Scene) PlayerGoin(player *Player, characterinfo *db.DB_CharacterInfo
 	}
 	if this.ForceAttackMode != 0 {
 		characterinfo.AttackMode = this.ForceAttackMode
+	}
+
+	//设置角色的小组ID
+	groupid := this.CharacterGroups.Get(player.Characterid)
+	if groupid != nil {
+		player.GroupID = groupid.(int32)
+	} else {
+		player.GroupID = 0
 	}
 
 	player.MainUnit = CreateUnitByPlayer(this, player, characterinfo)

@@ -173,6 +173,8 @@ func (this *CopyMapMgr) Update() {
 						msg := &protomsg.SC_ShowPiPeiInfo{}
 						msg.PiPeiState = 1
 						v2.PlayerInfo.SendMsgToClient("SC_ShowPiPeiInfo", msg)
+
+						v2.PlayerInfo.SendNoticeWordToClient(47) //匹配副本成功提示
 						this.CopyMapPlayerPool.Delete(v2.PlayerInfo.Characterid)
 					}
 					allcmplayer = make([]*CopyMapPlayer, 0)

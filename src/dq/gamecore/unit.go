@@ -1321,12 +1321,17 @@ func (this *Unit) CheckIsEnemy(target *Unit) bool {
 	if target == nil {
 		return false
 	}
-	//同一个公会的不能成为敌人
+
 	if this.MyPlayer != nil && target.MyPlayer != nil {
+		//同一个公会的不能成为敌人
 		if this.MyPlayer.MyGuild != nil && target.MyPlayer.MyGuild != nil {
 			if this.MyPlayer.MyGuild.GuildId == target.MyPlayer.MyGuild.GuildId {
 				return false
 			}
+		}
+		//同一小组的不能成为敌人
+		if this.MyPlayer.GroupID > 0 && this.MyPlayer.GroupID == target.MyPlayer.GroupID {
+			return false
 		}
 	}
 
@@ -4224,6 +4229,7 @@ func (this *Unit) FreshClientData() {
 	this.ClientData.WatchVedioAddDiamond = conf.GetCurLookVedioAddDiamond(this.WatchVedioCountOneDay)
 	if this.MyPlayer != nil {
 		this.ClientData.TeamID = this.MyPlayer.TeamID
+		this.ClientData.GroupID = this.MyPlayer.GroupID
 		this.ClientData.Characterid = this.MyPlayer.Characterid
 		if this.MyPlayer.MyGuild != nil {
 			this.ClientData.GuildID = this.MyPlayer.MyGuild.GuildId
@@ -4400,6 +4406,8 @@ func (this *Unit) FreshClientDataSub() {
 
 	if this.MyPlayer != nil {
 		this.ClientDataSub.TeamID = this.MyPlayer.TeamID - this.ClientData.TeamID
+		this.ClientDataSub.GroupID = this.MyPlayer.GroupID - this.ClientData.GroupID
+
 		this.ClientDataSub.Characterid = this.MyPlayer.Characterid - this.ClientData.Characterid
 
 		if this.MyPlayer.MyGuild != nil {

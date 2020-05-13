@@ -234,7 +234,10 @@ func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid in
 		//如果场景文件不存在
 		return
 	}
-	a.CreateScene(scenefile, newid)
+	newscene := a.CreateScene(scenefile, newid)
+	if newscene == nil {
+		return
+	}
 
 	//玩家进入地图
 	//进入新地图
@@ -251,8 +254,9 @@ func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid in
 			if oldscene != nil {
 				oldscene.HuiChengPlayer.Set(player, &doorway)
 			}
-
 		}
+		//把小组ID都设为1
+		newscene.SetSceneCharacterGroups(player.Characterid, 1)
 	}
 
 }

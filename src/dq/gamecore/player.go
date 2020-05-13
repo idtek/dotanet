@@ -47,7 +47,8 @@ type Player struct {
 	ServerAgent       Server
 	IsLoadedSceneSucc bool //是否loading成功
 
-	TeamID int32 //组队信息
+	TeamID  int32 //团队队信息
+	GroupID int32 //小组信息(副本,moba)只属于场景 进入相关场景后会自动设置group属性
 
 	MyFriends *Friends            //好友
 	MyMails   *Mails              //邮件系统
@@ -1118,6 +1119,11 @@ func (this *Player) AddUnitData(unit *Unit) {
 	}
 	//检查玩家主单位是否能看见 目标单位
 	if this.MainUnit.CanSeeTarget(unit) == false {
+		return
+	}
+
+	//如果已经添加显示了
+	if _, ok := this.CurShowUnit[unit.ID]; ok {
 		return
 	}
 
