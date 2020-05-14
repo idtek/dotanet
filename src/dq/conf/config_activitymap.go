@@ -214,12 +214,14 @@ func CheckGotoCopyMap(id int32, level int32) *CopyMapFileData {
 //副本配置文件数据
 type CopyMapFileData struct {
 	//配置文件数据
-	ID          int32 //
-	NeedLevel   int32 //需要的等级
-	NextSceneID int32 //场景ID
-	X           float32
-	Y           float32
-	PlayerCount int32 //玩家数量
+	ID                 int32 //
+	NeedLevel          int32 //需要的等级
+	NextSceneID        int32 //场景ID
+	X                  float32
+	Y                  float32
+	PlayerCount        int32 //玩家数量
+	IsCostCopyMapTimes int32 //是否消耗匹配次数 0否 1是
+	MapType            int32 //地图类型 1:普通副本 2:竞技场
 
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 

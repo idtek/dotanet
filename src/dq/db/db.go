@@ -289,6 +289,14 @@ func (a *DB) GetExchanges(commoditys *[]DB_PlayerItemTransactionInfo) error {
 	return a.QueryAnything(sqlstr, commoditys)
 }
 
+//获取竞技场信息
+func (a *DB) GetBattle(commoditys *[]DB_BattleInfo) error {
+
+	sqlstr := "SELECT * FROM battle"
+
+	return a.QueryAnything(sqlstr, commoditys)
+}
+
 //获取公会拍卖物品信息
 func (a *DB) GetAuction(commoditys *[]DB_AuctionInfo) error {
 

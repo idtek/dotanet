@@ -104,3 +104,16 @@ type DB_AuctionInfo struct {
 	BidderCharacterName   string `json:"biddercharactername"`   //竞拍者角色名字
 
 }
+
+//竞技场数据
+type DB_BattleInfo struct {
+	Characterid int32  `json:"characterid"`
+	Name        string `json:"name"`
+	Typeid      int32  `json:"typeid"`
+	WinCount    int32  `json:"wincount"`
+	LoseCount   int32  `json:"losecount"`
+	DrewCount   int32  `json:"drewcount"`
+	MvpCount    int32  `json:"mvpcount"`
+	FMvpCount   int32  `json:"fmvpcount"`
+	Score       int32  `json:"scorecount"`
+}

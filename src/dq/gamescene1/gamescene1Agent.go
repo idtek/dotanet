@@ -407,6 +407,10 @@ func (a *GameScene1Agent) DoDisconnect(data *protomsg.MsgBase) {
 			log.Info("---------DoDisconnect--delete")
 
 			gamecore.TeamManagerObj.LeaveTeam(player.(*gamecore.Player))
+
+			//取消匹配
+			gamecore.CopyMapMgrObj.CancelPiPei(player.(*gamecore.Player))
+
 			curscene := player.(*gamecore.Player).CurScene
 			if curscene != nil {
 				curscene.PlayerWillLeave(player.(*gamecore.Player)) //离开前的处理

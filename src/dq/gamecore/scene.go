@@ -339,6 +339,11 @@ func (this *Scene) DoStartException() {
 		typeid := params[1] //道具ID
 		this.DuoBaoQiBing = CreateSceneDuoBaoInfo(float32(time), typeid, this)
 		break
+	case 3: //竞技场
+		{
+			this.KillClean() //记录击杀数据
+		}
+		break
 	default:
 	}
 }
@@ -553,6 +558,24 @@ func (this *Scene) HuiCheng(player *Player) {
 	if this.ChangeScene == nil || player == nil {
 		return
 	}
+	if this.HuiChengMode == 0 {
+		this.HuiChengHePingShiJie(player)
+	} else if this.HuiChengMode == 1 {
+		doorway := conf.DoorWay{}
+		doorway.NextX = -1
+		doorway.NextY = -1
+		doorway.NextSceneID = this.TypeID
+
+		this.HuiChengPlayer.Set(player, &doorway)
+	}
+
+}
+
+//传送到和平城
+func (this *Scene) HuiChengHePingShiJie(player *Player) {
+	if this.ChangeScene == nil || player == nil {
+		return
+	}
 	doorway := conf.DoorWay{}
 	doorway.NextX = float32(utils.RandInt64(70, 80))
 	doorway.NextY = float32(utils.RandInt64(70, 80))
@@ -645,8 +668,8 @@ func (this *Scene) SendNoticeWordToAllPlayer(typeid int32, param ...string) {
 	}
 }
 
-//检查关闭
-func (this *Scene) CheckCloseTime() {
+//检查游戏开始多少秒后没有玩家就关闭
+func (this *Scene) CheckStartCloseTime() {
 	if this.NoPlayerCloseTime == -1 {
 		return
 	}
@@ -706,7 +729,7 @@ func (this *Scene) Update() {
 		this.DoCleanPlayer()
 
 		//检查关闭场景
-		this.CheckCloseTime()
+		this.CheckStartCloseTime()
 		//处理分区
 
 		if this.Quit {
@@ -1131,7 +1154,7 @@ func (this *Scene) DoAddAndRemoveUnit() {
 		v.(*Unit).Body = this.MoveCore.CreateBody(pos, r, 0, 1)
 		v.(*Unit).Body.Tag = int(v.(*Unit).ID)
 		//出现位置小于0 则随机一个位置
-		if v.(*Unit).InitPosition.X < 0 || v.(*Unit).InitPosition.Y < 0 {
+		if v.(*Unit).InitPosition.X <= 0 || v.(*Unit).InitPosition.Y <= 0 {
 			x := utils.GetRandomFloatTwoNum(this.StartX, this.EndX)
 			y := utils.GetRandomFloatTwoNum(this.StartY, this.EndY)
 			v.(*Unit).Body.BlinkToPos(vec2d.Vec2{X: float64(x), Y: float64(y)}, 0)
@@ -1214,19 +1237,20 @@ func (this *Scene) SetCleanPlayer(b bool) {
 
 //
 func (this *Scene) DoCleanPlayer() {
-	if this.CleanPlayer == false {
-		return
-	}
-	this.Close()
-	if this.DuoBaoQiBing != nil {
-		this.DuoBaoQiBing.DoOver()
-	}
-	//当前玩家回城
-	for _, player := range this.Players {
-		this.HuiCheng(player)
-	}
+	//CloseTime 时间到了
+	if this.CleanPlayer == true || (this.CloseTime != -1 && float32(this.CloseTime) <= float32(this.CurFrame)*(1.0/float32(this.SceneFrame))) {
+		this.Close()
+		if this.DuoBaoQiBing != nil {
+			this.DuoBaoQiBing.DoOver()
+		}
+		//当前玩家回城
+		for _, player := range this.Players {
+			this.HuiChengHePingShiJie(player)
+		}
 
-	this.DoHuiCheng()
+		this.DoHuiCheng()
+	}
+	//
 
 	//
 

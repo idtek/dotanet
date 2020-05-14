@@ -161,18 +161,31 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 	guild1 := GuildManagerObj.Guilds.Get(commodity.Guildid)
 	if guild1 == nil {
 		//不存在该公会
+		//给分红者分钱
+		for _, v := range commodity.ReceiveCharactersMap {
+			oldplayer := this.Server.GetPlayerByChaID(v)
+			//世界拍卖行 平分
+			huode := 1.0 / float64(len(commodity.ReceiveCharactersMap))
+			getmoney := int32(math.Ceil((float64(commodity.Price) * huode)))
+			log.Info("--fenhong-no guild-%f-", float64(commodity.Price))
+
+			Create_AuctionFenHong_Mail(commodity.PriceType, getmoney, v, oldplayer)
+		}
 		//本地删除该道具
 		this.Commoditys.Delete(commodity.Id)
 		//数据库删除
 		db.DbOne.DeleteAuction(commodity.Id)
 		return
 	}
+
+	//公会拍卖行
 	guild := guild1.(*GuildInfo)
 
 	//all 计算分红的钱
 	allchareceive := utils.NewBeeMap()
 	allbilie := 0.0
 	for _, v := range commodity.ReceiveCharactersMap {
+
 		one := guild.CharactersMap.Get(v)
 		if one == nil {
 			allchareceive.Set(v, float64(1.0))
@@ -195,7 +208,7 @@ func (this *AuctionManager) AuctionOver(commodity *AuctionInfo) {
 		oldplayer := this.Server.GetPlayerByChaID(v)
 		//根据品级来分红
 		huode := allchareceive.Get(v).(float64) / allbilie
-		getmoney := int32(math.Floor((float64(commodity.Price) * huode)))
+		getmoney := int32(math.Ceil((float64(commodity.Price) * huode)))
 		log.Info("--fenhong--%f--%f--%f", allchareceive.Get(v).(float64), allbilie, float64(commodity.Price))
 
 		Create_AuctionFenHong_Mail(commodity.PriceType, getmoney, v, oldplayer)

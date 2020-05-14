@@ -91,8 +91,20 @@ func (this *CopyMapMgr) JionPiPei(player *Player, copymapid int32) {
 	if unit == nil {
 		return
 	}
-	//
-	if unit.RemainCopyMapTimes <= 0 {
+
+	//检查当前场景是否允许匹配
+	if player.CurScene == nil || player.CurScene.PiPeiAble != 1 {
+		//当前场景不能匹配
+		player.SendNoticeWordToClient(49)
+		return
+	}
+
+	//IsCostCopyMapTimes
+	mapfiledata := conf.GetCopyMapFileData(copymapid)
+	if mapfiledata == nil {
+		return
+	}
+	if unit.RemainCopyMapTimes <= 0 && mapfiledata.IsCostCopyMapTimes == 1 {
 		//次数不够
 		player.SendNoticeWordToClient(44)
 		return
@@ -124,6 +136,11 @@ func (this *CopyMapMgr) GetCopyMapsInfo(player *Player) *protomsg.SC_GetCopyMaps
 	msg := &protomsg.SC_GetCopyMapsInfo{}
 	msg.Maps = make([]*protomsg.CopyMapInfo, 0)
 	for _, v := range conf.CopyMapFileDatas {
+
+		if v.(*conf.CopyMapFileData).IsOpen != 1 || v.(*conf.CopyMapFileData).MapType != 1 { //只返回普通副本地图
+			continue
+		}
+
 		one := &protomsg.CopyMapInfo{}
 		one.ID = v.(*conf.CopyMapFileData).ID
 		one.NeedLevel = v.(*conf.CopyMapFileData).NeedLevel
@@ -164,10 +181,12 @@ func (this *CopyMapMgr) Update() {
 
 					//匹配成功后把角色从匹配池里删除
 					for _, v2 := range allcmplayer {
-
-						mainunit := v2.PlayerInfo.MainUnit
-						if mainunit != nil {
-							mainunit.SubRemainCopyMapTimes(1)
+						//消耗匹配次数
+						if v1.(*conf.CopyMapFileData).IsCostCopyMapTimes == 1 {
+							mainunit := v2.PlayerInfo.MainUnit
+							if mainunit != nil {
+								mainunit.SubRemainCopyMapTimes(1)
+							}
 						}
 
 						msg := &protomsg.SC_ShowPiPeiInfo{}
