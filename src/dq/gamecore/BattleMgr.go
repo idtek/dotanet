@@ -11,7 +11,11 @@ import (
 
 //竞技场信息
 var (
-	BattleMgrObj = &BattleMgr{}
+	BattleMgrObj       = &BattleMgr{}
+	BattleInitScore    = int32(3000) //初始分
+	BattleWinAddScore  = int32(25)   //赢一次加分
+	BattleLoseAddScore = int32(-25)  //输一次加分
+	BattleDrewAddScore = int32(1)    //平一次加分
 )
 
 //角色竞技场信息
@@ -44,7 +48,9 @@ func (this *BattleMgr) LoadDataFromDB() {
 }
 
 //更改数据
-func (this *BattleMgr) ChangeData(player *Player, addwin int32, addlose int32, adddrew int32, addmvp int32, addfmvp int32, addscore int32) {
+func (this *BattleMgr) ChangeData(player *Player, addwin int32, addlose int32, adddrew int32, addmvp int32, addfmvp int32) {
+	this.OperateLock.Lock()
+	defer this.OperateLock.Unlock()
 	if player == nil {
 		return
 	}
@@ -63,7 +69,7 @@ func (this *BattleMgr) ChangeData(player *Player, addwin int32, addlose int32, a
 		characterbattleinfo.DrewCount = 0
 		characterbattleinfo.MvpCount = 0
 		characterbattleinfo.FMvpCount = 0
-		characterbattleinfo.Score = 3000
+		characterbattleinfo.Score = BattleInitScore
 	} else {
 		characterbattleinfo = cb.(*CharacterBattleInfo)
 	}
@@ -72,7 +78,16 @@ func (this *BattleMgr) ChangeData(player *Player, addwin int32, addlose int32, a
 	characterbattleinfo.DrewCount += adddrew
 	characterbattleinfo.MvpCount += addmvp
 	characterbattleinfo.FMvpCount += addfmvp
-	characterbattleinfo.Score += addscore
+	if addwin > 0 {
+		characterbattleinfo.Score += BattleWinAddScore
+	}
+	if addlose > 0 {
+		characterbattleinfo.Score += BattleLoseAddScore
+	}
+	if adddrew > 0 {
+		characterbattleinfo.Score += BattleDrewAddScore
+	}
+
 	this.Characters.Set(characterbattleinfo.Characterid, characterbattleinfo)
 
 }
