@@ -692,6 +692,120 @@ func (a *DB) SaveGuild(guild DB_GuildInfo) error {
 	return err1
 }
 
+//创建单玩家竞技场信息
+func (a *DB) CreateCharacterBattleInfo(chaid int32) (error, int32) {
+	tx, e1 := a.Mydb.Begin()
+	for tx == nil || e1 != nil {
+		log.Info("---db.begin-- :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+	}
+	res, err1 := tx.Exec("INSERT battle (characterid) SELECT (?) WHERE NOT EXISTS (SELECT * FROM battle WHERE characterid="+strconv.Itoa(int(chaid))+")", chaid)
+	if err1 != nil {
+		log.Info("INSERT battle err:%s", err1)
+		return err1, -1
+	}
+	n, e := res.RowsAffected()
+	characterid, err2 := res.LastInsertId()
+	if err1 != nil || n == 0 || e != nil || err2 != nil {
+		log.Info("INSERT battle err")
+		return tx.Rollback(), -1
+	}
+
+	err1 = tx.Commit()
+
+	return err1, int32(characterid)
+}
+
+//保存多个角色的竞技场信息
+func (a *DB) SaveCharacterBattleInfo(battlesinfo []*DB_BattleInfo) error {
+
+	if len(battlesinfo) <= 0 {
+		return nil
+	}
+
+	tx, e1 := a.Mydb.Begin()
+
+	for tx == nil || e1 != nil {
+		log.Info("DB_BattleInfo :%s", e1.Error())
+		time.Sleep(time.Millisecond * 2)
+		tx, e1 = a.Mydb.Begin()
+
+	}
+
+	for _, mailInfo := range battlesinfo {
+		if mailInfo == nil {
+			continue
+		}
+		//要存的数据
+		datastring := make(map[string]interface{})
+		datastring["characterid"] = mailInfo.Characterid
+		datastring["name"] = mailInfo.Name
+		datastring["typeid"] = mailInfo.Typeid
+		datastring["wincount"] = mailInfo.WinCount
+		datastring["losecount"] = mailInfo.LoseCount
+		datastring["drewcount"] = mailInfo.DrewCount
+		datastring["mvpcount"] = mailInfo.MvpCount
+		datastring["fmvpcount"] = mailInfo.FMvpCount
+		datastring["scorecount"] = mailInfo.Score
+
+		sqlstr := "UPDATE battle SET "
+		count := 0
+		for k, v := range datastring {
+
+			switch v.(type) {
+
+			case string:
+				sqlstr += k + "=" + "'" + v.(string) + "'"
+				break
+			case int:
+				sqlstr += k + "=" + strconv.Itoa(v.(int))
+				break
+			case int32:
+				sqlstr += k + "=" + strconv.Itoa(int(v.(int32)))
+				break
+			case int64:
+				sqlstr += k + "=" + strconv.Itoa(int(v.(int64)))
+				break
+			case float64:
+				sqlstr += k + "=" + strconv.FormatFloat(float64(v.(float64)), 'f', 4, 32)
+				break
+			case float32:
+				sqlstr += k + "=" + strconv.FormatFloat(float64(v.(float32)), 'f', 4, 32)
+				break
+			}
+			if count == len(datastring)-1 {
+
+			} else {
+				sqlstr += ","
+			}
+			count++
+
+		}
+		sqlstr += " where characterid=?"
+
+		//log.Info("SaveCharacter:%s ---%d", sqlstr, playerInfo.Characterid)
+
+		res, err1 := tx.Exec(sqlstr, mailInfo.Characterid)
+		if err1 != nil {
+			log.Info("err1 %s", err1.Error())
+			return tx.Rollback()
+		}
+		n, e := res.RowsAffected()
+		if n == 0 || e != nil {
+			if e != nil {
+				log.Info("mail err %s", e.Error())
+			}
+
+			return tx.Rollback()
+		}
+
+	}
+
+	err1 := tx.Commit()
+	return err1
+}
+
 //创建并保存拍卖行物品Auction
 func (a *DB) CreateAndSaveAuction(mailInfo *DB_AuctionInfo) {
 	_, id := a.CreateAuction()

@@ -50,9 +50,10 @@ type Player struct {
 	TeamID  int32 //团队队信息
 	GroupID int32 //小组信息(副本,moba)只属于场景 进入相关场景后会自动设置group属性
 
-	MyFriends *Friends            //好友
-	MyMails   *Mails              //邮件系统
-	MyGuild   *GuildCharacterInfo //公会系统
+	MyFriends   *Friends            //好友
+	MyMails     *Mails              //邮件系统
+	MyGuild     *GuildCharacterInfo //公会系统
+	BattleScore int32               //天梯分
 
 	BagInfo []*BagItem
 
@@ -1333,6 +1334,10 @@ func (this *Player) GoInScene(scene *Scene, datas []byte) bool {
 
 	this.LoadBagInfoFromDB(characterinfo.BagInfo)
 	this.LoadItemSkillCDFromDB(characterinfo.ItemSkillCDInfo)
+
+	//天梯分
+	this.BattleScore = BattleMgrObj.GetCharacterBattleScore(characterinfo.Characterid)
+
 	//好友信息
 	this.MyFriends = NewFriends(characterinfo.Friends, characterinfo.FriendsRequest, this)
 	//邮件信息

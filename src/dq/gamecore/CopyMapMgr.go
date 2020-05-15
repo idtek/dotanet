@@ -39,7 +39,7 @@ type CopyMapPlayer struct {
 }
 
 type CMMgrFunc interface {
-	PiPeiFuBen(players []*CopyMapPlayer, cmfid int32)
+	PiPeiFuBen(players []*CopyMapPlayer, cmfid int32, groupcount int32, grouprule int32)
 }
 
 //副本系统管理器
@@ -176,7 +176,7 @@ func (this *CopyMapMgr) Update() {
 				if len(allcmplayer) >= int(v1.(*conf.CopyMapFileData).PlayerCount) { //当人数满足情况了，就成功
 
 					if this.Server != nil {
-						this.Server.PiPeiFuBen(allcmplayer, v1.(*conf.CopyMapFileData).NextSceneID)
+						this.Server.PiPeiFuBen(allcmplayer, v1.(*conf.CopyMapFileData).NextSceneID, v1.(*conf.CopyMapFileData).GroupCount, v1.(*conf.CopyMapFileData).GroupRule)
 					}
 
 					//匹配成功后把角色从匹配池里删除

@@ -223,6 +223,9 @@ type CopyMapFileData struct {
 	IsCostCopyMapTimes int32 //是否消耗匹配次数 0否 1是
 	MapType            int32 //地图类型 1:普通副本 2:竞技场
 
+	GroupCount int32 //分成几组 0表示不分组
+	GroupRule  int32 //分组规则 0表示存随机 1表示等级平均且竞技分平均
+
 	IsOpen int32 //总开关 1表示开 其他表示关 关闭了就看不到了
 
 }

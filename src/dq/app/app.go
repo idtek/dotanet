@@ -150,6 +150,10 @@ func (app *DefaultApp) Run() error {
 	conf.CharacterMaxLevel = db.DbOne.GetCharacterMaxLevel() //读取全服最高等级
 	log.Info("------LoadCharacterMaxLevelFromDB:%d", conf.CharacterMaxLevel)
 
+	//db.DbOne.CreateCharacterBattleInfo(100)
+	//db.DbOne.CreateCharacterBattleInfo(200)
+	//db.DbOne.CreateCharacterBattleInfo(100)
+
 	//	app.DatabaseOne.Do(db.CreateDB)
 	//	db.DbOne.AddFriendsRequest(543, 542)
 	//	log.Info("test")

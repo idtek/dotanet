@@ -27,6 +27,8 @@ import (
 	"strconv"
 	"sync"
 
+	"sort"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -80,6 +82,8 @@ func (a *GameScene1Agent) Init() {
 	gamecore.GameCoreDataManagerObj.Init()
 	//初始化副本系统
 	gamecore.CopyMapMgrObj.Init(a)
+	//竞技场系统
+	gamecore.BattleMgrObj.Init()
 
 	//-------测试--------
 	//a.ceshi()
@@ -224,7 +228,29 @@ func (a *GameScene1Agent) TestGoScene(sceneid int32, player *gamecore.Player) {
 	}
 }
 
-func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid int32) {
+type CharacterBattleScoreInfo struct {
+	BattleScore int32
+	Level       int32
+	Characterid int32
+}
+
+// A slice of Pairs that implements sort.Interface to sort by Value.
+type CharacterBattleScoreInfoList []*CharacterBattleScoreInfo
+
+func (p CharacterBattleScoreInfoList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p CharacterBattleScoreInfoList) Len() int      { return len(p) }
+func (p CharacterBattleScoreInfoList) Less(i, j int) bool {
+	if p[i].BattleScore == p[j].BattleScore {
+		if p[i].Level == p[j].Level {
+			return p[i].Characterid > p[j].Characterid
+		}
+		return p[i].Level > p[j].Level
+	}
+
+	return p[i].BattleScore > p[j].BattleScore
+}
+
+func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid int32, groupcount int32, grouprule int32) {
 
 	var newid = gamecore.GetCopyMapSceneID() //获取唯一ID
 
@@ -246,6 +272,7 @@ func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid in
 	doorway.NextY = 15
 	doorway.NextSceneID = newid
 
+	sortdata := make(CharacterBattleScoreInfoList, 0)
 	for _, v := range players {
 		player := v.PlayerInfo
 		mainunit := player.MainUnit
@@ -254,9 +281,38 @@ func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid in
 			if oldscene != nil {
 				oldscene.HuiChengPlayer.Set(player, &doorway)
 			}
+			//alllevel += mainunit.Level
+			//allbattlescore += player.BattleScore
+			onedata := &CharacterBattleScoreInfo{}
+			onedata.BattleScore = player.BattleScore
+			onedata.Level = mainunit.Level
+			onedata.Characterid = player.Characterid
+			sortdata = append(sortdata, onedata)
 		}
 		//把小组ID都设为1
-		newscene.SetSceneCharacterGroups(player.Characterid, 1)
+		if groupcount == 1 {
+			newscene.SetSceneCharacterGroups(player.Characterid, 1)
+		}
+	}
+
+	//分为2组对抗
+	if groupcount == 2 && grouprule == 1 { //0表示存随机 1表示等级平均且竞技分平均
+		sort.Sort(sortdata)
+		curgroup := int32(1)
+		curgroupselectcount := int32(1)
+		for _, v := range sortdata {
+			newscene.SetSceneCharacterGroups(v.Characterid, curgroup)
+			curgroupselectcount--
+			if curgroupselectcount <= 0 { //换队
+				curgroupselectcount = 2
+				curgroup++
+				if curgroup > 2 {
+					curgroup = 1
+				}
+			}
+		}
+		// 1 4 5 8 9
+		// 2 3 6 7 10
 	}
 
 }
@@ -2184,6 +2240,7 @@ func (a *GameScene1Agent) OnClose() {
 	for _, v := range scenes {
 		v.(*gamecore.Scene).Close()
 	}
+	gamecore.BattleMgrObj.Close()
 	gamecore.CopyMapMgrObj.Close()
 	gamecore.TeamManagerObj.Close()
 

@@ -214,3 +214,13 @@ func (m *BeeMap) Items() map[interface{}]interface{} {
 	m.lock.RUnlock()
 	return r
 }
+
+func (m *BeeMap) Items2() []interface{} {
+	m.lock.RLock()
+	r := make([]interface{}, 0)
+	for _, v := range m.bm {
+		r = append(r, v)
+	}
+	m.lock.RUnlock()
+	return r
+}

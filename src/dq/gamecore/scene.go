@@ -37,6 +37,7 @@ type SceneStatisticsCharacterInfo struct {
 	GuildId     int32  //公会ID
 	GuildName   string //公会名字
 	Level       int32  //等级
+	GroupID     int32  //groupid
 	//统计数据
 	KillCount  int32 //击杀次数
 	DeathCount int32 //死亡次数
@@ -68,6 +69,8 @@ func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
 		killdata1.(*SceneStatisticsCharacterInfo).Name = killer.Name
 		killdata1.(*SceneStatisticsCharacterInfo).Level = killer.Level
 		killdata1.(*SceneStatisticsCharacterInfo).Typeid = killer.TypeID
+		killdata1.(*SceneStatisticsCharacterInfo).GroupID = killer.MyPlayer.GroupID
+
 		killguild := killer.MyPlayer.MyGuild
 		if killguild != nil {
 			killdata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
@@ -86,6 +89,7 @@ func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
 		bekilldata1.(*SceneStatisticsCharacterInfo).Name = bekiller.Name
 		bekilldata1.(*SceneStatisticsCharacterInfo).Level = bekiller.Level
 		bekilldata1.(*SceneStatisticsCharacterInfo).Typeid = bekiller.TypeID
+		bekilldata1.(*SceneStatisticsCharacterInfo).GroupID = bekiller.MyPlayer.GroupID
 		killguild := bekiller.MyPlayer.MyGuild
 		if killguild != nil {
 			bekilldata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
@@ -451,6 +455,98 @@ func (this *Scene) DoEndException() {
 		if this.DuoBaoQiBing != nil {
 
 		}
+		break
+	case 3: //竞技场
+		//一次击杀得1分 一次死亡-1分 按分数排名
+		if this.KillData == nil {
+			return
+		}
+		killdataitems := this.KillData.Items()
+		group1score := int32(0)
+		group2score := int32(0)
+		group1maxscore := int32(-10000)
+		group2maxscore := int32(-10000)
+		group1maxscorechaid := int32(-10000)
+		group2maxscorechaid := int32(-10000)
+		group1 := make([]*SceneStatisticsCharacterInfo, 0)
+		group2 := make([]*SceneStatisticsCharacterInfo, 0)
+		for _, v := range killdataitems { //
+			if v == nil {
+				continue
+			}
+			sdata := v.(*SceneStatisticsCharacterInfo)
+			onescore := sdata.KillCount - sdata.DeathCount
+			if sdata.GroupID == 1 {
+				group1score += onescore
+				if onescore > group1maxscore {
+					group1maxscore = onescore
+					group1maxscorechaid = sdata.Characterid
+				}
+				group1 = append(group1, sdata)
+			} else if sdata.GroupID == 2 {
+				group2score += onescore
+				if onescore > group2maxscore {
+					group2maxscore = onescore
+					group2maxscorechaid = sdata.Characterid
+				}
+				group2 = append(group2, sdata)
+			}
+		}
+		//Players
+		//(playerchaid , name , typeid , addwin , addlose , adddrew , addmvp , addfmvp )
+		if group1score > group2score {
+			for _, v := range group1 { //胜利
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
+				}
+			}
+			for _, v := range group2 { //失败
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
+				}
+			}
+		} else if group1score == group2score {
+			for _, v := range group1 { //平局
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
+				}
+			}
+			for _, v := range group2 { //平局
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
+				}
+			}
+		} else {
+			for _, v := range group2 { //胜利
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
+				}
+			}
+			for _, v := range group1 { //失败
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
+				}
+			}
+		}
+		//GroupID
 		break
 	default:
 	}
