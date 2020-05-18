@@ -747,7 +747,7 @@ func (a *DB) SaveCharacterBattleInfo(battlesinfo []*DB_BattleInfo) error {
 		datastring["drewcount"] = mailInfo.DrewCount
 		datastring["mvpcount"] = mailInfo.MvpCount
 		datastring["fmvpcount"] = mailInfo.FMvpCount
-		datastring["scorecount"] = mailInfo.Score
+		datastring["score"] = mailInfo.Score
 
 		sqlstr := "UPDATE battle SET "
 		count := 0

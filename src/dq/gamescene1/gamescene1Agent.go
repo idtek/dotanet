@@ -185,6 +185,11 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetCopyMapsInfo"] = a.DoGetCopyMapsInfo
 	a.handles["CS_CopyMapPiPei"] = a.DoCopyMapPiPei
 	a.handles["CS_CopyMapCancel"] = a.DoCopyMapCancel
+	//竞技场
+	a.handles["CS_GetBattleRankInfo"] = a.DoGetBattleRankInfo
+	a.handles["CS_GetBattleMapInfo"] = a.DoGetBattleMapInfo
+	a.handles["CS_BattlePiPei"] = a.DoBattlePiPei
+	a.handles["CS_BattleCancel"] = a.DoBattleCancel
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -1135,10 +1140,96 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 	player.(*gamecore.Player).SendMsgToClient("SC_GetFriendsList", d1)
 }
 
+//a.handles["CS_BattlePiPei"] = a.DoBattlePiPei
+//	a.handles["CS_BattleCancel"] = a.DoBattleCancel
+func (a *GameScene1Agent) DoBattlePiPei(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_BattlePiPei{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	gamecore.CopyMapMgrObj.JionPiPei(player.(*gamecore.Player), h2.CopyMapID)
+
+	msg1 := gamecore.CopyMapMgrObj.GetOneCopyMapsInfo(player.(*gamecore.Player), conf.BattleMapID)
+	if msg1 != nil {
+		msg := &protomsg.SC_GetBattleMapInfo{}
+		msg.BattleMapInfo = msg1
+		player.(*gamecore.Player).SendMsgToClient("SC_GetBattleMapInfo", msg)
+	}
+
+}
+func (a *GameScene1Agent) DoBattleCancel(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_BattleCancel{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	gamecore.CopyMapMgrObj.CancelPiPei(player.(*gamecore.Player))
+
+	msg1 := gamecore.CopyMapMgrObj.GetOneCopyMapsInfo(player.(*gamecore.Player), conf.BattleMapID)
+	if msg1 != nil {
+		msg := &protomsg.SC_GetBattleMapInfo{}
+		msg.BattleMapInfo = msg1
+		player.(*gamecore.Player).SendMsgToClient("SC_GetBattleMapInfo", msg)
+	}
+
+}
+
 //副本
 //a.handles["CS_GetCopyMapsInfo"] = a.DoGetCopyMapsInfo
 //a.handles["CS_CopyMapPiPei"] = a.DoCopyMapPiPei
 //	a.handles["CS_CopyMapCancel"] = a.DoCopyMapCancel
+//a.handles["CS_GetBattleRankInfo"] = a.DoGetBattleRankInfo
+//	a.handles["CS_GetBattleMapInfo"] = a.DoGetBattleMapInfo
+func (a *GameScene1Agent) DoGetBattleMapInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetBattleMapInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+
+	msg1 := gamecore.CopyMapMgrObj.GetOneCopyMapsInfo(player.(*gamecore.Player), conf.BattleMapID)
+	if msg1 != nil {
+		msg := &protomsg.SC_GetBattleMapInfo{}
+		msg.BattleMapInfo = msg1
+		player.(*gamecore.Player).SendMsgToClient("SC_GetBattleMapInfo", msg)
+	}
+
+}
+func (a *GameScene1Agent) DoGetBattleRankInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetBattleRankInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	msg := gamecore.BattleMgrObj.GetRank(player.(*gamecore.Player), h2)
+	if msg != nil {
+		player.(*gamecore.Player).SendMsgToClient("SC_GetBattleRankInfo", msg)
+	}
+
+}
+
 func (a *GameScene1Agent) DoCopyMapPiPei(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_CopyMapPiPei{}
 	err := proto.Unmarshal(data.Datas, h2)

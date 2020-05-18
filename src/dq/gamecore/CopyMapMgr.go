@@ -125,6 +125,33 @@ func (this *CopyMapMgr) JionPiPei(player *Player, copymapid int32) {
 	player.SendMsgToClient("SC_ShowPiPeiInfo", msg)
 }
 
+//获取单个副本信息
+func (this *CopyMapMgr) GetOneCopyMapsInfo(player *Player, id int32) *protomsg.CopyMapInfo {
+	if player == nil {
+		return nil
+	}
+	cmfdata := conf.GetCopyMapFileData(id)
+	if cmfdata == nil {
+		return nil
+	}
+
+	copymapplayer := this.CopyMapPlayerPool.Get(player.Characterid)
+
+	one := &protomsg.CopyMapInfo{}
+	one.ID = id
+	one.NeedLevel = cmfdata.NeedLevel
+	one.NextSceneID = cmfdata.NextSceneID
+	one.PlayerCount = cmfdata.PlayerCount
+	one.State = 1
+	if copymapplayer != nil {
+		if copymapplayer.(*CopyMapPlayer).PiPeiCopyMapId == cmfdata.ID {
+			one.State = 2 //匹配中
+		}
+	}
+
+	return one
+}
+
 //获取所有副本信息
 func (this *CopyMapMgr) GetCopyMapsInfo(player *Player) *protomsg.SC_GetCopyMapsInfo {
 	if player == nil {

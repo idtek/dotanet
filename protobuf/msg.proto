@@ -902,3 +902,40 @@ message CS_CopyMapCancel{
 message SC_ShowPiPeiInfo{
     int32 PiPeiState = 1;//状态 1可以匹配 2匹配中(显示正在匹配中的提示)
 }
+
+//获取竞技场排行信息
+message CS_GetBattleRankInfo{
+    int32 RankStart = 1; //起始排名
+    int32 RankCount = 2;//排名个数
+}
+//获取竞技场地图信息
+message CS_GetBattleMapInfo{
+    int32 ID = 1;
+}
+
+//返回竞技场排名
+message SC_GetBattleRankInfo{
+    repeated BattleRankOneInfo RankInfo = 1;//
+    BattleRankOneInfo MyRankInfo = 2;// 自己的排名
+}
+//获取竞技场地图信息
+message SC_GetBattleMapInfo{
+    CopyMapInfo BattleMapInfo = 1;//
+}
+
+//竞技场排名单个信息
+message BattleRankOneInfo{
+    int32 Characterid = 1;              //Characterid   
+    string Name = 2;              //  
+    int32 Typeid = 3;              //  
+    int32 Rank = 4;              //  
+    int32 Score = 5;              //  
+}
+//匹配竞技场
+message CS_BattlePiPei{
+    int32 CopyMapID = 1;
+}
+//取消匹配竞技场
+message CS_BattleCancel{
+    int32 CopyMapID = 1;
+}

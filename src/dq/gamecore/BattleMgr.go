@@ -3,6 +3,7 @@ package gamecore
 import (
 	"dq/db"
 	"dq/log"
+	"dq/protobuf"
 	"dq/timer"
 	"dq/utils"
 	"sort"
@@ -22,6 +23,7 @@ var (
 //角色竞技场信息
 type CharacterBattleInfo struct {
 	db.DB_BattleInfo
+	Rank int32
 }
 type CharacterBattleInfoList []*CharacterBattleInfo
 
@@ -39,11 +41,13 @@ func (p CharacterBattleInfoList) Less(i, j int) bool {
 }
 
 type BattleMgr struct {
-	Characters *utils.BeeMap //当前服务器交易所的商品
+	Characters *utils.BeeMap //竞技场角色
 
 	OperateLock *sync.RWMutex //同步操作锁
 
 	ChangeBattlesInfo []*db.DB_BattleInfo //改变的角色竞技场信息
+
+	CharacterSort CharacterBattleInfoList //竞技场角色排序
 
 	//时间到 倒计时
 	UpdateTimer *timer.Timer
@@ -59,8 +63,10 @@ func (this *BattleMgr) LoadDataFromDB() {
 	for _, v := range commoditys {
 		//log.Info("----------ExchangeManager load %d %v", v.Id, &commoditys[k])
 
-		this.Characters.Set(v.Characterid, &CharacterBattleInfo{v})
+		this.Characters.Set(v.Characterid, &CharacterBattleInfo{v, -1})
 	}
+
+	this.SortNoLock()
 
 }
 
@@ -128,11 +134,78 @@ func (this *BattleMgr) Init() {
 	this.Characters = utils.NewBeeMap()
 	this.ChangeBattlesInfo = make([]*db.DB_BattleInfo, 0)
 
+	this.CharacterSort = make(CharacterBattleInfoList, 0)
+
 	this.OperateLock = new(sync.RWMutex)
 
 	this.LoadDataFromDB()
 
 	this.UpdateTimer = timer.AddRepeatCallback(time.Second*10, this.Update)
+}
+
+//不加锁的排序
+func (this *BattleMgr) SortNoLock() {
+	//排序
+	items2 := this.Characters.Items()
+	this.CharacterSort = make(CharacterBattleInfoList, 0)
+	for _, v := range items2 {
+		this.CharacterSort = append(this.CharacterSort, v.(*CharacterBattleInfo))
+	}
+	sort.Sort(this.CharacterSort)
+	//log.Info("-------Rank len:%d", int32(len(this.CharacterSort)))
+
+	for rank, v := range this.CharacterSort {
+		one := this.Characters.Get(v.Characterid)
+		if one != nil {
+			one.(*CharacterBattleInfo).Rank = int32(rank) + int32(1)
+			//log.Info("-------Rank:%d", one.(*CharacterBattleInfo).Rank)
+		}
+	}
+}
+
+func (this *BattleMgr) GetRank(player *Player, data *protomsg.CS_GetBattleRankInfo) *protomsg.SC_GetBattleRankInfo {
+	this.OperateLock.RLock()
+	defer this.OperateLock.RUnlock()
+
+	if player == nil || data == nil || data.RankCount <= 0 || data.RankStart < 0 {
+		return nil
+	}
+
+	endindex := data.RankStart + data.RankCount
+	//log.Info("-------GetRank:%v  %d  %d", data, endindex, int32(len(this.CharacterSort)))
+	msg := &protomsg.SC_GetBattleRankInfo{}
+	msg.RankInfo = make([]*protomsg.BattleRankOneInfo, 0)
+	for i := data.RankStart; i < endindex && i < int32(len(this.CharacterSort)); i++ {
+		rankone := &protomsg.BattleRankOneInfo{}
+		rankone.Characterid = this.CharacterSort[i].Characterid
+		rankone.Name = this.CharacterSort[i].Name
+		rankone.Typeid = this.CharacterSort[i].Typeid
+		rankone.Rank = i + 1
+		rankone.Score = this.CharacterSort[i].Score
+		msg.RankInfo = append(msg.RankInfo, rankone)
+	}
+
+	mydata := this.Characters.Get(player.Characterid)
+	if mydata == nil {
+		msg.MyRankInfo = &protomsg.BattleRankOneInfo{}
+		msg.MyRankInfo.Characterid = player.Characterid
+		mainunit := player.MainUnit
+		if mainunit != nil {
+			msg.MyRankInfo.Name = mainunit.Name
+			msg.MyRankInfo.Typeid = mainunit.TypeID
+		}
+		msg.MyRankInfo.Rank = -1
+		msg.MyRankInfo.Score = BattleInitScore
+	} else {
+		msg.MyRankInfo = &protomsg.BattleRankOneInfo{}
+		msg.MyRankInfo.Characterid = mydata.(*CharacterBattleInfo).Characterid
+		msg.MyRankInfo.Name = mydata.(*CharacterBattleInfo).Name
+		msg.MyRankInfo.Typeid = mydata.(*CharacterBattleInfo).Typeid
+		msg.MyRankInfo.Rank = mydata.(*CharacterBattleInfo).Rank
+		msg.MyRankInfo.Score = mydata.(*CharacterBattleInfo).Score
+	}
+
+	return msg
 }
 
 func (this *BattleMgr) Close() {
@@ -156,11 +229,6 @@ func (this *BattleMgr) Update() {
 	//入库改变的信息
 	db.DbOne.SaveCharacterBattleInfo(this.ChangeBattlesInfo)
 	this.ChangeBattlesInfo = make([]*db.DB_BattleInfo, 0)
-	//排序
-	items2 := this.Characters.Items()
-	psort := make(CharacterBattleInfoList, 0)
-	for _, v := range items2 {
-		psort = append(psort, v.(*CharacterBattleInfo))
-	}
-	sort.Sort(psort)
+
+	this.SortNoLock()
 }

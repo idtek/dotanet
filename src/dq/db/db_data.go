@@ -115,5 +115,5 @@ type DB_BattleInfo struct {
 	DrewCount   int32  `json:"drewcount"`
 	MvpCount    int32  `json:"mvpcount"`
 	FMvpCount   int32  `json:"fmvpcount"`
-	Score       int32  `json:"scorecount"`
+	Score       int32  `json:"score"`
 }
