@@ -121,6 +121,7 @@ message SC_GetItemExtraInfo {
     int32 TypeId = 1;//道具ID
     int32 Exception = 2;//
     string ExceptionParam = 3;//
+    int32 EquipNeedLevel = 4;//
 }
 
 //获取自己背包详细信息 
@@ -412,6 +413,7 @@ message SC_NewScene{
     int32  TimeHour = 6;//
     int32  TimeMinute = 7;//
     int32  TimeSecond = 8;//
+    int32  DataShowType = 9;////数据显示类型 0不显示 1公会战数据 2竞技场数据
 }
 
 
@@ -938,4 +940,28 @@ message CS_BattlePiPei{
 //取消匹配竞技场
 message CS_BattleCancel{
     int32 CopyMapID = 1;
+}
+
+
+//查看竞技场面板
+message CS_GetBattleHeroInfo{
+    int32 SceneID = 1; //场景ID
+}
+//竞技场面板
+message SC_GetBattleHeroInfo{
+    repeated BattleOverPlayerOneInfo Group1 = 1;//
+    repeated BattleOverPlayerOneInfo Group2 = 2;//
+    int32 WinnerGroup = 3; // 0表示 没有结束 1表示队伍1胜利 2表示队伍2胜利 3表示平局
+}
+
+//竞技场面板查看的单个玩家信息
+message BattleOverPlayerOneInfo{
+    int32 Characterid = 1;              //Characterid   
+    string Name = 2;              //  
+    int32 Typeid = 3;              //  
+    int32 Score = 4;              //  
+    int32 KillCount = 5;
+    int32 DeathCount = 6;
+    int32 Level = 7;
+    repeated string  EquipItems = 8;//装备1
 }

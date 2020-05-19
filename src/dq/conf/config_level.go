@@ -22,7 +22,7 @@ import (
 var (
 	LevelFileDatas = make(map[interface{}]interface{})
 
-	MaxLevel = int32(20)
+	MaxLevel = int32(30)
 
 	FirstKillGetGold = int32(200)
 )

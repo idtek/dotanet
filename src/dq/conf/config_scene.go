@@ -70,6 +70,8 @@ type SceneFileData struct {
 	HuiChengMode int32 //0表示回到和平世界 1表示回到本地图随机位置
 	PiPeiAble    int32 //是否可以匹配 0否 1可以
 
+	DataShowType int32 //数据显示类型 0不显示 1公会战数据 2竞技场数据
+
 	//特殊情况处理
 	Exception      int32  //0表示没有特殊情况 1:工会战 2夺宝奇兵 3竞技场
 	ExceptionParam string //特殊情况处理参数:1(根据排名获得的公会经验) 2(需要保留宝箱的时间,宝箱道具ID)

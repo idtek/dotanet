@@ -190,6 +190,7 @@ func (a *GameScene1Agent) Init() {
 	a.handles["CS_GetBattleMapInfo"] = a.DoGetBattleMapInfo
 	a.handles["CS_BattlePiPei"] = a.DoBattlePiPei
 	a.handles["CS_BattleCancel"] = a.DoBattleCancel
+	a.handles["CS_GetBattleHeroInfo"] = a.DoGetBattleHeroInfo
 
 	//创建场景
 	allscene := conf.GetAllScene()
@@ -612,6 +613,7 @@ func (a *GameScene1Agent) DoUserEnterScene(h2 *protomsg.MsgUserEnterScene) {
 		msg.TimeHour = int32(time.Now().Hour())
 		msg.TimeMinute = int32(time.Now().Minute())
 		msg.TimeSecond = int32(time.Now().Second())
+		msg.DataShowType = scene.(*gamecore.Scene).DataShowType
 		player.(*gamecore.Player).SendMsgToClient("SC_NewScene", msg)
 
 		log.Info("SendMsgToClient SC_NewScene")
@@ -785,6 +787,7 @@ func (a *GameScene1Agent) DoGetItemExtraInfo(data *protomsg.MsgBase) {
 	msg.TypeId = h2.TypeId
 	msg.Exception = itemdata.Exception
 	msg.ExceptionParam = itemdata.ExceptionParam
+	msg.EquipNeedLevel = itemdata.EquipNeedLevel
 	player.(*gamecore.Player).SendMsgToClient("SC_GetItemExtraInfo", msg)
 }
 
@@ -1142,6 +1145,30 @@ func (a *GameScene1Agent) DoGetFriendsList(data *protomsg.MsgBase) {
 
 //a.handles["CS_BattlePiPei"] = a.DoBattlePiPei
 //	a.handles["CS_BattleCancel"] = a.DoBattleCancel
+//a.handles["CS_GetBattleHeroInfo"] = a.DoGetBattleHeroInfo
+
+func (a *GameScene1Agent) DoGetBattleHeroInfo(data *protomsg.MsgBase) {
+	h2 := &protomsg.CS_GetBattleHeroInfo{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	player := a.Players.Get(data.Uid)
+	if player == nil {
+		return
+	}
+	onescene := player.(*gamecore.Player).CurScene
+	if onescene == nil {
+		return
+	}
+	msg := onescene.GetBattleInfo()
+	if msg != nil {
+		player.(*gamecore.Player).SendMsgToClient("SC_GetBattleHeroInfo", msg)
+	}
+
+}
+
 func (a *GameScene1Agent) DoBattlePiPei(data *protomsg.MsgBase) {
 	h2 := &protomsg.CS_BattlePiPei{}
 	err := proto.Unmarshal(data.Datas, h2)

@@ -67,6 +67,8 @@ type Player struct {
 
 	LastSendChatTime float64 //上一次发送聊天的时间
 
+	LastDBInfo *db.DB_CharacterInfo //最近的数据库信息
+
 	//OtherUnit  *Unit //其他单位
 
 	//组合数据包相关
@@ -340,7 +342,7 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 			if dest != nil { //检测是否能装备到身上
 				destitemdata := conf.GetItemData(dest.TypeID)
 				if destitemdata != nil {
-					if destitemdata.EquipAble != 1 { //检测是否能装备到身上
+					if destitemdata.EquipAble != 1 || destitemdata.EquipNeedLevel > this.MainUnit.Level { //检测是否能装备到身上
 						return
 					}
 				}
@@ -372,7 +374,7 @@ func (this *Player) ChangeItemPos(data *protomsg.CS_ChangeItemPos) {
 			if src != nil { //检测是否能装备到身上
 				srcitemdata := conf.GetItemData(src.TypeID)
 				if srcitemdata != nil {
-					if srcitemdata.EquipAble != 1 { //检测是否能装备到身上
+					if srcitemdata.EquipAble != 1 || srcitemdata.EquipNeedLevel > this.MainUnit.Level { //检测是否能装备到身上
 						return
 					}
 				}
@@ -496,7 +498,7 @@ func (this *Player) AddItem(typeid int32, level int32) bool {
 	//检测道具是否可以装备到身上
 	itemdata := conf.GetItemData(typeid)
 	if itemdata != nil {
-		if itemdata.EquipAble == 1 { //检测是否能装备到身上
+		if itemdata.EquipAble == 1 && itemdata.EquipNeedLevel <= this.MainUnit.Level { //检测是否能装备到身上
 			for _, v := range this.MainUnit.Items {
 				if v == nil {
 
@@ -1079,8 +1081,16 @@ func (this *Player) GetDBData() *db.DB_CharacterInfo {
 		}
 	}
 	dbdata.ItemSkillCDInfo = itemskillcdinfo
-
+	this.LastDBInfo = &dbdata
 	return &dbdata
+}
+
+//获取上次的dbdata
+func (this *Player) GetLastDBData() *db.DB_CharacterInfo {
+	if this.LastDBInfo == nil {
+		this.GetDBData()
+	}
+	return this.LastDBInfo
 }
 
 //存档数据
@@ -1092,6 +1102,7 @@ func (this *Player) SaveDB() {
 	if dbdata == nil {
 		return
 	}
+
 	db.DbOne.SaveCharacter(*dbdata)
 
 }

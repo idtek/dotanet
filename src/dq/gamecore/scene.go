@@ -38,6 +38,7 @@ type SceneStatisticsCharacterInfo struct {
 	GuildName   string //公会名字
 	Level       int32  //等级
 	GroupID     int32  //groupid
+	MainUnit    *Unit  //单位
 	//统计数据
 	KillCount  int32 //击杀次数
 	DeathCount int32 //死亡次数
@@ -47,6 +48,39 @@ type SceneStatisticsCharacterInfo struct {
 //场景统计 (击杀死亡)
 type SceneStatistics struct {
 	KillData *utils.BeeMap //击杀数据 key:Characterid value:SceneStatisticsCharacterInfo
+}
+
+//初始化击杀记录的玩家信息
+func (this *SceneStatistics) InitPlayerKill(player *Player) {
+	if player == nil || this.KillData == nil {
+		return
+	}
+	mainunit := player.MainUnit
+	if mainunit == nil {
+		return
+	}
+	killdata1 := this.KillData.Get(player.Characterid)
+
+	if killdata1 == nil {
+		killdata1 = &SceneStatisticsCharacterInfo{}
+		killdata1.(*SceneStatisticsCharacterInfo).Characterid = player.Characterid
+		killdata1.(*SceneStatisticsCharacterInfo).Name = mainunit.Name
+		killdata1.(*SceneStatisticsCharacterInfo).Level = mainunit.Level
+		killdata1.(*SceneStatisticsCharacterInfo).Typeid = mainunit.TypeID
+		killdata1.(*SceneStatisticsCharacterInfo).GroupID = player.GroupID
+
+		killguild := player.MyGuild
+		if killguild != nil {
+			killdata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
+			killdata1.(*SceneStatisticsCharacterInfo).GuildName = killguild.GuildName
+		}
+		killdata1.(*SceneStatisticsCharacterInfo).MainUnit = mainunit
+		killdata1.(*SceneStatisticsCharacterInfo).KillCount = 0
+		killdata1.(*SceneStatisticsCharacterInfo).DeathCount = 0
+
+		this.KillData.Set(player.Characterid, killdata1)
+	}
+
 }
 
 //击杀动作(不需要加锁 场景逻辑循坏里执行)
@@ -64,41 +98,20 @@ func (this *SceneStatistics) KillAction(killer *Unit, bekiller *Unit) {
 	//击杀者信息
 	killdata1 := this.KillData.Get(killer.MyPlayer.Characterid)
 	if killdata1 == nil {
-		killdata1 = &SceneStatisticsCharacterInfo{}
-		killdata1.(*SceneStatisticsCharacterInfo).Characterid = killer.MyPlayer.Characterid
-		killdata1.(*SceneStatisticsCharacterInfo).Name = killer.Name
-		killdata1.(*SceneStatisticsCharacterInfo).Level = killer.Level
-		killdata1.(*SceneStatisticsCharacterInfo).Typeid = killer.TypeID
-		killdata1.(*SceneStatisticsCharacterInfo).GroupID = killer.MyPlayer.GroupID
-
-		killguild := killer.MyPlayer.MyGuild
-		if killguild != nil {
-			killdata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
-			killdata1.(*SceneStatisticsCharacterInfo).GuildName = killguild.GuildName
-		}
-
-		this.KillData.Set(killer.MyPlayer.Characterid, killdata1)
+		log.Info("无效击杀")
+		return
 	}
 	killdata1.(*SceneStatisticsCharacterInfo).KillCount += 1
+	killdata1.(*SceneStatisticsCharacterInfo).MainUnit = killer
 
 	//被击杀者信息
 	bekilldata1 := this.KillData.Get(bekiller.MyPlayer.Characterid)
 	if bekilldata1 == nil {
-		bekilldata1 = &SceneStatisticsCharacterInfo{}
-		bekilldata1.(*SceneStatisticsCharacterInfo).Characterid = bekiller.MyPlayer.Characterid
-		bekilldata1.(*SceneStatisticsCharacterInfo).Name = bekiller.Name
-		bekilldata1.(*SceneStatisticsCharacterInfo).Level = bekiller.Level
-		bekilldata1.(*SceneStatisticsCharacterInfo).Typeid = bekiller.TypeID
-		bekilldata1.(*SceneStatisticsCharacterInfo).GroupID = bekiller.MyPlayer.GroupID
-		killguild := bekiller.MyPlayer.MyGuild
-		if killguild != nil {
-			bekilldata1.(*SceneStatisticsCharacterInfo).GuildId = killguild.GuildId
-			bekilldata1.(*SceneStatisticsCharacterInfo).GuildName = killguild.GuildName
-		}
-
-		this.KillData.Set(bekiller.MyPlayer.Characterid, bekilldata1)
+		log.Info("无效被击杀")
+		return
 	}
 	bekilldata1.(*SceneStatisticsCharacterInfo).DeathCount += 1
+	bekilldata1.(*SceneStatisticsCharacterInfo).MainUnit = bekiller
 
 	log.Info("kill action:%d", killdata1.(*SceneStatisticsCharacterInfo).KillCount)
 
@@ -375,6 +388,191 @@ func (p GuildRankInfoList) Less(i, j int) bool {
 	return p[i].Score > p[j].Score
 }
 
+//获取竞技场面板信息
+func (this *Scene) GetBattleInfo() *protomsg.SC_GetBattleHeroInfo {
+	if this.Exception != 3 || this.KillData == nil { //竞技场
+		return nil
+	}
+	msg := &protomsg.SC_GetBattleHeroInfo{}
+	msg.Group1 = make([]*protomsg.BattleOverPlayerOneInfo, 0)
+	msg.Group2 = make([]*protomsg.BattleOverPlayerOneInfo, 0)
+	msg.WinnerGroup = 0 // 0表示 没有结束 1表示队伍1胜利 2表示队伍2胜利
+	killdataitems := this.KillData.Items()
+	for chaid, killdata1 := range killdataitems {
+		if killdata1 == nil {
+			continue
+		}
+		mainunit := killdata1.(*SceneStatisticsCharacterInfo).MainUnit
+		if mainunit == nil {
+			continue
+		}
+		player := killdata1.(*SceneStatisticsCharacterInfo).MainUnit.MyPlayer
+		if player == nil {
+			continue
+		}
+
+		one := &protomsg.BattleOverPlayerOneInfo{}
+		one.Characterid = chaid.(int32)
+		one.Score = player.BattleScore
+		one.Name = mainunit.Name
+		one.Typeid = mainunit.TypeID
+		one.KillCount = killdata1.(*SceneStatisticsCharacterInfo).KillCount
+		one.DeathCount = killdata1.(*SceneStatisticsCharacterInfo).DeathCount
+		one.Level = killdata1.(*SceneStatisticsCharacterInfo).Level
+		chadata := player.GetLastDBData()
+		one.EquipItems = make([]string, UnitEquitCount)
+		one.EquipItems[0] = chadata.Item1
+		one.EquipItems[1] = chadata.Item2
+		one.EquipItems[2] = chadata.Item3
+		one.EquipItems[3] = chadata.Item4
+		one.EquipItems[4] = chadata.Item5
+		one.EquipItems[5] = chadata.Item6
+
+		if player.GroupID == 1 {
+			msg.Group1 = append(msg.Group1, one)
+		} else if player.GroupID == 2 {
+			msg.Group2 = append(msg.Group2, one)
+		}
+
+	}
+
+	return msg
+}
+
+//场景结束玩家离开之前 处理异常情况
+func (this *Scene) DoEndExceptionBeforePlayerLeave() {
+	if this.Exception == 0 {
+		return
+	}
+	switch this.Exception {
+	case 3: //竞技场
+		//一次击杀得1分 一次死亡-1分 按分数排名
+		if this.KillData == nil {
+			return
+		}
+		killdataitems := this.KillData.Items()
+		group1score := int32(0)
+		group2score := int32(0)
+		group1maxscore := int32(-10000)
+		group2maxscore := int32(-10000)
+		group1maxscorechaid := int32(-10000)
+		group2maxscorechaid := int32(-10000)
+		group1 := make([]*SceneStatisticsCharacterInfo, 0)
+		group2 := make([]*SceneStatisticsCharacterInfo, 0)
+
+		for _, v := range killdataitems { //
+			if v == nil {
+				continue
+			}
+			sdata := v.(*SceneStatisticsCharacterInfo)
+			onescore := sdata.KillCount - sdata.DeathCount
+			if sdata.GroupID == 1 {
+				group1score += onescore
+				if onescore > group1maxscore {
+					group1maxscore = onescore
+					group1maxscorechaid = sdata.Characterid
+				}
+				group1 = append(group1, sdata)
+			} else if sdata.GroupID == 2 {
+				group2score += onescore
+				if onescore > group2maxscore {
+					group2maxscore = onescore
+					group2maxscorechaid = sdata.Characterid
+				}
+				group2 = append(group2, sdata)
+			}
+
+		}
+
+		paramarr := utils.GetInt32FromString3(this.ExceptionParam, ",")
+		wingetexp := int32(0)
+		if len(paramarr) > 0 {
+			wingetexp = paramarr[0]
+		}
+
+		//Players
+		//(playerchaid , name , typeid , addwin , addlose , adddrew , addmvp , addfmvp )
+		winnergroup := int32(0)
+		if group1score > group2score {
+			winnergroup = 1
+			for _, v := range group1 { //胜利
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
+				}
+				if d1.MainUnit != nil {
+					d1.MainUnit.AddExperience(wingetexp)
+				}
+			}
+			for _, v := range group2 { //失败
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
+				}
+			}
+		} else if group1score == group2score {
+			winnergroup = 3
+			for _, v := range group1 { //平局
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
+				}
+			}
+			for _, v := range group2 { //平局
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
+				}
+			}
+		} else {
+			winnergroup = 2
+			for _, v := range group2 { //胜利
+				d1 := v
+				if d1.Characterid == group2maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
+				}
+				if d1.MainUnit != nil {
+					d1.MainUnit.AddExperience(wingetexp)
+				}
+			}
+			for _, v := range group1 { //失败
+				d1 := v
+				if d1.Characterid == group1maxscorechaid {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
+				} else {
+					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
+				}
+			}
+		}
+		//GroupID
+		//胜利失败显示
+		overmsg := this.GetBattleInfo()
+		overmsg.WinnerGroup = winnergroup
+		for _, v := range killdataitems { //
+			if v == nil {
+				continue
+			}
+			sdata := v.(*SceneStatisticsCharacterInfo)
+			//给所有玩家发生胜利失败情况
+			if sdata.MainUnit.MyPlayer != nil && overmsg != nil {
+				sdata.MainUnit.MyPlayer.SendMsgToClient("SC_GetBattleHeroInfo", overmsg)
+			}
+		}
+		break
+	default:
+	}
+}
+
 //场景结束 处理异常情况
 func (this *Scene) DoEndException() {
 	if this.Exception == 0 {
@@ -457,96 +655,7 @@ func (this *Scene) DoEndException() {
 		}
 		break
 	case 3: //竞技场
-		//一次击杀得1分 一次死亡-1分 按分数排名
-		if this.KillData == nil {
-			return
-		}
-		killdataitems := this.KillData.Items()
-		group1score := int32(0)
-		group2score := int32(0)
-		group1maxscore := int32(-10000)
-		group2maxscore := int32(-10000)
-		group1maxscorechaid := int32(-10000)
-		group2maxscorechaid := int32(-10000)
-		group1 := make([]*SceneStatisticsCharacterInfo, 0)
-		group2 := make([]*SceneStatisticsCharacterInfo, 0)
-		for _, v := range killdataitems { //
-			if v == nil {
-				continue
-			}
-			sdata := v.(*SceneStatisticsCharacterInfo)
-			onescore := sdata.KillCount - sdata.DeathCount
-			if sdata.GroupID == 1 {
-				group1score += onescore
-				if onescore > group1maxscore {
-					group1maxscore = onescore
-					group1maxscorechaid = sdata.Characterid
-				}
-				group1 = append(group1, sdata)
-			} else if sdata.GroupID == 2 {
-				group2score += onescore
-				if onescore > group2maxscore {
-					group2maxscore = onescore
-					group2maxscorechaid = sdata.Characterid
-				}
-				group2 = append(group2, sdata)
-			}
-		}
-		//Players
-		//(playerchaid , name , typeid , addwin , addlose , adddrew , addmvp , addfmvp )
-		if group1score > group2score {
-			for _, v := range group1 { //胜利
-				d1 := v
-				if d1.Characterid == group1maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
-				}
-			}
-			for _, v := range group2 { //失败
-				d1 := v
-				if d1.Characterid == group2maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
-				}
-			}
-		} else if group1score == group2score {
-			for _, v := range group1 { //平局
-				d1 := v
-				if d1.Characterid == group1maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //MVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
-				}
-			}
-			for _, v := range group2 { //平局
-				d1 := v
-				if d1.Characterid == group2maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 1, 0) //fMVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 0, 1, 0, 0)
-				}
-			}
-		} else {
-			for _, v := range group2 { //胜利
-				d1 := v
-				if d1.Characterid == group2maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 1, 0) //MVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 1, 0, 0, 0, 0)
-				}
-			}
-			for _, v := range group1 { //失败
-				d1 := v
-				if d1.Characterid == group1maxscorechaid {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 1) //fMVP
-				} else {
-					BattleMgrObj.ChangeData(d1.Characterid, d1.Name, d1.Typeid, 0, 1, 0, 0, 0)
-				}
-			}
-		}
-		//GroupID
+
 		break
 	default:
 	}
@@ -1298,6 +1407,9 @@ func (this *Scene) DoAddAndRemoveUnit() {
 		this.Players[k.(int32)] = v.(*Player)
 		this.playerlock.Unlock()
 
+		//初始化击杀数据
+		this.InitPlayerKill(v.(*Player))
+
 		this.NextAddPlayer.Delete(k)
 	}
 	//this.NextAddPlayer.DeleteAll()
@@ -1339,6 +1451,7 @@ func (this *Scene) DoCleanPlayer() {
 		if this.DuoBaoQiBing != nil {
 			this.DuoBaoQiBing.DoOver()
 		}
+		this.DoEndExceptionBeforePlayerLeave()
 		//当前玩家回城
 		for _, player := range this.Players {
 			this.HuiChengHePingShiJie(player)

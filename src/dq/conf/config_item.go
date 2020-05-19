@@ -134,6 +134,8 @@ type ItemBaseData struct {
 	SaleAble  int32 //是否可以回收 1:是 2:否
 	EquipAble int32 //是否可以装备到身上 1:是 2:否
 	UseAble   int32 //是否可以使用 1:是 2:否
+
+	EquipNeedLevel int32 //装备到单位身上需要的单位等级
 	//特殊情况处理
 	Exception      int32  //0表示没有特殊情况 1:宝箱
 	ExceptionParam string //特殊情况处理参数 特殊情况为1的时候:(宝箱能开出的装备和概率)
