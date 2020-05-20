@@ -3,6 +3,7 @@ package wordsfilter
 import (
 	"bufio"
 	"bytes"
+	"dq/utils"
 	"fmt"
 	"io"
 	"os"
@@ -44,7 +45,7 @@ func (wf *WordsFilter) Generate(texts []string) map[string]*Node {
 // File content format, please wrap every sensitive word.
 func (wf *WordsFilter) GenerateWithFile(Path string) (map[string]*Node, error) {
 
-	ApplicationDir, err := os.Getwd()
+	ApplicationDir, err := utils.Getwd()
 	if err != nil {
 		panic(err)
 	}

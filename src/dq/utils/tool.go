@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
@@ -246,6 +247,15 @@ func GetInt32FromString(str string, params ...(*int32)) {
 	}
 }
 
+var WDPath, _ = os.Getwd()
+
+func Setwd(path string) {
+	WDPath = path
+}
+func Getwd() (string, error) {
+	return WDPath, nil
+}
+
 func GetCurTimeOfSecond() float64 {
 	return float64(time.Now().UnixNano()) / 1000000000.0
 }
@@ -352,6 +362,9 @@ func ReadXlsxData(path string, data interface{}) (error, map[interface{}]interfa
 }
 
 func ReadXlsxOneSheetData(path string, sheet string, data interface{}) (error, map[interface{}]interface{}) {
+	path1, _ := Getwd()
+	path = path1 + "/" + path
+
 	re := make(map[interface{}]interface{})
 	xlsx := OpenXlsl(path)
 	if xlsx == nil {

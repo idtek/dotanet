@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	//"fmt"
+	"dq/utils"
 	"dq/vec2d"
 	"io/ioutil"
 	"os"
@@ -51,7 +52,7 @@ var (
 func LoadScene(Path string) {
 	// Read config.
 
-	ApplicationDir, err := os.Getwd()
+	ApplicationDir, err := utils.Getwd()
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +110,7 @@ type Collide struct {
 func LoadCreateUnit(Path string) {
 	// Read config.
 
-	ApplicationDir, err := os.Getwd()
+	ApplicationDir, err := utils.Getwd()
 	if err != nil {
 		panic(err)
 	}

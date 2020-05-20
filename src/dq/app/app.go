@@ -37,6 +37,7 @@ import (
 	"dq/log"
 	"dq/login"
 	"dq/model"
+	"dq/utils"
 	"dq/wordsfilter"
 	"errors"
 	"math/rand"
@@ -106,12 +107,19 @@ func (app *DefaultApp) Run() error {
 	rand.Seed(time.Now().UnixNano())
 
 	mods := flag.String("models", "tt", "Log file directory?")
-	flag.Parse() //解析输入的参数
 
+	flag.Parse() //解析输入的参数
+	//fmt.Println(*mods)
 	allModsName := strings.Split(*mods, ",")
+	if len(os.Args) > 2 { //外部程序启动该程序参数
+		utils.Setwd(os.Args[0])
+		allModsName = os.Args[1:]
+		fmt.Println(os.Args[0])
+	}
+
 	//app.processId = *ProcessID
 
-	ApplicationDir, err := os.Getwd()
+	ApplicationDir, err := utils.Getwd()
 	if err != nil {
 		return errors.New("cannot find dir")
 	}
@@ -127,7 +135,7 @@ func (app *DefaultApp) Run() error {
 	}
 
 	confPath := fmt.Sprintf("%s/bin/conf/server.json", ApplicationDir)
-
+	fmt.Println(confPath)
 	f, err := os.Open(confPath)
 	if err != nil {
 		panic(err)
@@ -245,6 +253,7 @@ func (app *DefaultApp) Run() error {
 
 	signal.Notify(c, os.Interrupt, os.Kill)
 	sig := <-c
+	fmt.Println("app over11")
 	log.Debug("dq closing down (signal: %v) %d", sig, len(allModsName))
 	//}
 

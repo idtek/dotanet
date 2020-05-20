@@ -38,7 +38,7 @@ func main() {
 	//主线
 	//log.Info("test:%d", test(30))
 	//
-	//	ApplicationDir, _ := os.Getwd()
+	//	ApplicationDir, _ := utils.Getwd()
 
 	//	confPath := fmt.Sprintf("%s/bin/conf/words_filter.txt", ApplicationDir)
 
