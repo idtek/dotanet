@@ -5,6 +5,7 @@ import (
 	"dq/cyward"
 	"dq/log"
 	"dq/protobuf"
+	//"runtime"
 	"strconv"
 
 	//"dq/timer"
@@ -194,7 +195,7 @@ func CreateScene(data *conf.SceneFileData, parent ChangeSceneFunc, server Server
 
 //初始化
 func (this *Scene) Init() {
-	this.SceneFrame = 22
+	this.SceneFrame = 20
 	this.CurFrame = 0
 	this.EveryTimeDoRemainTime = 1
 	this.NoramlUnitCount = 0
@@ -924,7 +925,7 @@ func (this *Scene) Update() {
 		this.DoSendData()
 		time8 := utils.GetCurTimeOfSecond()
 
-		if time8-time1 >= 0.03 {
+		if time8-time1 >= 0.05 {
 			log.Info("time:%f %f %f %f %f  ", time2-time1, time3-time2,
 				time6-time5, time8-time7, time8-time1)
 		}
@@ -943,6 +944,7 @@ func (this *Scene) Update() {
 			this.DoEndException()
 			break
 		}
+		//runtime.GC()
 
 		this.DoSleep()
 
@@ -1056,12 +1058,16 @@ func (this *Scene) DoSendData() {
 		if v == nil {
 			continue
 		}
+
 		player.Update(this.CurFrame)
 	}
 
 	time4 := utils.GetCurTimeOfSecond()
-	if time4-time1 > 0.015 {
+	if time4-time1 > 0.030 {
 		log.Info("DoSendData:t1:%f   t2:%f  t3:%f ", time4-time3, time3-time2, time2-time1)
+		if time3-time2 > 0.01 {
+			log.Info("aa %d %d %d %d", unitcount, bulletcount, sceneitemcount, halotcount)
+		}
 	}
 
 }

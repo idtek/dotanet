@@ -233,18 +233,19 @@ func (a *ServersAgent) Run() {
 			break
 		}
 		//log.Info("------readmsg:" + string(data))
+		go func() {
+			h1 := &protomsg.MsgBase{}
+			err = proto.Unmarshal(data, h1)
+			if err != nil {
+				log.Info("--error")
+			} else {
+				if f, ok := a.handles[h1.ModeType]; ok {
+					//go f(h1)
+					f(h1)
+				}
 
-		h1 := &protomsg.MsgBase{}
-		err = proto.Unmarshal(data, h1)
-		if err != nil {
-			log.Info("--error")
-		} else {
-			if f, ok := a.handles[h1.ModeType]; ok {
-				//go f(h1)
-				f(h1)
 			}
-
-		}
+		}()
 
 	}
 }

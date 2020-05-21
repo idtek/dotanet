@@ -53,6 +53,24 @@ message CS_UseAI{
     int32  AIid = 1;//AIid
 }
 
+//进入游戏失败 需要排队
+message SC_NeedLineUp{
+    int32 FrontCount = 1;//前面的人数
+}
+//获取排队前面的人数
+message CS_GetLineUpFrontCount{
+    int32  Nothing = 1;//
+}
+//返回获取排队前面的人数
+message SC_GetLineUpFrontCount{
+    int32 FrontCount = 1;//前面的人数
+}
+
+//取消排队
+message CS_CancelLineUp{
+    int32  Nothing = 1;//
+}
+
 //装备栏
 message UnitEquip{
     int32 Pos = 1;//位置
@@ -319,9 +337,10 @@ message UnitDatas{
     int32   GuildID = 43;//公会ID
     string  GuildName = 44; //公会名字
     int32   GroupID = 45;//小组ID
-    repeated SkillDatas SD = 46;//技能数据
-    repeated BuffDatas BD = 47;//buff数据
-    repeated SkillDatas ISD = 48;//道具技能数据
+    int32   RemainExperience = 46;//今天剩余可以获取到的经验值
+    repeated SkillDatas SD = 47;//技能数据
+    repeated BuffDatas BD = 48;//buff数据
+    repeated SkillDatas ISD = 49;//道具技能数据
 
     //单位状态(idle walk attack skill die)
     //各种buff状态(单位身上的buff 包括剩余时间)

@@ -1144,10 +1144,18 @@ func (this *Player) AddUnitData(unit *Unit) {
 	if _, ok := this.LastShowUnit[unit.ID]; ok {
 		//旧单位(只更新变化的值)
 		d1 := *unit.ClientDataSub
+		if unit != this.MainUnit {
+			d1.ISD = make([]*protomsg.SkillDatas, 0)
+			d1.SD = make([]*protomsg.SkillDatas, 0)
+		}
 		this.Msg.OldUnits = append(this.Msg.OldUnits, &d1)
 	} else {
 		//新的单位数据
 		d1 := *unit.ClientData
+		if unit != this.MainUnit {
+			d1.ISD = make([]*protomsg.SkillDatas, 0)
+			//d1.SD = make([]*protomsg.SkillDatas, 0)
+		}
 		this.Msg.NewUnits = append(this.Msg.NewUnits, &d1)
 	}
 
@@ -1275,8 +1283,8 @@ func (this *Player) SendUpdateMsg(curframe int32) {
 
 	//回复客户端
 	this.Msg.CurFrame = curframe
-	this.SendMsgToClient("SC_Update", this.Msg)
 
+	this.SendMsgToClient("SC_Update", this.Msg)
 	//重置数据
 	this.LastShowUnit = this.CurShowUnit
 	this.CurShowUnit = make(map[int32]*Unit)
@@ -1305,15 +1313,28 @@ func (this *Player) SendNoticeWordToClientP(typeid int32, param []string) {
 	this.SendMsgToClient("SC_NoticeWords", msg)
 }
 
-func (this *Player) SendMsgToClient(msgtype string, msg proto.Message) {
+func (this *Player) TestSendMsgToClient(msgtype string, msg proto.Message) {
 	data := &protomsg.MsgBase{}
 	data.ConnectId = this.ConnectId
 	data.ModeType = "Client"
 	data.Uid = this.Uid
 	data.MsgType = msgtype
 
-	this.ServerAgent.WriteMsgBytes(datamsg.NewMsg1Bytes(data, msg))
+	if this.Characterid == 2961 {
+		d1 := datamsg.NewMsg1Bytes(data, msg)
+		this.ServerAgent.WriteMsgBytes(d1)
+	}
 
+}
+
+func (this *Player) SendMsgToClient(msgtype string, msg proto.Message) {
+	data := &protomsg.MsgBase{}
+	data.ConnectId = this.ConnectId
+	data.ModeType = "Client"
+	data.Uid = this.Uid
+	data.MsgType = msgtype
+	d1 := datamsg.NewMsg1Bytes(data, msg)
+	this.ServerAgent.WriteMsgBytes(d1)
 }
 
 //退出场景

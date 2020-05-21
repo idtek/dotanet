@@ -1,6 +1,7 @@
 package login
 
 import (
+	"dq/conf"
 	"dq/datamsg"
 	"dq/db"
 	"dq/log"
@@ -24,6 +25,7 @@ type LoginAgent struct {
 	handles map[string]func(data *protomsg.MsgBase)
 
 	LoginPlayers *utils.BeeMap
+	LUMgr        *LineUpMgr //排队系统
 
 	LoginLock *sync.RWMutex //锁
 }
@@ -45,12 +47,16 @@ func (a *LoginAgent) GetModeType() string {
 func (a *LoginAgent) Init() {
 
 	a.LoginPlayers = utils.NewBeeMap()
+	a.LUMgr = NewLineUpMgr()
 
 	a.handles = make(map[string]func(data *protomsg.MsgBase))
 
 	a.registerDataHandle("CS_MsgQuickLogin", a.DoQuickLoginData)
 
 	a.registerDataHandle("CS_SelectCharacter", a.DoSelectCharacter)
+
+	a.registerDataHandle("CS_GetLineUpFrontCount", a.DoGetLineUpFrontCount)
+	a.registerDataHandle("CS_CancelLineUp", a.DoCancelLineUp)
 
 	a.registerDataHandle("LoginOut", a.DoLoginOut)
 	a.registerDataHandle("Disconnect", a.DoDisconnect)
@@ -61,15 +67,45 @@ func (a *LoginAgent) Init() {
 }
 
 //--DoDisconnect
-func (a *LoginAgent) DoDisconnect(data *protomsg.MsgBase) {
-	a.LoginPlayers.Delete(data.Uid)
-	log.Info("LoginAgent-------DoDisconnect :%d", data.Uid)
+func (a *LoginAgent) DoDisconnect(datap *protomsg.MsgBase) {
+	a.LoginPlayers.Delete(datap.Uid)
+	log.Info("LoginAgent-------DoDisconnect :%d", datap.Uid)
+	if a.LUMgr != nil {
+		a.LUMgr.Cancel(datap.Uid)
+		//排队里的人进入游戏
+		data := a.LUMgr.Pop()
+
+		if data != nil {
+			log.Info("LoginAgent-------pop :%v", *data)
+			a.WriteMsgBytes(data.SendGameData)
+
+			//回复客户端
+			datasnd := &protomsg.MsgBase{}
+			datasnd.ModeType = "Client"
+			datasnd.Uid = data.Uid
+			datasnd.ConnectId = data.ConnectId
+			datasnd.MsgType = "SC_SelectCharacterResult"
+			jd := &protomsg.SC_SelectCharacterResult{}
+			jd.Code = 1 //成功
+			jd.Characterid = 1
+			a.WriteMsgBytes(datamsg.NewMsg1Bytes(datasnd, jd))
+		}
+	}
 }
 
 //DoLoginOut
 func (a *LoginAgent) DoLoginOut(data *protomsg.MsgBase) {
-	a.LoginPlayers.Delete(data.Uid)
-	log.Info("-------loginout :%d", data.Uid)
+	//	a.LoginPlayers.Delete(data.Uid)
+	//	log.Info("-------loginout :%d", data.Uid)
+	//	if a.LUMgr != nil {
+	//		a.LUMgr.Cancel(data.Uid)
+
+	//		//排队里的人进入游戏
+	//		data := a.LUMgr.Pop()
+	//		if data != nil {
+	//			a.WriteMsgBytes(data.SendGameData)
+	//		}
+	//	}
 }
 func (a *LoginAgent) DoQuickLoginData(data *protomsg.MsgBase) {
 
@@ -175,6 +211,46 @@ func (a *LoginAgent) DoQuickLoginData(data *protomsg.MsgBase) {
 
 }
 
+//a.registerDataHandle("CS_CancelLineUp", a.DoCancelLineUp)
+func (a *LoginAgent) DoCancelLineUp(data *protomsg.MsgBase) {
+	uid := data.Uid
+	log.Info("---------CS_CancelLineUp")
+	h2 := &protomsg.CS_CancelLineUp{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	if a.LUMgr != nil {
+		a.LUMgr.Cancel(uid)
+	}
+}
+
+//a.registerDataHandle("CS_GetLineUpFrontCount", a.DoGetLineUpFrontCount)
+func (a *LoginAgent) DoGetLineUpFrontCount(data *protomsg.MsgBase) {
+	uid := data.Uid
+	log.Info("---------DoGetLineUpFrontCount")
+	h2 := &protomsg.CS_GetLineUpFrontCount{}
+	err := proto.Unmarshal(data.Datas, h2)
+	if err != nil {
+		log.Info(err.Error())
+		return
+	}
+	frontcount := int32(0)
+	if a.LUMgr != nil {
+		frontcount = a.LUMgr.GetFrontMeCount(uid)
+	}
+
+	//返回前面排队的人数给玩家
+	data.ModeType = "Client"
+	data.Uid = (uid)
+	data.MsgType = "SC_GetLineUpFrontCount"
+	jd := &protomsg.SC_GetLineUpFrontCount{}
+	jd.FrontCount = frontcount //
+	a.WriteMsgBytes(datamsg.NewMsg1Bytes(data, jd))
+
+}
+
 func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 
 	a.LoginLock.Lock()
@@ -243,29 +319,18 @@ func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 		return
 	}
 
-	//回复客户端
-	data.ModeType = "Client"
-	data.Uid = (uid)
-	data.MsgType = "SC_SelectCharacterResult"
-	jd := &protomsg.SC_SelectCharacterResult{}
-	jd.Code = 1 //成功
-	jd.Characterid = characterid
-	a.WriteMsgBytes(datamsg.NewMsg1Bytes(data, jd))
-
 	//初始场景名字
 	if players[0].SceneID <= 0 {
 		players[0].SceneID = 1
 	}
 	//新创建的角色初始位置
 	if isNewCharacter == true {
+		//randnum := []int32{1, 100, 200, 300}
+		//id := randnum[rand.Intn(len(randnum))]
 		players[0].SceneID = 1
 		players[0].X = -1
 		players[0].Y = -1
 
-	} else if players[0].SceneID != 1000 { //拖回安全地图
-		//players[0].SceneID = 1000
-		//players[0].X = float32(utils.RandInt64(70, 80))
-		//players[0].Y = float32(utils.RandInt64(70, 80))
 	}
 
 	//通知进入场景
@@ -282,7 +347,33 @@ func (a *LoginAgent) DoSelectCharacter(data *protomsg.MsgBase) {
 		ModeType: datamsg.GameScene1,
 		MsgType:  "MsgUserEnterScene",
 	}
-	a.WriteMsgBytes(datamsg.NewMsg1Bytes(&t1, &t2))
+	senddata := datamsg.NewMsg1Bytes(&t1, &t2)
+	//如果超过登录人数限制 需要排队
+	if int32(a.LoginPlayers.Size()) > conf.Conf.NormalInfo.OpenLineUpCount {
+		if a.LUMgr != nil {
+			frontcount := a.LUMgr.Push(&LineUp{uid, data.ConnectId, senddata})
+			log.Info("---frontcount:%d", frontcount)
+			//返回前面排队的人数给玩家
+			data.ModeType = "Client"
+			data.Uid = (uid)
+			data.MsgType = "SC_NeedLineUp"
+			jd := &protomsg.SC_NeedLineUp{}
+			jd.FrontCount = frontcount //
+			a.WriteMsgBytes(datamsg.NewMsg1Bytes(data, jd))
+			return
+		}
+	}
+
+	//回复客户端
+	data.ModeType = "Client"
+	data.Uid = (uid)
+	data.MsgType = "SC_SelectCharacterResult"
+	jd := &protomsg.SC_SelectCharacterResult{}
+	jd.Code = 1 //成功
+	jd.Characterid = characterid
+	a.WriteMsgBytes(datamsg.NewMsg1Bytes(data, jd))
+
+	a.WriteMsgBytes(senddata)
 
 }
 

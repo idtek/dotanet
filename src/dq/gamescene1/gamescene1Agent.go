@@ -492,13 +492,13 @@ func (a *GameScene1Agent) DoDisconnect(data *protomsg.MsgBase) {
 	}
 
 	//LoginOut
-	t1 := protomsg.MsgBase{
-		ModeType:  datamsg.LoginMode,
-		MsgType:   "LoginOut",
-		Uid:       data.Uid,
-		ConnectId: data.ConnectId,
-	}
-	a.WriteMsgBytes(datamsg.NewMsg1Bytes(&t1, nil))
+	//	t1 := protomsg.MsgBase{
+	//		ModeType:  datamsg.LoginMode,
+	//		MsgType:   "LoginOut",
+	//		Uid:       data.Uid,
+	//		ConnectId: data.ConnectId,
+	//	}
+	//	a.WriteMsgBytes(datamsg.NewMsg1Bytes(&t1, nil))
 
 }
 func (a *GameScene1Agent) PlayerChangeScene(player *gamecore.Player, doorway conf.DoorWay) {

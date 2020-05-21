@@ -6,7 +6,7 @@
         //服务器监听地址
         "ServerListenPort":"127.0.0.1:12345",
         "MaxConnNum":10000,
-        "PendingWriteNum":100,
+        "PendingWriteNum":30000,
         "TimeOut":10
     },
     "LoginInfo":{
@@ -69,7 +69,9 @@
         //聊天时间间隔
         "ChatMinTime":5,
         ////没日可以进入副本次数
-        "CopyMapTimesEveryDay":5
+        "CopyMapTimesEveryDay":5,
+        //////同时在线多少玩家后需要排队
+        "OpenLineUpCount":200
     }
 
 	

@@ -15,13 +15,40 @@ type TCPConn struct {
 	writeChan chan []byte
 	closeFlag bool
 	msgParser *MsgParser
+
+	//needwritedata []byte
 }
 
 func newTCPConn(conn net.Conn, pendingWriteNum int, msgParser *MsgParser) *TCPConn {
 	tcpConn := new(TCPConn)
 	tcpConn.conn = conn
+
+	//	testcon, ok := conn.(*net.TCPConn)
+	//	if !ok {
+	//		log.Debug("conn.(*TCPConn) err ")
+	//		//error handle
+	//	}
+	//	testcon.SetWriteBuffer(1024 * 1024 * 8)
+	//	testcon.SetReadBuffer(1024 * 1024 * 8)
+
 	tcpConn.writeChan = make(chan []byte, pendingWriteNum)
 	tcpConn.msgParser = msgParser
+
+	//tcpConn.needwritedata = make([]byte, 0)
+
+	//	go func() {
+	//		for {
+	//			if tcpConn.SendData() == false {
+	//				break
+	//			}
+	//			time.Sleep(time.Millisecond * 5)
+	//		}
+
+	//		conn.Close()
+	//		tcpConn.Lock()
+	//		tcpConn.closeFlag = true
+	//		tcpConn.Unlock()
+	//	}()
 
 	go func() {
 		for b := range tcpConn.writeChan {
@@ -43,6 +70,24 @@ func newTCPConn(conn net.Conn, pendingWriteNum int, msgParser *MsgParser) *TCPCo
 
 	return tcpConn
 }
+
+//func (tcpConn *TCPConn) SendData() bool {
+//	tcpConn.Lock()
+//	defer tcpConn.Unlock()
+
+//	if len(tcpConn.needwritedata) <= 0 {
+//		return true
+//	}
+//	//tcpConn.needwritedata = append(tcpConn.needwritedata, b...)
+//	_, err := tcpConn.conn.Write(tcpConn.needwritedata)
+//	if err != nil {
+//		return false
+//	}
+//	tcpConn.needwritedata = make([]byte, 0)
+
+//	return true
+
+//}
 
 func (tcpConn *TCPConn) doDestroy() {
 	tcpConn.conn.(*net.TCPConn).SetLinger(0)
@@ -81,6 +126,12 @@ func (tcpConn *TCPConn) doWrite(b []byte) {
 	}
 
 	tcpConn.writeChan <- b
+
+	//	_, err := tcpConn.conn.Write(b)
+	//	if err != nil {
+	//		tcpConn.conn.Close()
+	//		tcpConn.closeFlag = true
+	//	}
 }
 
 // b must not be modified by the others goroutines
@@ -90,6 +141,8 @@ func (tcpConn *TCPConn) Write(b []byte) {
 	if tcpConn.closeFlag || b == nil {
 		return
 	}
+
+	//tcpConn.needwritedata = append(tcpConn.needwritedata, b...)
 
 	tcpConn.doWrite(b)
 }

@@ -1243,6 +1243,9 @@ func (this *Unit) AutoUseOneCanUseSkill(target *Unit) {
 	useskillcmd.TargetUnitID = target.ID
 	for _, v := range this.ItemSkills {
 		useskillcmd.SkillID = v.TypeID
+		if v.TypeID == 121 { //不能使用回城
+			continue
+		}
 		if this.UseSkillEnable(useskillcmd) {
 			this.SkillCmdData = useskillcmd
 			return
@@ -4243,7 +4246,8 @@ func (this *Unit) FreshClientData() {
 		}
 
 	}
-
+	this.ClientData.RemainExperience = this.RemainExperience
+	//return
 	//道具技能
 	isds := make(map[int32]int32)
 	this.ClientData.ISD = make([]*protomsg.SkillDatas, 0)
@@ -4426,6 +4430,9 @@ func (this *Unit) FreshClientDataSub() {
 			this.ClientDataSub.GuildID = 0 - this.ClientData.GuildID
 		}
 	}
+	this.ClientDataSub.RemainExperience = this.RemainExperience - this.ClientData.RemainExperience
+
+	//return
 	//道具技能
 	isds := make(map[int32]int32)
 	this.ClientDataSub.ISD = make([]*protomsg.SkillDatas, 0)
