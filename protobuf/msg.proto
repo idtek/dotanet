@@ -59,7 +59,7 @@ message SC_NeedLineUp{
 }
 //获取排队前面的人数
 message CS_GetLineUpFrontCount{
-    int32  Nothing = 1;//
+    int32  Nothing1 = 1;//
 }
 //返回获取排队前面的人数
 message SC_GetLineUpFrontCount{
