@@ -1862,6 +1862,10 @@ type Unit struct {
 	//发送数据部分
 	ClientData    *protomsg.UnitDatas //客户端显示数据
 	ClientDataSub *protomsg.UnitDatas //客户端显示差异数据
+
+	OtherClientData    *protomsg.UnitDatas //客户端显示数据  显示给其他玩家的数据
+	OtherClientDataSub *protomsg.UnitDatas //客户端显示差异数据
+
 }
 
 func (this *Unit) SetReCreateInfo(recreateinfo *conf.Unit) {
@@ -4247,7 +4251,7 @@ func (this *Unit) FreshClientData() {
 
 	}
 	this.ClientData.RemainExperience = this.RemainExperience
-	//return
+
 	//道具技能
 	isds := make(map[int32]int32)
 	this.ClientData.ISD = make([]*protomsg.SkillDatas, 0)
@@ -4335,7 +4339,11 @@ func (this *Unit) FreshClientData() {
 		this.ClientData.BD = append(this.ClientData.BD, buffdata)
 	}
 
-	//Skills map[int32]*Skill //所有技能
+	//显示给其他玩家的数据
+	d1 := *this.ClientData
+	d1.ISD = make([]*protomsg.SkillDatas, 0)
+	//d1.SD = make([]*protomsg.SkillDatas, 0)
+	this.OtherClientData = &d1
 
 }
 
@@ -4352,200 +4360,205 @@ func (this *Unit) FreshClientDataSub() {
 	if this.ClientData == nil {
 		this.FreshClientData()
 		*this.ClientDataSub = *this.ClientData
-		return
-	}
 
-	//
-	//字符串部分
-	if strings.Compare(this.Name, this.ClientData.Name) != 0 {
-		this.ClientDataSub.Name = this.Name
 	} else {
-		this.ClientDataSub.Name = ""
-	}
-	if strings.Compare(this.ModeType, this.ClientData.ModeType) != 0 {
-		this.ClientDataSub.ModeType = this.ModeType
-	} else {
-		this.ClientDataSub.ModeType = ""
-	}
+		//
+		//字符串部分
+		if strings.Compare(this.Name, this.ClientData.Name) != 0 {
+			this.ClientDataSub.Name = this.Name
+		} else {
+			this.ClientDataSub.Name = ""
+		}
+		if strings.Compare(this.ModeType, this.ClientData.ModeType) != 0 {
+			this.ClientDataSub.ModeType = this.ModeType
+		} else {
+			this.ClientDataSub.ModeType = ""
+		}
 
-	//当前数据与上一次数据对比 相减 数值部分
-	this.ClientDataSub.HP = this.HP - this.ClientData.HP
-	this.ClientDataSub.MaxHP = this.MAX_HP - this.ClientData.MaxHP
-	this.ClientDataSub.MP = int32(this.MP) - this.ClientData.MP
-	this.ClientDataSub.MaxMP = this.MAX_MP - this.ClientData.MaxMP
-	this.ClientDataSub.Level = this.Level - this.ClientData.Level
-	this.ClientDataSub.Experience = this.Experience - this.ClientData.Experience
-	this.ClientDataSub.MaxExperience = this.MaxExperience - this.ClientData.MaxExperience
-	this.ClientDataSub.ControlID = this.ControlID - this.ClientData.ControlID
+		//当前数据与上一次数据对比 相减 数值部分
+		this.ClientDataSub.HP = this.HP - this.ClientData.HP
+		this.ClientDataSub.MaxHP = this.MAX_HP - this.ClientData.MaxHP
+		this.ClientDataSub.MP = int32(this.MP) - this.ClientData.MP
+		this.ClientDataSub.MaxMP = this.MAX_MP - this.ClientData.MaxMP
+		this.ClientDataSub.Level = this.Level - this.ClientData.Level
+		this.ClientDataSub.Experience = this.Experience - this.ClientData.Experience
+		this.ClientDataSub.MaxExperience = this.MaxExperience - this.ClientData.MaxExperience
+		this.ClientDataSub.ControlID = this.ControlID - this.ClientData.ControlID
 
-	this.ClientDataSub.AnimotorState = this.AnimotorState - this.ClientData.AnimotorState
-	this.ClientDataSub.AttackTime = this.GetOneAttackTime() - this.ClientData.AttackTime
+		this.ClientDataSub.AnimotorState = this.AnimotorState - this.ClientData.AnimotorState
+		this.ClientDataSub.AttackTime = this.GetOneAttackTime() - this.ClientData.AttackTime
 
-	this.ClientDataSub.X = float32(this.Body.Position.X) - this.ClientData.X
-	this.ClientDataSub.Y = float32(this.Body.Position.Y) - this.ClientData.Y
+		this.ClientDataSub.X = float32(this.Body.Position.X) - this.ClientData.X
+		this.ClientDataSub.Y = float32(this.Body.Position.Y) - this.ClientData.Y
 
-	this.ClientDataSub.DirectionX = float32(this.Body.Direction.X) - this.ClientData.DirectionX
-	this.ClientDataSub.DirectionY = float32(this.Body.Direction.Y) - this.ClientData.DirectionY
+		this.ClientDataSub.DirectionX = float32(this.Body.Direction.X) - this.ClientData.DirectionX
+		this.ClientDataSub.DirectionY = float32(this.Body.Direction.Y) - this.ClientData.DirectionY
 
-	this.ClientDataSub.UnitType = this.UnitType - this.ClientData.UnitType
-	this.ClientDataSub.AttackAcpabilities = this.AttackAcpabilities - this.ClientData.AttackAcpabilities
-	this.ClientDataSub.AttackMode = this.AttackMode - this.ClientData.AttackMode
+		this.ClientDataSub.UnitType = this.UnitType - this.ClientData.UnitType
+		this.ClientDataSub.AttackAcpabilities = this.AttackAcpabilities - this.ClientData.AttackAcpabilities
+		this.ClientDataSub.AttackMode = this.AttackMode - this.ClientData.AttackMode
 
-	this.ClientDataSub.IsMain = this.IsMain - this.ClientData.IsMain
-	this.ClientDataSub.IsDeath = this.IsDeath - this.ClientData.IsDeath
-	this.ClientDataSub.Invisible = this.Invisible - this.ClientData.Invisible
-	this.ClientDataSub.Camp = this.Camp - this.ClientData.Camp
-	this.ClientDataSub.AnimotorPause = this.AnimotorPause - this.ClientData.AnimotorPause
-	this.ClientDataSub.SkillEnable = this.SkillEnable - this.ClientData.SkillEnable
-	this.ClientDataSub.ItemEnable = this.ItemEnable - this.ClientData.ItemEnable
-	this.ClientDataSub.Z = this.Z - this.ClientData.Z
-	this.ClientDataSub.IsMirrorImage = this.IsMirrorImage - this.ClientData.IsMirrorImage
-	this.ClientDataSub.AttackRange = this.AttackRange - this.ClientData.AttackRange
-	this.ClientDataSub.AttackAnim = this.AttackAnim - this.ClientData.AttackAnim
-	this.ClientDataSub.TypeID = this.TypeID - this.ClientData.TypeID
-	this.ClientDataSub.RemainReviveTime = this.RemainReviveTime - this.ClientData.RemainReviveTime
-	this.ClientDataSub.Gold = this.Gold - this.ClientData.Gold
-	this.ClientDataSub.Diamond = this.Diamond - this.ClientData.Diamond
-	this.ClientDataSub.ReviveGold = this.ReviveGold - this.ClientData.ReviveGold
-	this.ClientDataSub.ReviveDiamond = this.ReviveDiamond - this.ClientData.ReviveDiamond
+		this.ClientDataSub.IsMain = this.IsMain - this.ClientData.IsMain
+		this.ClientDataSub.IsDeath = this.IsDeath - this.ClientData.IsDeath
+		this.ClientDataSub.Invisible = this.Invisible - this.ClientData.Invisible
+		this.ClientDataSub.Camp = this.Camp - this.ClientData.Camp
+		this.ClientDataSub.AnimotorPause = this.AnimotorPause - this.ClientData.AnimotorPause
+		this.ClientDataSub.SkillEnable = this.SkillEnable - this.ClientData.SkillEnable
+		this.ClientDataSub.ItemEnable = this.ItemEnable - this.ClientData.ItemEnable
+		this.ClientDataSub.Z = this.Z - this.ClientData.Z
+		this.ClientDataSub.IsMirrorImage = this.IsMirrorImage - this.ClientData.IsMirrorImage
+		this.ClientDataSub.AttackRange = this.AttackRange - this.ClientData.AttackRange
+		this.ClientDataSub.AttackAnim = this.AttackAnim - this.ClientData.AttackAnim
+		this.ClientDataSub.TypeID = this.TypeID - this.ClientData.TypeID
+		this.ClientDataSub.RemainReviveTime = this.RemainReviveTime - this.ClientData.RemainReviveTime
+		this.ClientDataSub.Gold = this.Gold - this.ClientData.Gold
+		this.ClientDataSub.Diamond = this.Diamond - this.ClientData.Diamond
+		this.ClientDataSub.ReviveGold = this.ReviveGold - this.ClientData.ReviveGold
+		this.ClientDataSub.ReviveDiamond = this.ReviveDiamond - this.ClientData.ReviveDiamond
 
-	this.ClientDataSub.RemainWatchVedioCountToday = int32(conf.Conf.NormalInfo.WatchVedioMaxCountOneDay) - this.WatchVedioCountOneDay - this.ClientData.RemainWatchVedioCountToday
-	this.ClientDataSub.WatchVedioAddDiamond = conf.GetCurLookVedioAddDiamond(this.WatchVedioCountOneDay) - this.ClientData.WatchVedioAddDiamond
+		this.ClientDataSub.RemainWatchVedioCountToday = int32(conf.Conf.NormalInfo.WatchVedioMaxCountOneDay) - this.WatchVedioCountOneDay - this.ClientData.RemainWatchVedioCountToday
+		this.ClientDataSub.WatchVedioAddDiamond = conf.GetCurLookVedioAddDiamond(this.WatchVedioCountOneDay) - this.ClientData.WatchVedioAddDiamond
 
-	if this.MyPlayer != nil {
-		this.ClientDataSub.TeamID = this.MyPlayer.TeamID - this.ClientData.TeamID
-		this.ClientDataSub.GroupID = this.MyPlayer.GroupID - this.ClientData.GroupID
+		if this.MyPlayer != nil {
+			this.ClientDataSub.TeamID = this.MyPlayer.TeamID - this.ClientData.TeamID
+			this.ClientDataSub.GroupID = this.MyPlayer.GroupID - this.ClientData.GroupID
 
-		this.ClientDataSub.Characterid = this.MyPlayer.Characterid - this.ClientData.Characterid
+			this.ClientDataSub.Characterid = this.MyPlayer.Characterid - this.ClientData.Characterid
 
-		if this.MyPlayer.MyGuild != nil {
-			this.ClientDataSub.GuildID = this.MyPlayer.MyGuild.GuildId - this.ClientData.GuildID
-			if strings.Compare(this.MyPlayer.MyGuild.GuildName, this.ClientData.GuildName) != 0 {
-				this.ClientDataSub.GuildName = this.MyPlayer.MyGuild.GuildName
+			if this.MyPlayer.MyGuild != nil {
+				this.ClientDataSub.GuildID = this.MyPlayer.MyGuild.GuildId - this.ClientData.GuildID
+				if strings.Compare(this.MyPlayer.MyGuild.GuildName, this.ClientData.GuildName) != 0 {
+					this.ClientDataSub.GuildName = this.MyPlayer.MyGuild.GuildName
+				} else {
+					this.ClientDataSub.GuildName = ""
+				}
+
 			} else {
-				this.ClientDataSub.GuildName = ""
-			}
-
-		} else {
-			this.ClientDataSub.GuildID = 0 - this.ClientData.GuildID
-		}
-	}
-	this.ClientDataSub.RemainExperience = this.RemainExperience - this.ClientData.RemainExperience
-
-	//return
-	//道具技能
-	isds := make(map[int32]int32)
-	this.ClientDataSub.ISD = make([]*protomsg.SkillDatas, 0)
-	for _, v := range this.ItemSkills {
-
-		if v.CastType != 1 {
-			continue
-		}
-		if _, ok := isds[v.TypeID]; ok {
-			continue
-		} else {
-			isds[v.TypeID] = v.TypeID
-		}
-
-		skdata := &protomsg.SkillDatas{}
-		skdata.TypeID = v.TypeID
-		//上次发送的数据
-		lastdata := &protomsg.SkillDatas{}
-		for _, v1 := range this.ClientData.ISD {
-			if v1.TypeID == v.TypeID {
-				lastdata = v1
-				break
+				this.ClientDataSub.GuildID = 0 - this.ClientData.GuildID
 			}
 		}
+		this.ClientDataSub.RemainExperience = this.RemainExperience - this.ClientData.RemainExperience
 
-		skdata.Level = v.Level - lastdata.Level
-		skdata.RemainCDTime = v.RemainCDTime - lastdata.RemainCDTime
-		skdata.CanUpgrade = int32(2) - lastdata.CanUpgrade //v.CanUpgrade
-		skdata.Index = v.Index - lastdata.Index
-		skdata.CastType = v.CastType - lastdata.CastType
-		skdata.CastTargetType = v.CastTargetType - lastdata.CastTargetType
-		skdata.UnitTargetTeam = v.UnitTargetTeam - lastdata.UnitTargetTeam
-		skdata.UnitTargetCamp = v.UnitTargetCamp - lastdata.UnitTargetCamp
-		skdata.NoCareMagicImmune = v.NoCareMagicImmune - lastdata.NoCareMagicImmune
-		skdata.CastRange = v.CastRange + this.AddedMagicRange - lastdata.CastRange
-		skdata.Cooldown = v.Cooldown - lastdata.Cooldown
-		skdata.HurtRange = v.HurtRange - lastdata.HurtRange
-		skdata.ManaCost = v.GetManaCost() - lastdata.ManaCost
-		skdata.AttackAutoActive = v.AttackAutoActive - lastdata.AttackAutoActive
-		skdata.Visible = v.Visible - lastdata.Visible
-		skdata.RemainSkillCount = v.RemainSkillCount - lastdata.RemainSkillCount
-		skdata.MaxLevel = v.MaxLevel - lastdata.MaxLevel
-		this.ClientDataSub.ISD = append(this.ClientDataSub.ISD, skdata)
-	}
+		//道具技能
+		isds := make(map[int32]int32)
+		this.ClientDataSub.ISD = make([]*protomsg.SkillDatas, 0)
+		for _, v := range this.ItemSkills {
 
-	//技能
-	this.ClientDataSub.SD = make([]*protomsg.SkillDatas, 0)
-	for _, v := range this.Skills {
-		skdata := &protomsg.SkillDatas{}
-		skdata.TypeID = v.TypeID
-		//上次发送的数据
-		lastdata := &protomsg.SkillDatas{}
-		for _, v1 := range this.ClientData.SD {
-			if v1.TypeID == v.TypeID {
-				lastdata = v1
-				break
+			if v.CastType != 1 {
+				continue
 			}
-		}
-
-		skdata.Level = v.Level - lastdata.Level
-		skdata.RemainCDTime = v.RemainCDTime - lastdata.RemainCDTime
-		skdata.CanUpgrade = int32(2) - lastdata.CanUpgrade //v.CanUpgrade
-		skdata.Index = v.Index - lastdata.Index
-		skdata.CastType = v.CastType - lastdata.CastType
-		skdata.CastTargetType = v.CastTargetType - lastdata.CastTargetType
-		skdata.UnitTargetTeam = v.UnitTargetTeam - lastdata.UnitTargetTeam
-		skdata.UnitTargetCamp = v.UnitTargetCamp - lastdata.UnitTargetCamp
-		skdata.NoCareMagicImmune = v.NoCareMagicImmune - lastdata.NoCareMagicImmune
-		skdata.CastRange = v.CastRange + this.AddedMagicRange - lastdata.CastRange
-		skdata.Cooldown = v.Cooldown - lastdata.Cooldown
-		skdata.HurtRange = v.HurtRange - lastdata.HurtRange
-		skdata.ManaCost = v.GetManaCost() - lastdata.ManaCost
-		skdata.AttackAutoActive = v.AttackAutoActive - lastdata.AttackAutoActive
-		skdata.Visible = v.Visible - lastdata.Visible
-		skdata.RemainSkillCount = v.RemainSkillCount - lastdata.RemainSkillCount
-		skdata.MaxLevel = v.MaxLevel - lastdata.MaxLevel
-		skdata.RequiredLevel = v.RequiredLevel - lastdata.RequiredLevel
-		skdata.LevelsBetweenUpgrades = v.LevelsBetweenUpgrades - lastdata.LevelsBetweenUpgrades
-		skdata.InitLevel = v.InitLevel - lastdata.InitLevel
-		this.ClientDataSub.SD = append(this.ClientDataSub.SD, skdata)
-	}
-
-	this.ClientDataSub.BD = make([]*protomsg.BuffDatas, 0)
-	for _, v := range this.Buffs {
-		if len(v) <= 0 {
-			continue
-		}
-		buffdata := &protomsg.BuffDatas{}
-		buffdata.TypeID = v[0].TypeID
-		//上次发送的数据
-		lastdata := &protomsg.BuffDatas{}
-		for _, v1 := range this.ClientData.BD {
-			if v1.TypeID == v[0].TypeID {
-				lastdata = v1
-				break
+			if _, ok := isds[v.TypeID]; ok {
+				continue
+			} else {
+				isds[v.TypeID] = v.TypeID
 			}
+
+			skdata := &protomsg.SkillDatas{}
+			skdata.TypeID = v.TypeID
+			//上次发送的数据
+			lastdata := &protomsg.SkillDatas{}
+			for _, v1 := range this.ClientData.ISD {
+				if v1.TypeID == v.TypeID {
+					lastdata = v1
+					break
+				}
+			}
+
+			skdata.Level = v.Level - lastdata.Level
+			skdata.RemainCDTime = v.RemainCDTime - lastdata.RemainCDTime
+			skdata.CanUpgrade = int32(2) - lastdata.CanUpgrade //v.CanUpgrade
+			skdata.Index = v.Index - lastdata.Index
+			skdata.CastType = v.CastType - lastdata.CastType
+			skdata.CastTargetType = v.CastTargetType - lastdata.CastTargetType
+			skdata.UnitTargetTeam = v.UnitTargetTeam - lastdata.UnitTargetTeam
+			skdata.UnitTargetCamp = v.UnitTargetCamp - lastdata.UnitTargetCamp
+			skdata.NoCareMagicImmune = v.NoCareMagicImmune - lastdata.NoCareMagicImmune
+			skdata.CastRange = v.CastRange + this.AddedMagicRange - lastdata.CastRange
+			skdata.Cooldown = v.Cooldown - lastdata.Cooldown
+			skdata.HurtRange = v.HurtRange - lastdata.HurtRange
+			skdata.ManaCost = v.GetManaCost() - lastdata.ManaCost
+			skdata.AttackAutoActive = v.AttackAutoActive - lastdata.AttackAutoActive
+			skdata.Visible = v.Visible - lastdata.Visible
+			skdata.RemainSkillCount = v.RemainSkillCount - lastdata.RemainSkillCount
+			skdata.MaxLevel = v.MaxLevel - lastdata.MaxLevel
+			this.ClientDataSub.ISD = append(this.ClientDataSub.ISD, skdata)
 		}
 
-		buffdata.RemainTime = v[0].RemainTime - lastdata.RemainTime
-		buffdata.Time = v[0].Time - lastdata.Time
-		if len(v) > 1 {
-			buffdata.TagNum = int32(len(v)) - lastdata.TagNum
-		} else {
-			buffdata.TagNum = v[0].TagNum - lastdata.TagNum
+		//技能
+		this.ClientDataSub.SD = make([]*protomsg.SkillDatas, 0)
+		for _, v := range this.Skills {
+			skdata := &protomsg.SkillDatas{}
+			skdata.TypeID = v.TypeID
+			//上次发送的数据
+			lastdata := &protomsg.SkillDatas{}
+			for _, v1 := range this.ClientData.SD {
+				if v1.TypeID == v.TypeID {
+					lastdata = v1
+					break
+				}
+			}
+
+			skdata.Level = v.Level - lastdata.Level
+			skdata.RemainCDTime = v.RemainCDTime - lastdata.RemainCDTime
+			skdata.CanUpgrade = int32(2) - lastdata.CanUpgrade //v.CanUpgrade
+			skdata.Index = v.Index - lastdata.Index
+			skdata.CastType = v.CastType - lastdata.CastType
+			skdata.CastTargetType = v.CastTargetType - lastdata.CastTargetType
+			skdata.UnitTargetTeam = v.UnitTargetTeam - lastdata.UnitTargetTeam
+			skdata.UnitTargetCamp = v.UnitTargetCamp - lastdata.UnitTargetCamp
+			skdata.NoCareMagicImmune = v.NoCareMagicImmune - lastdata.NoCareMagicImmune
+			skdata.CastRange = v.CastRange + this.AddedMagicRange - lastdata.CastRange
+			skdata.Cooldown = v.Cooldown - lastdata.Cooldown
+			skdata.HurtRange = v.HurtRange - lastdata.HurtRange
+			skdata.ManaCost = v.GetManaCost() - lastdata.ManaCost
+			skdata.AttackAutoActive = v.AttackAutoActive - lastdata.AttackAutoActive
+			skdata.Visible = v.Visible - lastdata.Visible
+			skdata.RemainSkillCount = v.RemainSkillCount - lastdata.RemainSkillCount
+			skdata.MaxLevel = v.MaxLevel - lastdata.MaxLevel
+			skdata.RequiredLevel = v.RequiredLevel - lastdata.RequiredLevel
+			skdata.LevelsBetweenUpgrades = v.LevelsBetweenUpgrades - lastdata.LevelsBetweenUpgrades
+			skdata.InitLevel = v.InitLevel - lastdata.InitLevel
+			this.ClientDataSub.SD = append(this.ClientDataSub.SD, skdata)
 		}
 
-		buffdata.ConnectionType = v[0].ConnectionType - lastdata.ConnectionType
-		buffdata.ConnectionX = float32(v[0].ConnectionPoint.X) - lastdata.ConnectionX
-		buffdata.ConnectionY = float32(v[0].ConnectionPoint.Y) - lastdata.ConnectionY
-		buffdata.ConnectionZ = float32(0) - lastdata.ConnectionZ
+		this.ClientDataSub.BD = make([]*protomsg.BuffDatas, 0)
+		for _, v := range this.Buffs {
+			if len(v) <= 0 {
+				continue
+			}
+			buffdata := &protomsg.BuffDatas{}
+			buffdata.TypeID = v[0].TypeID
+			//上次发送的数据
+			lastdata := &protomsg.BuffDatas{}
+			for _, v1 := range this.ClientData.BD {
+				if v1.TypeID == v[0].TypeID {
+					lastdata = v1
+					break
+				}
+			}
 
-		this.ClientDataSub.BD = append(this.ClientDataSub.BD, buffdata)
+			buffdata.RemainTime = v[0].RemainTime - lastdata.RemainTime
+			buffdata.Time = v[0].Time - lastdata.Time
+			if len(v) > 1 {
+				buffdata.TagNum = int32(len(v)) - lastdata.TagNum
+			} else {
+				buffdata.TagNum = v[0].TagNum - lastdata.TagNum
+			}
+
+			buffdata.ConnectionType = v[0].ConnectionType - lastdata.ConnectionType
+			buffdata.ConnectionX = float32(v[0].ConnectionPoint.X) - lastdata.ConnectionX
+			buffdata.ConnectionY = float32(v[0].ConnectionPoint.Y) - lastdata.ConnectionY
+			buffdata.ConnectionZ = float32(0) - lastdata.ConnectionZ
+
+			this.ClientDataSub.BD = append(this.ClientDataSub.BD, buffdata)
+		}
 	}
+
+	//显示给其他玩家的数据
+	d1 := *this.ClientDataSub
+	d1.ISD = make([]*protomsg.SkillDatas, 0)
+	d1.SD = make([]*protomsg.SkillDatas, 0)
+	this.OtherClientDataSub = &d1
 
 }
 

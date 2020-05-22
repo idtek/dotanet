@@ -1143,20 +1143,29 @@ func (this *Player) AddUnitData(unit *Unit) {
 
 	if _, ok := this.LastShowUnit[unit.ID]; ok {
 		//旧单位(只更新变化的值)
-		d1 := *unit.ClientDataSub
-		if unit != this.MainUnit {
-			d1.ISD = make([]*protomsg.SkillDatas, 0)
-			d1.SD = make([]*protomsg.SkillDatas, 0)
+		//d1 := *unit.ClientDataSub
+		//		if unit != this.MainUnit {
+		//			d1.ISD = make([]*protomsg.SkillDatas, 0)
+		//			d1.SD = make([]*protomsg.SkillDatas, 0)
+		//		}
+		if unit == this.MainUnit {
+			this.Msg.OldUnits = append(this.Msg.OldUnits, unit.ClientDataSub)
+		} else {
+			this.Msg.OldUnits = append(this.Msg.OldUnits, unit.OtherClientDataSub)
 		}
-		this.Msg.OldUnits = append(this.Msg.OldUnits, &d1)
+
 	} else {
 		//新的单位数据
-		d1 := *unit.ClientData
-		if unit != this.MainUnit {
-			d1.ISD = make([]*protomsg.SkillDatas, 0)
-			//d1.SD = make([]*protomsg.SkillDatas, 0)
+		//d1 := *unit.ClientData
+		//		if unit != this.MainUnit {
+		//			d1.ISD = make([]*protomsg.SkillDatas, 0)
+		//		}
+		if unit == this.MainUnit {
+			this.Msg.NewUnits = append(this.Msg.NewUnits, unit.ClientData)
+		} else {
+			this.Msg.NewUnits = append(this.Msg.NewUnits, unit.OtherClientData)
 		}
-		this.Msg.NewUnits = append(this.Msg.NewUnits, &d1)
+		//this.Msg.NewUnits = append(this.Msg.NewUnits, unit.ClientData)
 	}
 
 }
@@ -1192,13 +1201,11 @@ func (this *Player) AddSceneItemData(sceneitem *SceneItem) {
 	this.CurShowSceneItem[sceneitem.ID] = sceneitem
 
 	if _, ok := this.LastShowSceneItem[sceneitem.ID]; ok {
-		//旧单位(只更新变化的值)
-		//d1 := *bullet.ClientDataSub
-		//this.Msg.OldBullets = append(this.Msg.OldBullets, &d1)
+
 	} else {
 		//新的单位数据
-		d1 := *sceneitem.ClientData
-		this.Msg.NewSceneItems = append(this.Msg.NewSceneItems, &d1)
+		//d1 := *sceneitem.ClientData
+		this.Msg.NewSceneItems = append(this.Msg.NewSceneItems, sceneitem.ClientData)
 	}
 
 }
@@ -1215,12 +1222,12 @@ func (this *Player) AddBulletData(bullet *Bullet) {
 
 	if _, ok := this.LastShowBullet[bullet.ID]; ok {
 		//旧单位(只更新变化的值)
-		d1 := *bullet.ClientDataSub
-		this.Msg.OldBullets = append(this.Msg.OldBullets, &d1)
+		//d1 := *bullet.ClientDataSub
+		this.Msg.OldBullets = append(this.Msg.OldBullets, bullet.ClientDataSub)
 	} else {
 		//新的单位数据
-		d1 := *bullet.ClientData
-		this.Msg.NewBullets = append(this.Msg.NewBullets, &d1)
+		//d1 := *bullet.ClientData
+		this.Msg.NewBullets = append(this.Msg.NewBullets, bullet.ClientData)
 	}
 
 }
@@ -1298,6 +1305,8 @@ func (this *Player) SendUpdateMsg(curframe int32) {
 	this.LastShowSceneItem = this.CurShowSceneItem
 	this.CurShowSceneItem = make(map[int32]*SceneItem)
 	this.Msg = &protomsg.SC_Update{}
+	this.Msg.OldUnits = make([]*protomsg.UnitDatas, 0, 100)
+	this.Msg.OldBullets = make([]*protomsg.BulletDatas, 0, 100)
 
 }
 func (this *Player) SendNoticeWordToClient(typeid int32, param ...string) {

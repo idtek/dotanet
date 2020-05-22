@@ -21,8 +21,8 @@ var CS_Heart = "CS_Heart"
 func NewMsg1Bytes(data *protomsg.MsgBase, jd proto.Message) []byte {
 
 	if jd != nil {
-		jdbytes, _ := proto.Marshal(jd)
-		data.Datas = jdbytes
+		data.Datas, _ = proto.Marshal(jd)
+		//data.Datas = jdbytes
 	}
 	data1, err1 := proto.Marshal(data)
 	if err1 == nil {
