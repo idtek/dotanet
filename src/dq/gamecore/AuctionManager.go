@@ -75,7 +75,7 @@ func (this *AuctionManager) NewAuctionItem2World(player *Player, guildid int32, 
 	auctioninfo.Price = int32(conf.Conf.NormalInfo.AuctionFirstPrice)
 	auctioninfo.BidderCharacterid = -1
 	auctioninfo.Remaintime = int32(conf.Conf.NormalInfo.AuctionTime)
-	auctioninfo.BidderType = 1 ////出价者类型 1表示所有人 2表示参与分红的人
+	auctioninfo.BidderType = 2 ////出价者类型 1表示所有人 2表示参与分红的人
 
 	receivecharacter := make([]int32, 0)
 	receivecharactername := make([]string, 0)

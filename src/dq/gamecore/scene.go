@@ -782,6 +782,7 @@ func (this *Scene) HuiChengHePingShiJie(player *Player) {
 	if this.ChangeScene == nil || player == nil {
 		return
 	}
+	log.Info("HuiChengHePingShiJie")
 	doorway := conf.DoorWay{}
 	doorway.NextX = float32(utils.RandInt64(70, 80))
 	doorway.NextY = float32(utils.RandInt64(70, 80))
@@ -888,70 +889,63 @@ func (this *Scene) CheckStartCloseTime() {
 
 func (this *Scene) Update() {
 
-	log.Info("Update start %d  %d", this.TypeID, this.DataFileID)
-	t1 := utils.GetCurTimeOfSecond()
-	log.Info("t1:%f", (t1))
-	for {
-		//log.Info("Update loop")
-		//t1 := time.Now().UnixNano()
-		//log.Info("main time:%d", (t1)/1e6)
+	//log.Info("Update start %d  %d", this.TypeID, this.DataFileID)
+	//t1 := utils.GetCurTimeOfSecond()
+	//for {
 
-		time1 := utils.GetCurTimeOfSecond()
-		this.EveryTimeDo(1 / float32(this.SceneFrame))
+	time1 := utils.GetCurTimeOfSecond()
+	this.EveryTimeDo(1 / float32(this.SceneFrame))
 
-		//夺宝奇兵
-		if this.DuoBaoQiBing != nil {
-			this.DuoBaoQiBing.Update(1 / float32(this.SceneFrame))
-		}
+	//夺宝奇兵
+	if this.DuoBaoQiBing != nil {
+		this.DuoBaoQiBing.Update(1 / float32(this.SceneFrame))
+	}
 
-		this.DoHuiCheng()
+	this.DoHuiCheng()
 
-		this.DoRemoveBullet()
-		this.DoRemoveHalo()
+	this.DoRemoveBullet()
+	this.DoRemoveHalo()
+	this.DoAddAndRemoveUnit()
+
+	time2 := utils.GetCurTimeOfSecond()
+	this.DoLogic()
+	time3 := utils.GetCurTimeOfSecond()
+	this.UpdateHalo(1 / float32(this.SceneFrame))
+	//time4 := utils.GetCurTimeOfSecond()
+	this.UpdateBullet(1 / float32(this.SceneFrame))
+	time5 := utils.GetCurTimeOfSecond()
+
+	this.DoMove()
+	time6 := utils.GetCurTimeOfSecond()
+	this.DoZone()
+	time7 := utils.GetCurTimeOfSecond()
+	this.DoSendData()
+	time8 := utils.GetCurTimeOfSecond()
+
+	if time8-time1 >= 0.05 {
+		log.Info("time:%f %f %f %f %f  ", time2-time1, time3-time2,
+			time6-time5, time8-time7, time8-time1)
+	}
+
+	this.CurFrame++
+	//清除玩家到和平世界
+	this.DoCleanPlayer()
+
+	//检查关闭场景
+	this.CheckStartCloseTime()
+	//处理分区
+
+	if this.Quit {
 		this.DoAddAndRemoveUnit()
 
-		time2 := utils.GetCurTimeOfSecond()
-		this.DoLogic()
-		time3 := utils.GetCurTimeOfSecond()
-		this.UpdateHalo(1 / float32(this.SceneFrame))
-		//time4 := utils.GetCurTimeOfSecond()
-		this.UpdateBullet(1 / float32(this.SceneFrame))
-		time5 := utils.GetCurTimeOfSecond()
-
-		this.DoMove()
-		time6 := utils.GetCurTimeOfSecond()
-		this.DoZone()
-		time7 := utils.GetCurTimeOfSecond()
-		this.DoSendData()
-		time8 := utils.GetCurTimeOfSecond()
-
-		if time8-time1 >= 0.05 {
-			log.Info("time:%f %f %f %f %f  ", time2-time1, time3-time2,
-				time6-time5, time8-time7, time8-time1)
-		}
-
-		this.CurFrame++
-		//清除玩家到和平世界
-		this.DoCleanPlayer()
-
-		//检查关闭场景
-		this.CheckStartCloseTime()
-		//处理分区
-
-		if this.Quit {
-			this.DoAddAndRemoveUnit()
-
-			this.DoEndException()
-			break
-		}
-		//runtime.GC()
-
-		this.DoSleep()
-
+		this.DoEndException()
+		return
 	}
-	log.Info("Scene Quit:%d  %d", this.TypeID, this.DataFileID)
-	//t2 := time.Now().UnixNano()
-	//log.Info("t2:%d   delta:%d    frame:%d", (t2)/1e6, (t2-t1)/1e6, this.CurFrame)
+
+	//this.DoSleep()
+
+	//}
+	//log.Info("Scene Quit:%d  %d", this.TypeID, this.DataFileID)
 
 }
 
@@ -1063,11 +1057,11 @@ func (this *Scene) DoSendData() {
 	}
 
 	time4 := utils.GetCurTimeOfSecond()
-	if time4-time1 > 0.030 {
+	if time4-time1 > 0.010 {
 		log.Info("DoSendData:t1:%f   t2:%f  t3:%f ", time4-time3, time3-time2, time2-time1)
-		if time3-time2 > 0.01 {
-			log.Info("aa %d %d %d %d", unitcount, bulletcount, sceneitemcount, halotcount)
-		}
+		//		if time3-time2 > 0.01 {
+		//			log.Info("aa %d %d %d %d", unitcount, bulletcount, sceneitemcount, halotcount)
+		//		}
 	}
 
 }

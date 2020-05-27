@@ -100,10 +100,25 @@ message UnitBoardDatas{
     float   StatusAmaor = 15;//状态抗性
     float   Dodge = 16;//闪避(0)
     float   HPRegain = 17;//生命恢复
-    int32   AttributePrimary = 18;//主属性(1:力量 2:敏捷 3:智力)
-    string  DropItems = 19;//掉落道具
-    int32   RemainExperience = 20;//今天剩余可以获取到的经验值
-    repeated UnitEquip Equips = 21;//装备
+    float   RawAttributeStrength = 18;//力量
+    float   RawAttributeAgility = 19;//敏捷
+    float   RawAttributeIntelligence = 20;//智力
+    int32   RawAttack = 21;//攻击力 (基础攻击力+属性影响+buff影响)
+    float   RawAttackSpeed = 22;//攻击速度
+    float   RawAttackRange = 23;//攻击范围 攻击距离
+    float   RawMoveSpeed = 24;//移动速度
+    float   RawMagicScale = 25;//技能增强
+    float   RawMPRegain = 26;//魔法恢复
+    float   RawPhysicalAmaor = 27;//物理护甲
+    float   RawPhysicalResist = 28;//物理伤害抵挡
+    float   RawMagicAmaor = 29;//魔法抗性
+    float   RawStatusAmaor = 30;//状态抗性
+    float   RawDodge = 31;//闪避(0)
+    float   RawHPRegain = 32;//生命恢复
+    int32   AttributePrimary = 33;//主属性(1:力量 2:敏捷 3:智力)
+    string  DropItems = 34;//掉落道具
+    int32   RemainExperience = 35;//今天剩余可以获取到的经验值
+    repeated UnitEquip Equips = 36;//装备
 }
 //技能数据
 message SimpleSkillDatas{
@@ -338,9 +353,10 @@ message UnitDatas{
     string  GuildName = 44; //公会名字
     int32   GroupID = 45;//小组ID
     int32   RemainExperience = 46;//今天剩余可以获取到的经验值
-    repeated SkillDatas SD = 47;//技能数据
-    repeated BuffDatas BD = 48;//buff数据
-    repeated SkillDatas ISD = 49;//道具技能数据
+    int32   BattleRank = 47;//竞技场排名
+    repeated SkillDatas SD = 48;//技能数据
+    repeated BuffDatas BD = 49;//buff数据
+    repeated SkillDatas ISD = 50;//道具技能数据
 
     //单位状态(idle walk attack skill die)
     //各种buff状态(单位身上的buff 包括剩余时间)
@@ -480,7 +496,8 @@ message CS_BuyCommodity{
 
 //立即复活
 message CS_QuickRevive{
-    int32 ReviveType = 1;    //1金币复活 2砖石复活
+    int32 ReviveType = 1;    //1金币复活 2砖石复活 3看视频复活
+    int32 LookVideoState = 2;//看视频状态 1开始看 2结束看成功 3结束看失败
 }
 
 //掉线 客户端自己发给自己的消息

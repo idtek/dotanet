@@ -713,7 +713,7 @@ func (this *GuildManager) AddAuctionItem(guildid int32, itemid int32, itemlevel 
 	auctioninfo.Price = int32(conf.Conf.NormalInfo.AuctionFirstPrice)
 	auctioninfo.BidderCharacterid = -1
 	auctioninfo.Remaintime = int32(conf.Conf.NormalInfo.AuctionTime)
-	auctioninfo.BidderType = 1 //
+	auctioninfo.BidderType = 2 //
 
 	receivecharacter := make([]int32, 0)
 	receivecharactername := make([]string, 0)

@@ -128,6 +128,15 @@ func (this *BattleMgr) GetCharacterBattleScore(chaid int32) int32 {
 	return cb.(*CharacterBattleInfo).Score
 }
 
+//获取玩家竞技场信息
+func (this *BattleMgr) GetCharacterBattleRank(chaid int32) int32 {
+	cb := this.Characters.Get(chaid)
+	if cb == nil {
+		return -1
+	}
+	return cb.(*CharacterBattleInfo).Rank
+}
+
 //初始化
 func (this *BattleMgr) Init() {
 	log.Info("----------BattleMgr Init---------")

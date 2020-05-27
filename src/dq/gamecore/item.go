@@ -87,7 +87,7 @@ func (this *Item) Add2Unit(unit *Unit, index int32) {
 
 	//
 
-	log.Info("NewItembuf %s ", this.Buffs)
+	//log.Info("NewItembuf %s ", this.Buffs)
 }
 
 //(dbdata []string,

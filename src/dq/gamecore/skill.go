@@ -370,7 +370,7 @@ func NewUnitSkills(dbdata []string, unitskilldata string, unit *Unit) map[int32]
 		sk.SkillData = *skdata
 		//sk.SkillData.Index = int32(k)
 
-		log.Info("skill index:%d", sk.SkillData.Index)
+		//log.Info("skill index:%d", sk.SkillData.Index)
 		sk.Level = sk.InitLevel
 		sk.RemainCDTime = 0
 		sk.Parent = unit

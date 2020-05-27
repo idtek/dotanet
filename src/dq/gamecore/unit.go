@@ -1056,7 +1056,7 @@ func (this *Unit) DoSkill(data *protomsg.CS_PlayerSkill, targetpos vec2d.Vec2) {
 			}
 			this.AddBullet(v)
 		}
-		//log.Info("3333")
+
 		this.DoSkillException(skilldata, targetunit, bullets[0])
 
 	} else {
@@ -1479,6 +1479,19 @@ func (this *Unit) DoOtherCmd() {
 				this.DoAvive(2, 1, 1)
 			}
 
+		} else if quickrevive.ReviveType == 3 {
+			//this.RemainReviveTimePause
+			if quickrevive.LookVideoState == 2 { ////看视频状态 1开始看 2结束看成功 3结束看失败
+				this.DoAvive(2, 0.70, 0.70)
+				this.RemainReviveTimePause = false
+			} else if quickrevive.LookVideoState == 1 { ////看视频状态 1开始看 2结束看成功 3结束看失败
+
+				this.RemainReviveTimePause = true
+			} else if quickrevive.LookVideoState == 3 { ////看视频状态 1开始看 2结束看成功 3结束看失败
+
+				this.RemainReviveTimePause = false
+			}
+
 		}
 
 		this.QuickRevive = nil
@@ -1660,6 +1673,26 @@ func (this *Unit) InitHPandMP(hp float32, mp float32) {
 
 //--------------单位面板数据-----------
 type UnitBaseProperty struct {
+
+	//记录原始面板数据
+	RawAttributeStrength     float32 //当前力量属性
+	RawAttributeIntelligence float32 //当前智力属性
+	RawAttributeAgility      float32 //当前敏捷属性
+	//------攻击---------
+	RawAttackSpeed float32 //攻击速度
+	RawAttack      int32   //攻击力 (基础攻击力+属性影响+buff影响)
+	RawAttackRange float32 //攻击范围 攻击距离
+	RawMoveSpeed   float64 //移动速度
+	RawMagicScale  float32 //技能增强
+	RawMPRegain    float32 //魔法恢复
+	//------防御---------
+	RawPhysicalAmaor  float32 //物理护甲(-1)
+	RawPhysicalResist float32 //物理伤害抵挡
+	RawMagicAmaor     float32 //魔法抗性(0.25)
+	RawStatusAmaor    float32 //状态抗性(0)
+	RawDodge          float32 //闪避(0)
+	RawHPRegain       float32 //生命恢复
+
 	//-
 	AttributeStrength     float32 //当前力量属性
 	AttributeIntelligence float32 //当前智力属性
@@ -1720,21 +1753,22 @@ type UnitProperty struct {
 	NextAttackRemainTime float32 //下次攻击剩余时间
 
 	//复合数据 会随时变动的数据 比如受buff影响攻击力降低  (每帧动态计算)
-	HP                 int32
-	MAX_HP             int32
-	MP                 float32
-	MAX_MP             int32
-	Level              int32 //等级 会影响属性
-	Experience         int32
-	MaxExperience      int32
-	Gold               int32   //金币
-	Diamond            int32   //钻石
-	GetExperienceDay   string  //获取经验的日期 最近登录日期
-	RemainExperience   int32   //今天还能获取的经验值
-	RemainReviveTime   float32 //剩余复活时间
-	RemainCopyMapTimes int32   //今日剩余的副本次数
-	ReviveGold         int32   //立即复活需要的金币
-	ReviveDiamond      int32   //立即复活需要的砖石
+	HP                    int32
+	MAX_HP                int32
+	MP                    float32
+	MAX_MP                int32
+	Level                 int32 //等级 会影响属性
+	Experience            int32
+	MaxExperience         int32
+	Gold                  int32   //金币
+	Diamond               int32   //钻石
+	GetExperienceDay      string  //获取经验的日期 最近登录日期
+	RemainExperience      int32   //今天还能获取的经验值
+	RemainReviveTime      float32 //剩余复活时间
+	RemainReviveTimePause bool    //复活时间是否暂停
+	RemainCopyMapTimes    int32   //今日剩余的副本次数
+	ReviveGold            int32   //立即复活需要的金币
+	ReviveDiamond         int32   //立即复活需要的砖石
 
 	//击杀相关
 	KillCount             int32
@@ -1972,7 +2006,7 @@ func (this *Unit) AddItemSkill(skill *Skill) bool {
 			iscdinfo := this.MyPlayer.GetItemSkillCDInfo(skill.TypeID)
 
 			if iscdinfo != nil {
-				log.Info("---AddItemSkill-%d  %f", skill.TypeID, iscdinfo.RemainCDTime)
+				//log.Info("---AddItemSkill-%d  %f", skill.TypeID, iscdinfo.RemainCDTime)
 				skill.ResetCDTime(iscdinfo.RemainCDTime)
 			}
 		}
@@ -2275,9 +2309,9 @@ func CreateUnitByPlayer(scene *Scene, player *Player, characterinfo *db.DB_Chara
 	skilldbdata := strings.Split(characterinfo.Skill, ";")
 	//5,4,18.0000,1;6,2,18.2673,0;
 	unitre.Skills = NewUnitSkills(skilldbdata, unitre.InitSkillsInfo, unitre) //所有技能
-	for _, v := range unitre.Skills {
-		log.Info("-------new skill:%v", v)
-	}
+	//	for _, v := range unitre.Skills {
+	//		log.Info("-------new skill:%v", v)
+	//	}
 	//初始化技能被动光环
 	unitre.HaloInSkills = make(map[int32][]int32)
 
@@ -2316,6 +2350,8 @@ func (this *Unit) Init() {
 
 	this.AttackMode = 1 //和平攻击模式
 	this.EveryTimeDoRemainTime = 1
+
+	this.RemainReviveTimePause = false
 
 	this.IsDeath = 2
 	this.IsMirrorImage = 2
@@ -2460,11 +2496,15 @@ func (this *Unit) CheckAvive(dt float32) {
 	}
 	//处理复活
 	if this.MyPlayer != nil && this == this.MyPlayer.MainUnit {
-		this.RemainReviveTime -= float32(dt)
-		if this.RemainReviveTime <= 0 {
-			//复活
-			this.DoAvive(2, 0.5, 0.5)
+
+		if this.RemainReviveTimePause == false {
+			this.RemainReviveTime -= float32(dt)
+			if this.RemainReviveTime <= 0 {
+				//复活
+				this.DoAvive(2, 0.5, 0.5)
+			}
 		}
+
 	}
 }
 
@@ -2633,6 +2673,11 @@ func (this *Unit) CalAttribute() {
 
 	//装备
 	//技能
+
+	//记录原始属性数据
+	this.RawAttributeStrength = this.AttributeStrength
+	this.RawAttributeIntelligence = this.AttributeIntelligence
+	this.RawAttributeAgility = this.AttributeAgility
 
 }
 
@@ -3165,6 +3210,24 @@ func (this *Unit) CalPropertyByBuffs() {
 	}
 }
 
+//
+func (this *Unit) CalRawProperty() {
+	//记录原始面板数据
+
+	this.RawAttackSpeed = this.AttackSpeed //攻击速度
+	this.RawAttack = this.Attack
+	this.RawAttackRange = this.AttackRange
+	this.RawMoveSpeed = this.MoveSpeed
+	this.RawMagicScale = this.MagicScale
+	this.RawMPRegain = this.MPRegain
+	this.RawPhysicalAmaor = this.PhysicalAmaor
+	this.RawPhysicalResist = this.PhysicalResist
+	this.RawMagicAmaor = this.MagicAmaor
+	this.RawStatusAmaor = this.StatusAmaor
+	this.RawDodge = this.Dodge
+	this.RawHPRegain = this.HPRegain
+}
+
 //计算属性 (每一帧 都可能会变)
 func (this *Unit) CalProperty() {
 	//计算属性
@@ -3197,6 +3260,9 @@ func (this *Unit) CalProperty() {
 	this.CalHPRegain()
 	//计算异常状态
 	this.CalControlState()
+
+	//保存原始数据的值(面板白字)
+	this.CalRawProperty()
 
 	//计算buff对属性的影响
 	this.CalPropertyByBuffs()
@@ -4242,6 +4308,8 @@ func (this *Unit) FreshClientData() {
 		this.ClientData.TeamID = this.MyPlayer.TeamID
 		this.ClientData.GroupID = this.MyPlayer.GroupID
 		this.ClientData.Characterid = this.MyPlayer.Characterid
+		this.ClientData.BattleRank = this.MyPlayer.BattleRank
+
 		if this.MyPlayer.MyGuild != nil {
 			this.ClientData.GuildID = this.MyPlayer.MyGuild.GuildId
 			this.ClientData.GuildName = this.MyPlayer.MyGuild.GuildName
@@ -4424,6 +4492,7 @@ func (this *Unit) FreshClientDataSub() {
 			this.ClientDataSub.GroupID = this.MyPlayer.GroupID - this.ClientData.GroupID
 
 			this.ClientDataSub.Characterid = this.MyPlayer.Characterid - this.ClientData.Characterid
+			this.ClientDataSub.BattleRank = this.MyPlayer.BattleRank - this.ClientData.BattleRank
 
 			if this.MyPlayer.MyGuild != nil {
 				this.ClientDataSub.GuildID = this.MyPlayer.MyGuild.GuildId - this.ClientData.GuildID

@@ -54,6 +54,7 @@ type Player struct {
 	MyMails     *Mails              //邮件系统
 	MyGuild     *GuildCharacterInfo //公会系统
 	BattleScore int32               //天梯分
+	BattleRank  int32               //天梯排名
 
 	BagInfo []*BagItem
 
@@ -124,7 +125,7 @@ func (this *Player) SaveItemSkillCDInfo(skill *Skill) {
 		return
 	}
 
-	//log.Info("---SaveItemSkillCDInfo-%d  %f", skill.TypeID, skill.RemainCDTime)
+	//log.Info("---SaveItemSkillCDInfo-%d  %f ", skill.TypeID, skill.RemainCDTime)
 
 	bagitem := &ItemSkillCDData{}
 	bagitem.TypeID = skill.TypeID
@@ -1369,15 +1370,16 @@ func (this *Player) GoInScene(scene *Scene, datas []byte) bool {
 	utils.Bytes2Struct(datas, &characterinfo)
 	this.Characterid = characterinfo.Characterid
 
+	this.LoadBagInfoFromDB(characterinfo.BagInfo)
+	this.LoadItemSkillCDFromDB(characterinfo.ItemSkillCDInfo)
+
 	if this.CurScene.PlayerGoin(this, &characterinfo) == false {
 		return false
 	}
 
-	this.LoadBagInfoFromDB(characterinfo.BagInfo)
-	this.LoadItemSkillCDFromDB(characterinfo.ItemSkillCDInfo)
-
 	//天梯分
 	this.BattleScore = BattleMgrObj.GetCharacterBattleScore(characterinfo.Characterid)
+	this.BattleRank = BattleMgrObj.GetCharacterBattleRank(characterinfo.Characterid)
 
 	//好友信息
 	this.MyFriends = NewFriends(characterinfo.Friends, characterinfo.FriendsRequest, this)

@@ -3,6 +3,7 @@ package gamescene1
 import (
 	"dq/conf"
 	"dq/datamsg"
+	"runtime"
 
 	//"dq/db"
 	"dq/log"
@@ -42,6 +43,9 @@ type GameScene1Agent struct {
 	Scenes     *utils.BeeMap
 	Players    *utils.BeeMap
 	Characters *utils.BeeMap
+
+	FirstUpdateTime int64 //上次更新时间
+	CurFrame        int32 //当前帧
 
 	wgScene sync.WaitGroup
 
@@ -201,7 +205,7 @@ func (a *GameScene1Agent) Init() {
 		}
 		//log.Info("scene succ:%d ", v.(*conf.SceneFileData).TypeID)
 		a.CreateScene(v.(*conf.SceneFileData), -1)
-		time.Sleep(time.Duration(33/len(allscene)) * time.Millisecond)
+		//time.Sleep(time.Duration(33/len(allscene)) * time.Millisecond)
 	}
 
 	//自己的更新
@@ -256,7 +260,14 @@ func (p CharacterBattleScoreInfoList) Less(i, j int) bool {
 	return p[i].BattleScore > p[j].BattleScore
 }
 
-func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid int32, groupcount int32, grouprule int32) {
+func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfd *conf.CopyMapFileData) {
+	if cmfd == nil {
+		return
+	}
+
+	cmfid := cmfd.NextSceneID
+	groupcount := cmfd.GroupCount
+	grouprule := cmfd.GroupRule
 
 	var newid = gamecore.GetCopyMapSceneID() //获取唯一ID
 
@@ -274,8 +285,8 @@ func (a *GameScene1Agent) PiPeiFuBen(players []*gamecore.CopyMapPlayer, cmfid in
 	//玩家进入地图
 	//进入新地图
 	doorway := conf.DoorWay{}
-	doorway.NextX = 15
-	doorway.NextY = 15
+	doorway.NextX = cmfd.X
+	doorway.NextY = cmfd.Y
 	doorway.NextSceneID = newid
 
 	sortdata := make(CharacterBattleScoreInfoList, 0)
@@ -334,14 +345,18 @@ func (a *GameScene1Agent) CreateScene(scenefile *conf.SceneFileData, typeid int3
 	}
 
 	scene := gamecore.CreateScene(scenefile, a, a)
+
 	scene.TypeID = typeid
 	a.Scenes.Set(typeid, scene)
-	a.wgScene.Add(1)
-	go func() {
-		scene.Update()
-		a.Scenes.Delete(typeid)
-		a.wgScene.Done()
-	}()
+
+	log.Info("create scene:%d %d", scene.TypeID, scene.DataFileID)
+
+	//	a.wgScene.Add(1)
+	//	go func() {
+	//		scene.Update()
+	//		a.Scenes.Delete(typeid)
+	//		a.wgScene.Done()
+	//	}()
 
 	return scene
 }
@@ -361,14 +376,61 @@ func (a *GameScene1Agent) ShowData2Http() {
 	go httpserver.ListenAndServe()
 }
 
+//处理sleep
+func (a *GameScene1Agent) DoSleep() {
+	sencond := time.Second
+	onetime := int64(1 / float64(20) * float64(sencond))
+	t2 := time.Now().UnixNano()
+
+	nexttime := a.FirstUpdateTime + onetime*int64(a.CurFrame)
+
+	sleeptime := nexttime - t2
+
+	if sleeptime > 0 {
+		time.Sleep(time.Duration(sleeptime))
+	} else {
+		log.Info("no sleep :%d   ", sleeptime/1000000)
+	}
+
+}
+
 //自己的更新
 func (a *GameScene1Agent) Update() {
+
+	a.FirstUpdateTime = time.Now().UnixNano()
+	//testadd := 0
 	for {
+		t1 := utils.GetCurTimeOfSecond()
+
 		a.CheckSceneCloseAndOpen()
-		time.Sleep(time.Duration(time.Second * 2))
+		scenes := a.Scenes.Items()
+		for k, v := range scenes {
+			v.(*gamecore.Scene).Update()
+
+			if v.(*gamecore.Scene).Quit == true {
+				a.Scenes.Delete(k)
+				log.Info("delete scene:%d %d", v.(*gamecore.Scene).TypeID, v.(*gamecore.Scene).DataFileID)
+			}
+		}
+		//		for i := 0; i < 10000000; i++ {
+		//			testadd++
+		//			testadd--
+		//			testadd++
+		//			testadd *= 2
+		//			testadd /= 2
+		//		}
+		t3 := utils.GetCurTimeOfSecond()
+
+		if t3-t1 >= 0.05 {
+			log.Info("time:%f runtime:%d", t3-t1, runtime.NumGoroutine())
+		}
+
+		//time.Sleep(time.Duration(time.Second * 2))
 		if a.IsClose {
 			break
 		}
+		a.CurFrame++
+		a.DoSleep()
 	}
 }
 
@@ -505,6 +567,7 @@ func (a *GameScene1Agent) PlayerChangeScene(player *gamecore.Player, doorway con
 	if player == nil {
 		return
 	}
+	log.Info("---PlayerChangeScene----")
 	dbdata := player.GetDBData()
 	if dbdata == nil {
 		return
@@ -817,18 +880,40 @@ func (a *GameScene1Agent) SendUnitInfo(unit *gamecore.Unit, player *gamecore.Pla
 	unitdata.AttributeStrength = unit.AttributeStrength
 	unitdata.AttributeAgility = unit.AttributeAgility
 	unitdata.AttributeIntelligence = unit.AttributeIntelligence
+
 	unitdata.Attack = unit.Attack
 	unitdata.AttackSpeed = unit.AttackSpeed
 	unitdata.AttackRange = unit.AttackRange
 	unitdata.MoveSpeed = float32(unit.MoveSpeed)
 	unitdata.MagicScale = unit.MagicScale
 	unitdata.MPRegain = unit.MPRegain
+
 	unitdata.PhysicalAmaor = unit.PhysicalAmaor
 	unitdata.PhysicalResist = unit.PhysicalResist
 	unitdata.MagicAmaor = unit.MagicAmaor
 	unitdata.StatusAmaor = unit.StatusAmaor
 	unitdata.Dodge = unit.Dodge
 	unitdata.HPRegain = unit.HPRegain
+
+	//原始数据
+	unitdata.RawAttributeStrength = unit.RawAttributeStrength
+	unitdata.RawAttributeAgility = unit.RawAttributeAgility
+	unitdata.RawAttributeIntelligence = unit.RawAttributeIntelligence
+
+	unitdata.RawAttack = unit.RawAttack
+	unitdata.RawAttackSpeed = unit.RawAttackSpeed
+	unitdata.RawAttackRange = unit.RawAttackRange
+	unitdata.RawMoveSpeed = float32(unit.RawMoveSpeed)
+	unitdata.RawMagicScale = unit.RawMagicScale
+	unitdata.RawMPRegain = unit.RawMPRegain
+
+	unitdata.RawPhysicalAmaor = unit.RawPhysicalAmaor
+	unitdata.RawPhysicalResist = unit.RawPhysicalResist
+	unitdata.RawMagicAmaor = unit.RawMagicAmaor
+	unitdata.RawStatusAmaor = unit.RawStatusAmaor
+	unitdata.RawDodge = unit.RawDodge
+	unitdata.RawHPRegain = unit.RawHPRegain
+
 	unitdata.AttributePrimary = int32(unit.AttributePrimary)
 	unitdata.DropItems = unit.NPCItemDropInfo
 	unitdata.RemainExperience = unit.RemainExperience
@@ -2111,6 +2196,11 @@ func (a *GameScene1Agent) DoChatInfo(data *protomsg.MsgBase) {
 			if v == nil {
 				continue
 			}
+			//有队伍 只发给队伍成员
+			if player.(*gamecore.Player).GroupID > 0 && player.(*gamecore.Player).GroupID != v.GroupID {
+				continue
+			}
+
 			v.SendMsgToClient("SC_ChatInfo", msg)
 		}
 

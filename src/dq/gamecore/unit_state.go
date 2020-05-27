@@ -1,7 +1,7 @@
 package gamecore
 
 import (
-	"dq/log"
+	//"dq/log"
 	//"dq/protobuf"
 	"dq/protobuf"
 	"dq/utils"
@@ -614,18 +614,17 @@ func (this *ChantState) Update(dt float64) {
 
 	if dotime/this.OneChantTime >= 1 {
 		this.IsDone = true
+		if this.ChantSkill != nil && this.ChantSkill.CastOverFreshCD == 1 {
+
+			this.Parent.FreshCDTime(this.ChantSkill)
+			//log.Info(" fresh skill cd ")
+		}
 	}
 
 }
 func (this *ChantState) OnEnd() {
-	//log.Info(" ChantState end%f", utils.GetCurTimeOfSecond())
+	//log.Info(" ChantState end")
 	this.OverCastBuf()
-
-	if this.ChantSkill != nil && this.ChantSkill.CastOverFreshCD == 1 {
-
-		this.Parent.FreshCDTime(this.ChantSkill)
-
-	}
 
 }
 
@@ -685,7 +684,7 @@ func (this *ChantState) OnStart() {
 		this.Parent.SetDirection(vec2d.Sub(targetpos, this.Parent.Body.Position))
 	}
 
-	log.Info(" ChantState start%f", utils.GetCurTimeOfSecond())
+	//log.Info(" ChantState start%f", utils.GetCurTimeOfSecond())
 
 	this.StartTime = utils.GetCurTimeOfSecond()
 	this.IsDoBullet = false
